@@ -878,11 +878,12 @@ def debug_solicitudes():
             'message': str(e)
         }), 500
 
-@app.route('/mi-perfil')
-def mi_perfil():
+@app.route('/perfil')
+def perfil():
     if 'usuario_id' not in session:
         return redirect(url_for('login'))
-    return render_template('mi-perfil.html')
+    return render_template('perfil.html')
+
 
 @app.route('/rutas')
 def rutas():
