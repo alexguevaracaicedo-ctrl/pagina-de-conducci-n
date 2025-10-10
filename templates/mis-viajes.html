@@ -2,38 +2,51 @@
 <html lang="es">
 
 <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width,initial-scale=1" />
-    <title>Mis Viajes - Transporte Águila</title>
-
-    <!-- Reusa tus estilos globales -->
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/transporte-mejorado.css') }}">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/mis-viajes.css') }}">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mis Viajes</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='mis_viajes.css') }}">
 </head>
 
 <body>
-    <div class="patron-fondo"></div>
-
-    <!-- Panel de usuario -->
-    <div class="area-usuario" id="area-usuario">
-        <div class="avatar-usuario" id="avatar-usuario"><span id="iniciales-usuario">US</span></div>
-        <div class="info-usuario">
-            <span class="nombre-usuario" id="nombre-display">Cargando...</span>
-            <span class="saludo-usuario" id="saludo-usuario">¡Bienvenido!</span>
+    <header class="mv-header">
+        <div class="mv-header-content">
+            <h1>🚌 Mis Viajes</h1>
+            <button class="mv-back-btn" onclick="window.location.href='/dashboard'">← Volver</button>
         </div>
+    </header>
 
-        <div class="menu-usuario">
-            <div class="opcion-menu" onclick="window.location.href='/perfil'">
-                <span class="icono-menu">👤</span>
-                <span>Mi Perfil</span>
-            </div>
-            <div class="opcion-menu" onclick="window.location.href='/mis-viajes'">
-                <span class="icono-menu">📋</span>
-                <span>Mis Viajes</span>
-            </div>
-            <div class="opcion-menu" onclick="cerrarSesion()">
-                <span class="icono-menu">🚪</span>
-                <span>Cerrar Sesión</span>
-            </div>
-
+    <main class="mv-main">
+        {% if viajes|length == 0 %}
+        <div class="mv-empty">
+            <h2>No tienes viajes registrados todavía</h2>
+            <p>Cuando realices una reserva, aparecerá aquí tu historial de viajes.</p>
         </div>
+        {% else %}
+        <section class="mv-grid">
+            {% for v in viajes %}
+            <article class="mv-card">
+                <header class="mv-card-header">
+                    <h3>{{ v.origen }} → {{ v.destino }}</h3>
+                    <span class="mv-status {{ v.estado|lower }}">{{ v.estado }}</span>
+                </header>
+
+                <div class="mv-card-body">
+                    <p><strong>Fecha:</strong> {{ v.fecha_servicio }}</p>
+                    <p><strong>Hora:</strong> {{ v.hora_servicio }}</p>
+                    <p><strong>Vehículo:</strong> {{ v.tipo_vehiculo }}</p>
+                    <p><strong>Precio:</strong> {{ v.precio_final or v.precio_estimado or '—' }} COP</p>
+                    <p class="mv-code"><em>Código: {{ v.codigo_solicitud }}</em></p>
+                </div>
+            </article>
+            {% endfor %}
+        </section>
+        {% endif %}
+    </main>
+
+    <footer class="mv-footer">
+        <p>Transporte Águila © 2025</p>
+    </footer>
+</body>
+
+</html>

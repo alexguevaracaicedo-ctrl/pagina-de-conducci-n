@@ -1,6 +1,9 @@
 from flask import Flask, request, jsonify, session, render_template, redirect, url_for
 from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.serving import run_simple
+import os
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+DATABASE = os.path.join(BASE_DIR, 'transporte_aguila.db')
 import sqlite3
 import secrets
 import re
@@ -951,8 +954,12 @@ def mis_viajes():
 
 
 
+
 if __name__ == '__main__':
-    init_db()
+    init_db() 
+
+
+
     
     if not os.path.exists('templates'):
         os.makedirs('templates')

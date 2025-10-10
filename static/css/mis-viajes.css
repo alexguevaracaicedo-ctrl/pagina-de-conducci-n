@@ -1,72 +1,175 @@
-.contenedor {
-    max-width: 1000px;
-    margin: 0 auto;
-    padding: 30px;
+/* ======== ESTILOS BASE ======== */
+* {
+    box-sizing: border-box;
 }
 
-.titulo {
-    text-align: center;
-    color: #004d40;
-    margin-bottom: 25px;
+body {
+    margin: 0;
+    font-family: "Poppins", sans-serif;
+    background-color: #f7f9fb;
+    color: #222;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
 }
 
-.grilla-viajes {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-    gap: 20px;
+/* ======== ENCABEZADO ======== */
+.mv-header {
+    background: linear-gradient(135deg, #007bff, #004aad);
+    color: #fff;
+    padding: 1rem 2rem;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
 }
 
-.tarjeta-viaje {
-    background: #fff;
-    border-radius: 10px;
-    padding: 20px;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
-    transition: transform 0.2s;
-}
-
-.tarjeta-viaje:hover {
-    transform: translateY(-5px);
-}
-
-.encabezado-viaje {
+.mv-header-content {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 10px;
+    max-width: 1100px;
+    margin: auto;
 }
 
-.encabezado-viaje h3 {
+.mv-header h1 {
     margin: 0;
-    color: #00695c;
+    font-size: 1.8rem;
 }
 
-.estado {
-    padding: 4px 10px;
-    border-radius: 5px;
-    text-transform: capitalize;
-    font-size: 0.9rem;
+.mv-back-btn {
+    background-color: #fff;
+    color: #007bff;
+    border: none;
+    padding: 0.6rem 1.2rem;
+    border-radius: 6px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.mv-back-btn:hover {
+    background-color: #007bff;
     color: #fff;
 }
 
-.estado.pendiente {
-    background: #ffca28;
+/* ======== CUERPO ======== */
+.mv-main {
+    flex: 1;
+    max-width: 1000px;
+    margin: 2rem auto;
+    padding: 0 1rem;
+}
+
+/* ======== GRID DE TARJETAS ======== */
+.mv-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1.2rem;
+}
+
+/* ======== TARJETA ======== */
+.mv-card {
+    background-color: #fff;
+    border-radius: 12px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+    overflow: hidden;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.mv-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+}
+
+.mv-card-header {
+    background-color: #eef3ff;
+    padding: 0.9rem 1rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.mv-card-header h3 {
+    margin: 0;
+    color: #0056d2;
+    font-size: 1.1rem;
+}
+
+.mv-status {
+    padding: 0.3rem 0.8rem;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    text-transform: capitalize;
+}
+
+.mv-status.pendiente {
+    background: #fff3cd;
+    color: #856404;
+}
+
+.mv-status.aceptada {
+    background: #d4edda;
+    color: #155724;
+}
+
+.mv-status.en_curso {
+    background: #d1ecf1;
+    color: #0c5460;
+}
+
+.mv-status.completada {
+    background: #cce5ff;
+    color: #004085;
+}
+
+.mv-status.cancelada {
+    background: #f8d7da;
+    color: #721c24;
+}
+
+.mv-card-body {
+    padding: 1rem 1.2rem;
+}
+
+.mv-card-body p {
+    margin: 0.3rem 0;
+    color: #333;
+}
+
+.mv-card-body strong {
     color: #000;
 }
 
-.estado.completada {
-    background: #66bb6a;
+.mv-code {
+    font-size: 0.85rem;
+    color: #777;
+    margin-top: 0.6rem;
 }
 
-.estado.cancelada {
-    background: #ef5350;
-}
-
-.detalles-viaje p {
-    margin: 5px 0;
-}
-
-.sin-viajes {
+/* ======== ESTADO VACÍO ======== */
+.mv-empty {
     text-align: center;
-    color: #666;
-    font-style: italic;
+    margin-top: 4rem;
+    background: #fff;
+    padding: 2rem;
+    border-radius: 12px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+}
+
+.mv-empty h2 {
+    margin-bottom: 0.5rem;
+    color: #004aad;
+}
+
+.mv-empty p {
+    color: #555;
+}
+
+/* ======== PIE DE PÁGINA ======== */
+.mv-footer {
+    text-align: center;
+    background: #eef3f7;
+    color: #555;
+    padding: 1rem;
+    font-size: 0.9rem;
+    border-top: 1px solid #dce3ea;
 }
