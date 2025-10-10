@@ -878,7 +878,12 @@ def debug_solicitudes():
             'message': str(e)
         }), 500
 
-# Mantener las rutas existentes
+@app.route('/mi-perfil')
+def mi_perfil():
+    if 'usuario_id' not in session:
+        return redirect(url_for('login'))
+    return render_template('mi-perfil.html')
+
 @app.route('/rutas')
 def rutas():
     if 'usuario_id' not in session:
