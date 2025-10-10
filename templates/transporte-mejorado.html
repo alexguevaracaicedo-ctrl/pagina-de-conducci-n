@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Transporte Águila S.A.S.</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/transporte-mejorado.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/area-usuario.css') }}">
+</head>
+
+<body>
+    <div class="patron-fondo"></div>
+
+    <!-- Área de usuario -->
+    <div class="area-usuario" id="area-usuario">
+        <div class="avatar-usuario" id="avatar-usuario">
+            <span id="iniciales-usuario">US</span>
+        </div>
+        <div class="info-usuario">
+            <span class="nombre-usuario" id="nombre-display">Cargando...</span>
+            <span class="saludo-usuario" id="saludo-usuario">¡Bienvenido!</span>
+        </div>
+
+        <div class="menu-usuario">
+            <div class="opcion-menu" onclick="window.location.href='/perfil'">
+                <span class="icono-menu">👤</span>
+                <span>Mi Perfil</span>
+            </div>
+            <div class="opcion-menu" onclick="verHistorial()">
+                <span class="icono-menu">📋</span>
+                <span>Mis Viajes</span>
+            </div>
+            <div class="opcion-menu" onclick="cerrarSesion()">
+                <span class="icono-menu">🚪</span>
+                <span>Cerrar Sesión</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- navegacion -->
+    <nav class="barra-navegacion">
+        <div class="contenido-nav">
+            <div class="logotipo">
+                <div class="icono-logo">🦅</div>
+                <span>Águila</span>
+            </div>
+
+            <ul class="enlaces-nav" id="enlaces-nav">
+                <li><a href="/dashboard" class="enlace-nav activo">Inicio</a></li>
+                <li><a href="/nosotros" class="enlace-nav">Nosotros</a></li>
+                <li><a href="/servicios" class="enlace-nav">Servicios</a></li>
+                <li><a href="/rutas" class="enlace-nav">Rutas</a></li>
+                <li><a href="/reservar" class="enlace-nav">Reservar</a></li>
+            </ul>
+
+            <button class="boton-menu" id="boton-menu">☰</button>
+        </div>
+    </nav>
+
+    <main>
+        <!-- página de inicio -->
+        <section id="pagina-inicio" class="pagina">
+            <!-- sección principal -->
+            <section class="principal">
+                <div class="contenedor">
+                    <div class="contenido-principal aparecer">
+                        <h1>Tu viaje, nuestra misión</h1>
+                        <p>Conectamos rutas seguras y confiables por todo el Chocó con la mejor tecnología y servicio
+                            personalizado.</p>
+                        <div class="botones-principal">
+                            <a href="/servicios" class="boton boton-primario">
+                                🚌 Ver Servicios
+                            </a>
+                            <a href="/rutas" class="boton boton-secundario">
+                                📍 Conocer Rutas
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- sección de rutas -->
+            <section class="seccion">
+                <div class="contenedor">
+                    <div class="titulo-seccion">
+                        <h2>Rutas Populares</h2>
+                        <p>Descubre nuestras conexiones más frecuentes con horarios flexibles y tarifas competitivas</p>
+                    </div>
+
+                    <div class="grilla-rutas">
+                        <div class="tarjeta-ruta aparecer">
+                            <div class="encabezado-ruta">
+                                <div class="icono-ruta">🚌</div>
+                                <div class="informacion-ruta">
+                                    <h3>Quibdó ↔ Tadó</h3>
+                                    <span class="tipo-ruta">Popular</span>
+                                </div>
+                            </div>
+                            <div class="detalles-ruta">
+                                <div class="detalle-ruta">
+                                    <svg viewBox="0 0 24 24" fill="currentColor">
+                                        <path
+                                            d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" />
+                                    </svg>
+                                    <span>Salida diaria 6:00 a.m.</span>
+                                </div>
+                                <div class="detalle-ruta">
+                                    <svg viewBox="0 0 24 24" fill="currentColor">
+                                        <path
+                                            d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+                                    </svg>
+                                    <span>4.8⭐ Valoración</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="tarjeta-ruta aparecer">
+                            <div class="encabezado-ruta">
+                                <div class="icono-ruta">🚍</div>
+                                <div class="informacion-ruta">
+                                    <h3>Quibdó ↔ Pereira</h3>
+                                    <span class="tipo-ruta">Intermunicipal</span>
+                                </div>
+                            </div>
+                            <div class="detalles-ruta">
+                                <div class="detalle-ruta">
+                                    <svg viewBox="0 0 24 24" fill="currentColor">
+                                        <path
+                                            d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" />
+                                    </svg>
+                                    <span>Salida diaria 7:00 a.m.</span>
+                                </div>
+                                <div class="detalle-ruta">
+                                    <svg viewBox="0 0 24 24" fill="currentColor">
+                                        <path
+                                            d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+                                    </svg>
+                                    <span>4.9⭐ Valoración</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="tarjeta-ruta aparecer">
+                            <div class="encabezado-ruta">
+                                <div class="icono-ruta">🚐</div>
+                                <div class="informacion-ruta">
+                                    <h3>Quibdó ↔ Istmina</h3>
+                                    <span class="tipo-ruta">Frecuente</span>
+                                </div>
+                            </div>
+                            <div class="detalles-ruta">
+                                <div class="detalle-ruta">
+                                    <svg viewBox="0 0 24 24" fill="currentColor">
+                                        <path
+                                            d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" />
+                                    </svg>
+                                    <span>4 salidas diarias</span>
+                                </div>
+                                <div class="detalle-ruta">
+                                    <svg viewBox="0 0 24 24" fill="currentColor">
+                                        <path
+                                            d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+                                    </svg>
+                                    <span>4.7⭐ Valoración</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="titulo-seccion margen-superior-grande">
+                        <h2>Nuestra Flota</h2>
+                        <p>Vehículos modernos y seguros para cada tipo de viaje</p>
+                    </div>
+
+                    <div class="grilla-flota">
+                        <div class="elemento-flota aparecer">
+                            <div class="icono-flota">🚌</div>
+                            <h3>Buses</h3>
+                            <p>Para rutas intermunicipales con máxima comodidad</p>
+                        </div>
+                        <div class="elemento-flota aparecer">
+                            <div class="icono-flota">🚐</div>
+                            <h3>Microbuses</h3>
+                            <p>Ideales para grupos y distancias medias</p>
+                        </div>
+                        <div class="elemento-flota aparecer">
+                            <div class="icono-flota">🚙</div>
+                            <h3>4x4</h3>
+                            <p>Para zonas de difícil acceso y terrenos complicados</p>
+                        </div>
+                        <div class="elemento-flota aparecer">
+                            <div class="icono-flota">🏍️</div>
+                            <h3>Motos</h3>
+                            <p>Rápido y económico para recorridos urbanos</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </section>
+    </main>
+
+    <footer>
+        <div class="contenedor">
+            <p>&copy; 2024 Transporte Águila S.A.S. - Conectando el Chocó con seguridad y confianza</p>
+        </div>
+    </footer>
+
+    <script>
+
+        document.getElementById('boton-menu').addEventListener('click', function () {
+            document.getElementById('enlaces-nav').classList.toggle('activo');
+        });
+
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('aparecer');
+                }
+            });
+        });
+
+        document.querySelectorAll('.aparecer').forEach(el => {
+            observer.observe(el);
+        });
+
+
+        async function obtenerDatosUsuario() {
+            try {
+                const response = await fetch('/api/usuario');
+                const data = await response.json();
+
+                if (data.success) {
+                    return data.usuario;
+                } else {
+
+                    window.location.href = '/login';
+                    return null;
+                }
+            } catch (error) {
+                console.error('Error obteniendo datos del usuario:', error);
+                return null;
+            }
+        }
+
+        function generarColorAleatorio() {
+            const colores = [
+                '#6366f1', '#4f46e5', '#8b5cf6', '#06b6d4',
+                '#22c55e', '#f59e0b', '#ef4444', '#8b5cf6'
+            ];
+            return colores[Math.floor(Math.random() * colores.length)];
+        }
+
+        function obtenerIniciales(nombre, apellido) {
+            const inicial1 = nombre ? nombre.charAt(0).toUpperCase() : 'U';
+            const inicial2 = apellido ? apellido.charAt(0).toUpperCase() : 'S';
+            return inicial1 + inicial2;
+        }
+
+        async function configurarAreaUsuario() {
+            const datos = await obtenerDatosUsuario();
+            if (!datos) return;
+
+            const iniciales = obtenerIniciales(datos.nombre, datos.apellido);
+            const color = generarColorAleatorio();
+
+
+            document.getElementById('iniciales-usuario').textContent = iniciales;
+            document.getElementById('nombre-display').textContent = `${datos.nombre} ${datos.apellido}`;
+            document.getElementById('avatar-usuario').style.background = `linear-gradient(135deg, ${color}, ${color}dd)`;
+
+
+            const hora = new Date().getHours();
+            let saludo = '¡Bienvenido!';
+            if (hora < 12) saludo = '¡Buenos días!';
+            else if (hora < 18) saludo = '¡Buenas tardes!';
+            else saludo = '¡Buenas noches!';
+
+            document.getElementById('saludo-usuario').textContent = saludo;
+        }
+
+        function verPerfil() {
+            alert('Funcionalidad de perfil - próximamente');
+        }
+
+        function verHistorial() {
+            alert('Funcionalidad de historial - próximamente');
+        }
+
+        async function cerrarSesion() {
+            if (confirm('¿Estás seguro de que deseas cerrar sesión?')) {
+                try {
+                    await fetch('/api/logout', { method: 'POST' });
+                    window.location.href = '/login';
+                } catch (error) {
+                    console.error('Error cerrando sesión:', error);
+                    window.location.href = '/login';
+                }
+            }
+        }
+
+
+        document.addEventListener('DOMContentLoaded', function () {
+            configurarAreaUsuario();
+        });
+    </script>
+</body>
+
+</html>

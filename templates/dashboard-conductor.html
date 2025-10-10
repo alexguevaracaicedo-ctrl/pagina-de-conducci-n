@@ -1,0 +1,786 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel de Conductor - Transporte Águila S.A.S.</title>
+    <link href="{{ url_for('static', filename='css/transporte-mejorado.css') }}" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/area-usuario.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard-conductor.css') }}">
+</head>
+
+<body>
+    <div class="patron-fondo"></div>
+
+    <!-- Área de usuario conductor -->
+    <div class="area-usuario" id="area-usuario">
+        <div class="avatar-usuario" id="avatar-usuario">
+            <span id="iniciales-usuario">CD</span>
+        </div>
+        <div class="info-usuario">
+            <span class="nombre-usuario" id="nombre-display">Cargando...</span>
+            <span class="saludo-usuario">🚗 Conductor</span>
+        </div>
+        <div class="menu-usuario">
+            <div class="opcion-menu" onclick="window.location.href='/perfil'">
+                <span class="icono-menu">👤</span>
+                <span>Mi Perfil</span>
+            </div>
+            <div class="opcion-menu" onclick="cerrarSesion()">
+                <span class="icono-menu">🚪</span>
+                <span>Cerrar Sesión</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Navegación -->
+    <nav class="barra-navegacion">
+        <div class="contenido-nav">
+            <div class="logotipo">
+                <div class="icono-logo">🦅</div>
+                <span>Águila Conductor</span>
+            </div>
+
+            <ul class="enlaces-nav" id="enlaces-nav">
+                <li><a href="/dashboard-conductor" class="enlace-nav activo">Panel</a></li>
+                <li><a href="#" class="enlace-nav" onclick="mostrarSeccion('solicitudes')">Solicitudes</a></li>
+                <li><a href="#" class="enlace-nav" onclick="mostrarSeccion('mis-viajes')">MisViajes</a></li>
+                <li><a href="#" class="enlace-nav" onclick="mostrarSeccion('estadisticas')">Estadísticas</a></li>
+            </ul>
+
+            <button class="boton-menu" id="boton-menu">☰</button>
+        </div>
+    </nav>
+
+    <main>
+        <!-- Sección: Resumen del Dashboard -->
+        <section id="seccion-resumen" class="seccion-dashboard">
+            <div class="contenedor">
+                <div class="titulo-seccion">
+                    <h1>Panel de Control</h1>
+                    <p>Gestiona tus servicios y solicitudes de transporte</p>
+                </div>
+
+                <!-- Tarjetas de estadísticas rápidas -->
+                <div class="grilla-estadisticas-rapidas">
+                    <div class="tarjeta-stat aparecer">
+                        <div class="icono-stat">📋</div>
+                        <div class="info-stat">
+                            <span class="numero-stat" id="stat-pendientes">0</span>
+                            <span class="etiqueta-stat">Solicitudes Pendientes</span>
+                        </div>
+                    </div>
+
+                    <div class="tarjeta-stat aparecer">
+                        <div class="icono-stat">🚗</div>
+                        <div class="info-stat">
+                            <span class="numero-stat" id="stat-aceptadas">0</span>
+                            <span class="etiqueta-stat">Viajes Aceptados</span>
+                        </div>
+                    </div>
+
+                    <div class="tarjeta-stat aparecer">
+                        <div class="icono-stat">✅</div>
+                        <div class="info-stat">
+                            <span class="numero-stat" id="stat-completados">0</span>
+                            <span class="etiqueta-stat">Viajes Completados</span>
+                        </div>
+                    </div>
+
+                    <div class="tarjeta-stat aparecer">
+                        <div class="icono-stat">⭐</div>
+                        <div class="info-stat">
+                            <span class="numero-stat" id="stat-calificacion">0.0</span>
+                            <span class="etiqueta-stat">Calificación Promedio</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Acciones rápidas -->
+                <div class="acciones-rapidas">
+                    <button class="boton boton-primario" onclick="mostrarSeccion('solicitudes')">
+                        📋 Ver Solicitudes Pendientes
+                    </button>
+                    <button class="boton boton-secundario" onclick="mostrarSeccion('mis-viajes')">
+                        🚗 Mis Viajes Programados
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Sección: Solicitudes Pendientes -->
+        <section id="seccion-solicitudes" class="seccion-dashboard oculto">
+            <div class="contenedor">
+                <div class="titulo-seccion">
+                    <h1>Solicitudes Pendientes</h1>
+                    <p>Revisa y acepta solicitudes de servicio disponibles</p>
+                </div>
+
+                <div class="filtros-solicitudes">
+                    <select id="filtro-tipo-vehiculo" onchange="filtrarSolicitudes()">
+                        <option value="">Todos los vehículos</option>
+                        <option value="moto">Moto</option>
+                        <option value="carro">Carro</option>
+                        <option value="bus">Bus</option>
+                        <option value="4x4">4x4</option>
+                    </select>
+
+                    <button class="boton boton-secundario" onclick="cargarSolicitudesPendientes()">
+                        🔄 Actualizar
+                    </button>
+                </div>
+
+                <div id="lista-solicitudes" class="grilla-solicitudes">
+                    <div class="mensaje-cargando">
+                        <div class="spinner"></div>
+                        <p>Cargando solicitudes...</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Sección: Mis Viajes -->
+        <section id="seccion-mis-viajes" class="seccion-dashboard oculto">
+            <div class="contenedor">
+                <div class="titulo-seccion">
+                    <h1>Mis Viajes</h1>
+                    <p>Servicios que has aceptado y completado</p>
+                </div>
+
+                <div class="tabs-viajes">
+                    <button class="tab-btn activo" onclick="cambiarTabViajes('aceptados')">Aceptados</button>
+                    <button class="tab-btn" onclick="cambiarTabViajes('en-curso')">En Curso</button>
+                    <button class="tab-btn" onclick="cambiarTabViajes('completados')">Completados</button>
+                </div>
+
+                <div id="lista-mis-viajes" class="grilla-viajes">
+                    <div class="mensaje-vacio">
+                        <div class="icono-vacio">📭</div>
+                        <h3>No tienes viajes en esta categoría</h3>
+                        <p>Los viajes que aceptes aparecerán aquí</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Sección: Estadísticas -->
+        <section id="seccion-estadisticas" class="seccion-dashboard oculto">
+            <div class="contenedor">
+                <div class="titulo-seccion">
+                    <h1>Mis Estadísticas</h1>
+                    <p>Rendimiento y métricas de tu actividad como conductor</p>
+                </div>
+
+                <div class="grilla-estadisticas-detalladas">
+                    <div class="tarjeta-estadistica aparecer">
+                        <h3>Resumen General</h3>
+                        <div class="contenido-estadistica">
+                            <div class="item-estadistica">
+                                <span class="label-est">Viajes totales:</span>
+                                <span class="valor-est" id="est-total">0</span>
+                            </div>
+                            <div class="item-estadistica">
+                                <span class="label-est">Tasa de aceptación:</span>
+                                <span class="valor-est" id="est-tasa">0%</span>
+                            </div>
+                            <div class="item-estadistica">
+                                <span class="label-est">Calificación promedio:</span>
+                                <span class="valor-est" id="est-calif">0.0 ⭐</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="tarjeta-estadistica aparecer">
+                        <h3>Este Mes</h3>
+                        <div class="contenido-estadistica">
+                            <div class="item-estadistica">
+                                <span class="label-est">Viajes completados:</span>
+                                <span class="valor-est" id="est-mes-viajes">0</span>
+                            </div>
+                            <div class="item-estadistica">
+                                <span class="label-est">Ingresos estimados:</span>
+                                <span class="valor-est" id="est-mes-ingresos">$0</span>
+                            </div>
+                            <div class="item-estadistica">
+                                <span class="label-est">Horas de servicio:</span>
+                                <span class="valor-est" id="est-mes-horas">0h</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="tarjeta-estadistica aparecer">
+                        <h3>Rutas Populares</h3>
+                        <div class="contenido-estadistica">
+                            <div class="lista-rutas-populares" id="rutas-populares">
+                                <p class="texto-secundario">No hay datos suficientes</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Modal para aceptar solicitud -->
+    <div id="modal-aceptar" class="modal oculto">
+        <div class="modal-contenido">
+            <div class="modal-header">
+                <h3>Aceptar Solicitud</h3>
+                <button class="btn-cerrar-modal" onclick="cerrarModal()">×</button>
+            </div>
+
+            <div class="modal-body">
+                <div id="detalles-solicitud-modal"></div>
+
+                <div class="grupo-input">
+                    <label for="precio-final">Precio Final del Servicio *</label>
+                    <input type="number" id="precio-final" placeholder="Ingrese el precio" min="0" step="1000" required>
+                    <small>El precio sugerido se muestra como referencia</small>
+                </div>
+
+                <div class="grupo-input">
+                    <label>
+                        <input type="checkbox" id="confirmar-aceptacion" required>
+                        Confirmo que puedo realizar este servicio en la fecha y hora indicadas
+                    </label>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button class="boton boton-secundario" onclick="cerrarModal()">Cancelar</button>
+                <button class="boton boton-primario" onclick="confirmarAceptacion()">Aceptar Solicitud</button>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <div class="contenedor">
+            <p>&copy; 2024 Transporte Águila S.A.S. - Panel de Conductor</p>
+        </div>
+    </footer>
+
+    <script>
+        let solicitudSeleccionada = null;
+        let todasLasSolicitudes = [];
+        let tabViajesActual = 'aceptados';
+
+        document.addEventListener('DOMContentLoaded', function () {
+            configurarAreaUsuario();
+            cargarEstadisticasRapidas();
+            cargarSolicitudesPendientes();
+        });
+
+
+        async function configurarAreaUsuario() {
+            try {
+                const response = await fetch('/api/usuario');
+                const data = await response.json();
+
+                if (data.success) {
+                    const usuario = data.usuario;
+                    const iniciales = `${usuario.nombre.charAt(0)}${usuario.apellido.charAt(0)}`.toUpperCase();
+                    const color = generarColor(usuario.nombre + usuario.apellido);
+
+                    document.getElementById('iniciales-usuario').textContent = iniciales;
+                    document.getElementById('nombre-display').textContent = `${usuario.nombre} ${usuario.apellido}`;
+                    document.getElementById('avatar-usuario').style.background = `linear-gradient(135deg, ${color}, ${color}dd)`;
+                } else {
+                    window.location.href = '/login';
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                window.location.href = '/login';
+            }
+        }
+
+
+        async function cargarEstadisticasRapidas() {
+            try {
+                const [solicitudesResp, misViajesResp] = await Promise.all([
+                    fetch('/api/solicitudes-pendientes'),
+                    fetch('/api/mis-solicitudes-conductor')
+                ]);
+
+                const solicitudes = await solicitudesResp.json();
+                const misViajes = await misViajesResp.json();
+
+                if (solicitudes.success) {
+                    document.getElementById('stat-pendientes').textContent = solicitudes.solicitudes.length;
+                }
+
+                if (misViajes.success) {
+                    const aceptadas = misViajes.solicitudes.filter(s => s.estado === 'aceptada').length;
+                    const completadas = misViajes.solicitudes.filter(s => s.estado === 'completada').length;
+
+                    document.getElementById('stat-aceptadas').textContent = aceptadas;
+                    document.getElementById('stat-completados').textContent = completadas;
+                }
+            } catch (error) {
+                console.error('Error cargando estadísticas:', error);
+            }
+        }
+
+
+        async function cargarSolicitudesPendientes() {
+            const container = document.getElementById('lista-solicitudes');
+            container.innerHTML = '<div class="mensaje-cargando"><div class="spinner"></div><p>Cargando solicitudes...</p></div>';
+
+            try {
+                const response = await fetch('/api/solicitudes-pendientes');
+                const data = await response.json();
+
+                if (data.success) {
+                    todasLasSolicitudes = data.solicitudes;
+                    mostrarSolicitudes(todasLasSolicitudes);
+                } else {
+                    container.innerHTML = '<div class="mensaje-error">Error al cargar solicitudes</div>';
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                container.innerHTML = '<div class="mensaje-error">Error de conexión</div>';
+            }
+        }
+
+
+        function mostrarSolicitudes(solicitudes) {
+            const container = document.getElementById('lista-solicitudes');
+
+            if (solicitudes.length === 0) {
+                container.innerHTML = `
+                    <div class="mensaje-vacio">
+                        <div class="icono-vacio">📭</div>
+                        <h3>No hay solicitudes pendientes</h3>
+                        <p>Las nuevas solicitudes aparecerán aquí automáticamente</p>
+                    </div>
+                `;
+                return;
+            }
+
+            let html = '';
+            solicitudes.forEach(solicitud => {
+                const fecha = new Date(solicitud.fecha_servicio);
+                const fechaFormateada = fecha.toLocaleDateString('es-CO', {
+                    weekday: 'long',
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric'
+                });
+
+                html += `
+                    <div class="tarjeta-solicitud aparecer">
+                        <div class="encabezado-solicitud">
+                            <div class="codigo-solicitud">#${solicitud.codigo_solicitud}</div>
+                            <div class="tipo-vehiculo-badge ${solicitud.tipo_vehiculo}">${solicitud.tipo_vehiculo.toUpperCase()}</div>
+                        </div>
+
+                        <div class="ruta-solicitud">
+                            <div class="punto-origen">
+                                <span class="icono-punto">📍</span>
+                                <span class="lugar">${solicitud.origen}</span>
+                            </div>
+                            <div class="linea-ruta"></div>
+                            <div class="punto-destino">
+                                <span class="icono-punto">🎯</span>
+                                <span class="lugar">${solicitud.destino}</span>
+                            </div>
+                        </div>
+
+                        <div class="detalles-solicitud">
+                            <div class="detalle-item">
+                                <span class="icono-detalle">📅</span>
+                                <span>${fechaFormateada}</span>
+                            </div>
+                            <div class="detalle-item">
+                                <span class="icono-detalle">⏰</span>
+                                <span>${solicitud.hora_servicio}</span>
+                            </div>
+                            <div class="detalle-item">
+                                <span class="icono-detalle">👥</span>
+                                <span>${solicitud.numero_pasajeros} pasajero${solicitud.numero_pasajeros > 1 ? 's' : ''}</span>
+                            </div>
+                            <div class="detalle-item">
+                                <span class="icono-detalle">💰</span>
+                                <span class="precio-estimado">${solicitud.precio_estimado.toLocaleString()}</span>
+                            </div>
+                        </div>
+
+                        ${solicitud.observaciones ? `
+                            <div class="observaciones">
+                                <strong>Observaciones:</strong> ${solicitud.observaciones}
+                            </div>
+                        ` : ''}
+
+                        <div class="info-cliente">
+                            <span class="icono-cliente">👤</span>
+                            <span>${solicitud.cliente_nombre}</span>
+                            <span class="separador">•</span>
+                            <span>📞 ${solicitud.cliente_telefono}</span>
+                        </div>
+
+                        <div class="acciones-solicitud">
+                            <button class="boton boton-primario" onclick='abrirModalAceptar(${JSON.stringify(solicitud)})'>
+                                ✓ Aceptar Solicitud
+                            </button>
+                        </div>
+                    </div>
+                `;
+            });
+
+            container.innerHTML = html;
+        }
+
+
+        function filtrarSolicitudes() {
+            const filtroTipo = document.getElementById('filtro-tipo-vehiculo').value;
+
+            if (!filtroTipo) {
+                mostrarSolicitudes(todasLasSolicitudes);
+                return;
+            }
+
+            const filtradas = todasLasSolicitudes.filter(s => s.tipo_vehiculo === filtroTipo);
+            mostrarSolicitudes(filtradas);
+        }
+
+
+        function abrirModalAceptar(solicitud) {
+            solicitudSeleccionada = solicitud;
+
+            const fecha = new Date(solicitud.fecha_servicio);
+            const fechaFormateada = fecha.toLocaleDateString('es-CO', {
+                weekday: 'long',
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+            });
+
+            document.getElementById('detalles-solicitud-modal').innerHTML = `
+                <div class="resumen-solicitud-modal">
+                    <h4>Resumen del Servicio</h4>
+                    <div class="item-resumen">
+                        <strong>Código:</strong> #${solicitud.codigo_solicitud}
+                    </div>
+                    <div class="item-resumen">
+                        <strong>Ruta:</strong> ${solicitud.origen} → ${solicitud.destino}
+                    </div>
+                    <div class="item-resumen">
+                        <strong>Fecha:</strong> ${fechaFormateada}
+                    </div>
+                    <div class="item-resumen">
+                        <strong>Hora:</strong> ${solicitud.hora_servicio}
+                    </div>
+                    <div class="item-resumen">
+                        <strong>Pasajeros:</strong> ${solicitud.numero_pasajeros}
+                    </div>
+                    <div class="item-resumen">
+                        <strong>Cliente:</strong> ${solicitud.cliente_nombre}
+                    </div>
+                    <div class="item-resumen">
+                        <strong>Teléfono:</strong> ${solicitud.cliente_telefono}
+                    </div>
+                    <div class="item-resumen precio-sugerido">
+                        <strong>Precio Sugerido:</strong> ${solicitud.precio_estimado.toLocaleString()}
+                    </div>
+                </div>
+            `;
+
+            document.getElementById('precio-final').value = solicitud.precio_estimado;
+            document.getElementById('modal-aceptar').classList.remove('oculto');
+            document.getElementById('modal-aceptar').classList.add('visible');
+        }
+
+
+        function cerrarModal() {
+            document.getElementById('modal-aceptar').classList.remove('visible');
+            setTimeout(() => {
+                document.getElementById('modal-aceptar').classList.add('oculto');
+                document.getElementById('confirmar-aceptacion').checked = false;
+                solicitudSeleccionada = null;
+            }, 300);
+        }
+        async function cargarSolicitudesPendientes() {
+            const container = document.getElementById('lista-solicitudes');
+            container.innerHTML = '<div class="mensaje-cargando"><div class="spinner"></div><p>Cargando solicitudes...</p></div>';
+
+            try {
+                console.log('Iniciando carga de solicitudes...');
+                const response = await fetch('/api/solicitudes-pendientes');
+                console.log('Response status:', response.status);
+
+                const data = await response.json();
+                console.log('Data recibida:', data);
+
+                if (data.success) {
+                    console.log('Número de solicitudes:', data.solicitudes.length);
+                    todasLasSolicitudes = data.solicitudes;
+                    mostrarSolicitudes(todasLasSolicitudes);
+                } else {
+                    console.error('Error en data.success:', data.message);
+                    container.innerHTML = `<div class="mensaje-error">Error: ${data.message || 'Error al cargar solicitudes'}</div>`;
+                }
+            } catch (error) {
+                console.error('Error completo:', error);
+                container.innerHTML = `<div class="mensaje-error">Error de conexión: ${error.message}</div>`;
+            }
+        }
+
+
+        async function confirmarAceptacion() {
+            const precioFinal = document.getElementById('precio-final').value;
+            const confirmado = document.getElementById('confirmar-aceptacion').checked;
+
+            if (!precioFinal || precioFinal <= 0) {
+                alert('Por favor ingrese un precio válido');
+                return;
+            }
+
+            if (!confirmado) {
+                alert('Debe confirmar que puede realizar el servicio');
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/aceptar-solicitud', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        solicitud_id: solicitudSeleccionada.id,
+                        precio_final: parseInt(precioFinal)
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    mostrarNotificacion('¡Solicitud aceptada exitosamente!', 'exito');
+                    cerrarModal();
+                    cargarSolicitudesPendientes();
+                    cargarEstadisticasRapidas();
+                } else {
+                    mostrarNotificacion(data.message, 'error');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                mostrarNotificacion('Error al procesar la solicitud', 'error');
+            }
+        }
+
+
+        function mostrarSeccion(seccion) {
+
+            document.querySelectorAll('.seccion-dashboard').forEach(s => {
+                s.classList.add('oculto');
+            });
+
+
+            document.querySelectorAll('.enlace-nav').forEach(link => {
+                link.classList.remove('activo');
+            });
+
+
+            const seccionElemento = document.getElementById(`seccion-${seccion}`);
+            if (seccionElemento) {
+                seccionElemento.classList.remove('oculto');
+            }
+
+
+            if (seccion === 'solicitudes') {
+                cargarSolicitudesPendientes();
+            } else if (seccion === 'mis-viajes') {
+                cargarMisViajes();
+            }
+        }
+
+
+        function cambiarTabViajes(tab) {
+            tabViajesActual = tab;
+
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('activo');
+            });
+
+            event.target.classList.add('activo');
+            cargarMisViajes();
+        }
+        async function cargarSolicitudesPendientes() {
+            const container = document.getElementById('lista-solicitudes');
+            container.innerHTML = '<div class="mensaje-cargando"><div class="spinner"></div><p>Cargando solicitudes...</p></div>';
+
+            try {
+                console.log('Iniciando carga de solicitudes...');
+                const response = await fetch('/api/solicitudes-pendientes');
+                console.log('Response status:', response.status);
+
+                const data = await response.json();
+                console.log('Data recibida:', data);
+
+                if (data.success) {
+                    console.log('Número de solicitudes:', data.solicitudes.length);
+                    todasLasSolicitudes = data.solicitudes;
+                    mostrarSolicitudes(todasLasSolicitudes);
+                } else {
+                    console.error('Error en data.success:', data.message);
+                    container.innerHTML = `<div class="mensaje-error">Error: ${data.message || 'Error al cargar solicitudes'}</div>`;
+                }
+            } catch (error) {
+                console.error('Error completo:', error);
+                container.innerHTML = `<div class="mensaje-error">Error de conexión: ${error.message}</div>`;
+            }
+        }
+
+
+        async function cargarMisViajes() {
+            const container = document.getElementById('lista-mis-viajes');
+            container.innerHTML = '<div class="mensaje-cargando"><div class="spinner"></div><p>Cargando viajes...</p></div>';
+
+            try {
+                const response = await fetch('/api/mis-solicitudes-conductor');
+                const data = await response.json();
+
+                if (data.success) {
+                    let viajes = data.solicitudes;
+
+
+                    if (tabViajesActual === 'aceptados') {
+                        viajes = viajes.filter(v => v.estado === 'aceptada');
+                    } else if (tabViajesActual === 'en-curso') {
+                        viajes = viajes.filter(v => v.estado === 'en_curso');
+                    } else if (tabViajesActual === 'completados') {
+                        viajes = viajes.filter(v => v.estado === 'completada');
+                    }
+
+                    mostrarMisViajes(viajes);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                container.innerHTML = '<div class="mensaje-error">Error al cargar viajes</div>';
+            }
+        }
+
+
+        function mostrarMisViajes(viajes) {
+            const container = document.getElementById('lista-mis-viajes');
+
+            if (viajes.length === 0) {
+                container.innerHTML = `
+                    <div class="mensaje-vacio">
+                        <div class="icono-vacio">📭</div>
+                        <h3>No tienes viajes en esta categoría</h3>
+                        <p>Los viajes que aceptes aparecerán aquí</p>
+                    </div>
+                `;
+                return;
+            }
+
+            let html = '';
+            viajes.forEach(viaje => {
+                const fecha = new Date(viaje.fecha_servicio);
+                const estadoClass = viaje.estado.replace('_', '-');
+
+                html += `
+                    <div class="tarjeta-viaje aparecer">
+                        <div class="encabezado-viaje">
+                            <div class="codigo-viaje">#${viaje.codigo_solicitud}</div>
+                            <div class="estado-badge ${estadoClass}">${viaje.estado.replace('_', ' ').toUpperCase()}</div>
+                        </div>
+
+                        <div class="ruta-viaje">
+                            <span>${viaje.origen}</span>
+                            <span class="flecha">→</span>
+                            <span>${viaje.destino}</span>
+                        </div>
+
+                        <div class="detalles-viaje">
+                            <div><strong>Fecha:</strong> ${fecha.toLocaleDateString('es-CO')}</div>
+                            <div><strong>Hora:</strong> ${viaje.hora_servicio}</div>
+                            <div><strong>Cliente:</strong> ${viaje.cliente_nombre}</div>
+                            <div><strong>Precio:</strong> ${viaje.precio_final ? viaje.precio_final.toLocaleString() : viaje.precio_estimado.toLocaleString()}</div>
+                        </div>
+
+                        <div class="acciones-viaje">
+                            <button class="boton boton-secundario" onclick="verDetallesViaje(${viaje.id})">
+                                Ver Detalles
+                            </button>
+                        </div>
+                    </div>
+                `;
+            });
+
+            container.innerHTML = html;
+        }
+
+
+        function verDetallesViaje(viajeId) {
+            alert('Funcionalidad de detalles - Próximamente');
+        }
+
+
+        function generarColor(texto) {
+            const colores = ['#6366f1', '#4f46e5', '#8b5cf6', '#06b6d4', '#22c55e', '#f59e0b', '#ef4444'];
+            let hash = 0;
+            for (let i = 0; i < texto.length; i++) {
+                hash = texto.charCodeAt(i) + ((hash << 5) - hash);
+            }
+            return colores[Math.abs(hash) % colores.length];
+        }
+
+        function mostrarNotificacion(mensaje, tipo) {
+            const notif = document.createElement('div');
+            notif.className = `notificacion notif-${tipo}`;
+            notif.textContent = mensaje;
+            notif.style.cssText = `
+                position: fixed;
+                top: 100px;
+                right: 20px;
+                z-index: 10000;
+                padding: 16px 24px;
+                border-radius: 12px;
+                color: white;
+                background: ${tipo === 'exito' ? '#22c55e' : '#ef4444'};
+                box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+                animation: slideIn 0.3s ease;
+            `;
+
+            document.body.appendChild(notif);
+
+            setTimeout(() => {
+                notif.style.opacity = '0';
+                setTimeout(() => notif.remove(), 300);
+            }, 3000);
+        }
+
+        async function cerrarSesion() {
+            if (confirm('¿Estás seguro de que deseas cerrar sesión?')) {
+                try {
+                    await fetch('/api/logout', { method: 'POST' });
+                    window.location.href = '/login';
+                } catch (error) {
+                    window.location.href = '/login';
+                }
+            }
+        }
+
+
+        document.getElementById('boton-menu').addEventListener('click', function () {
+            document.getElementById('enlaces-nav').classList.toggle('activo');
+        });
+
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('aparecer');
+                }
+            });
+        });
+
+        document.querySelectorAll('.aparecer').forEach(el => {
+            observer.observe(el);
+        });
+    </script>
+</body>
+
+</html>

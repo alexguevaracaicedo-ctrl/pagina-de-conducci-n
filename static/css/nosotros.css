@@ -1,0 +1,269 @@
+.contenedor-centrado {
+    max-width: 800px;
+    margin: 0 auto;
+    text-align: center;
+}
+
+.tarjeta-informacion {
+    background: var(--fondo-tarjeta);
+    border: 1px solid var(--borde);
+    border-radius: 24px;
+    padding: 48px;
+    margin-bottom: 80px;
+}
+
+.texto-grande {
+    font-size: 1.2rem;
+    line-height: 1.8;
+    color: var(--texto-secundario);
+    margin-bottom: 32px;
+}
+
+.texto-mediano {
+    font-size: 1.1rem;
+    line-height: 1.7;
+    color: var(--texto-secundario);
+    margin-bottom: 32px;
+}
+
+.texto-mediano:last-child {
+    margin-bottom: 0;
+}
+
+.texto-destacado {
+    color: var(--primario);
+    font-weight: bold;
+}
+
+.margen-superior-grande {
+    margin-top: 80px;
+}
+
+
+.grilla-caracteristicas {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 32px;
+    margin-bottom: 80px;
+}
+
+.tarjeta-caracteristica {
+    background: var(--fondo-tarjeta);
+    border: 1px solid var(--borde);
+    border-radius: 20px;
+    padding: 32px;
+    text-align: center;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.tarjeta-caracteristica::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(135deg, var(--primario), var(--acento));
+}
+
+.tarjeta-caracteristica:hover {
+    transform: translateY(-8px);
+    box-shadow: var(--sombra);
+    border-color: var(--primario);
+}
+
+.icono-caracteristica {
+    width: 60px;
+    height: 60px;
+    background: linear-gradient(135deg, var(--primario), var(--secundario));
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 20px;
+    color: white;
+    font-size: 24px;
+}
+
+.tarjeta-caracteristica h3 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin-bottom: 12px;
+}
+
+.tarjeta-caracteristica p {
+    color: var(--texto-secundario);
+    line-height: 1.5;
+}
+
+
+.grilla-estadisticas {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 32px;
+    margin-bottom: 80px;
+}
+
+.tarjeta-estadistica {
+    background: var(--fondo-tarjeta);
+    border: 1px solid var(--borde);
+    border-radius: 20px;
+    padding: 32px;
+    text-align: center;
+    transition: all 0.3s ease;
+}
+
+.tarjeta-estadistica:hover {
+    transform: translateY(-4px);
+    border-color: var(--acento);
+}
+
+.numero-estadistica {
+    font-size: 2.5rem;
+    font-weight: 800;
+    color: var(--acento);
+    margin-bottom: 8px;
+    display: block;
+}
+
+.etiqueta-estadistica {
+    color: var(--texto-secundario);
+    font-weight: 500;
+}
+
+
+.contenedor-cronologia {
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.elemento-cronologia {
+    display: flex;
+    gap: 24px;
+    margin-bottom: 40px;
+    position: relative;
+}
+
+.elemento-cronologia:not(:last-child)::after {
+    content: '';
+    position: absolute;
+    left: 20px;
+    top: 60px;
+    bottom: -40px;
+    width: 2px;
+    background: var(--borde);
+}
+
+.icono-cronologia {
+    width: 40px;
+    height: 40px;
+    background: var(--primario);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: bold;
+    flex-shrink: 0;
+}
+
+
+.grilla-valores {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 32px;
+    margin-bottom: 80px;
+}
+
+.tarjeta-valor {
+    background: var(--fondo-tarjeta);
+    border: 1px solid var(--borde);
+    border-radius: 20px;
+    padding: 32px;
+    transition: all 0.3s ease;
+}
+
+.tarjeta-valor:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--sombra);
+    border-color: var(--secundario);
+}
+
+.encabezado-valor {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 16px;
+}
+
+.icono-valor {
+    width: 48px;
+    height: 48px;
+    background: linear-gradient(135deg, var(--secundario), var(--acento));
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 20px;
+}
+
+.titulo-valor {
+    font-size: 1.3rem;
+    font-weight: 600;
+}
+
+.descripcion-valor {
+    color: var(--texto-secundario);
+    line-height: 1.6;
+}
+
+
+
+@media (max-width: 768px) {
+    .barra-navegacion {
+        left: 20px;
+        right: 20px;
+        transform: none;
+        border-radius: 16px;
+    }
+
+    .seccion {
+        padding: 100px 0 40px;
+    }
+
+    .titulo-seccion h1,
+    .titulo-seccion h2 {
+        font-size: 2rem;
+    }
+
+    .tarjeta-informacion {
+        padding: 32px 24px;
+    }
+
+    .grilla-caracteristicas,
+    .grilla-estadisticas,
+    .grilla-valores {
+        grid-template-columns: 1fr;
+    }
+
+
+
+    @keyframes aparecerArriba {
+        from {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .aparecer {
+        animation: aparecerArriba 0.6s ease forwards;
+    }
+}

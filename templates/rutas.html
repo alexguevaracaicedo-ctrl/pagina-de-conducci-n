@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rutas del Chocó - Transporte Águila S.A.S.</title>
+    <link href="{{ url_for('static', filename='css/transporte-mejorado.css') }}" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/rutas.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/area-usuario.css') }}">
+</head>
+
+<body>
+    <div class="patron-fondo"></div>
+
+    <div class="area-usuario" id="area-usuario">
+        <div class="avatar-usuario" id="avatar-usuario">
+            <span id="iniciales-usuario">US</span>
+        </div>
+        <div class="info-usuario">
+            <span class="nombre-usuario" id="nombre-display">Cargando...</span>
+            <span class="saludo-usuario" id="saludo-usuario">¡Bienvenido!</span>
+        </div>
+
+        <div class="menu-usuario">
+            <div class="opcion-menu" onclick="window.location.href='/perfil'">
+                <span class="icono-menu">👤</span>
+                <span>Mi Perfil</span>
+            </div>
+            <div class="opcion-menu" onclick="verHistorial()">
+                <span class="icono-menu">📋</span>
+                <span>Mis Viajes</span>
+            </div>
+            <div class="opcion-menu" onclick="cerrarSesion()">
+                <span class="icono-menu">🚪</span>
+                <span>Cerrar Sesión</span>
+            </div>
+        </div>
+    </div>
+
+    <nav class="barra-navegacion">
+        <div class="contenido-nav">
+            <div class="logotipo">
+                <div class="icono-logo">🦅</div>
+                <span>Águila</span>
+            </div>
+
+            <ul class="enlaces-nav" id="enlaces-nav">
+                <li><a href="/dashboard" class="enlace-nav">Inicio</a></li>
+                <li><a href="/nosotros" class="enlace-nav">Nosotros</a></li>
+                <li><a href="/servicios" class="enlace-nav">Servicios</a></li>
+                <li><a href="/rutas" class="enlace-nav activo">Rutas</a></li>
+                <li><a href="/reservar" class="enlace-nav">Reservar</a></li>
+            </ul>
+
+            <button class="boton-menu" id="boton-menu">☰</button>
+        </div>
+    </nav>
+
+    <main>
+        <section class="seccion-rutas">
+            <div class="contenedor">
+                <div class="titulo-seccion">
+                    <h1>Rutas del Chocó</h1>
+                    <p>Conectando todos los municipios del departamento con rutas seguras y confiables</p>
+                </div>
+
+                <div class="filtros-rutas">
+                    <button class="filtro-btn activo" data-filtro="todas">Todas las Rutas</button>
+                    <button class="filtro-btn" data-filtro="urbanas">Urbanas</button>
+                    <button class="filtro-btn" data-filtro="intermunicipales">Intermunicipales</button>
+                    <button class="filtro-btn" data-filtro="rurales">Rurales</button>
+                </div>
+
+                <div class="grilla-rutas-choco">
+                    <div class="tarjeta-ruta-choco" data-categoria="intermunicipales">
+                        <div class="cabecera-ruta">
+                            <div class="origen-destino">
+                                <span class="ciudad-origen">Quibdó</span>
+                                <div class="separador-ruta">↔</div>
+                                <span class="ciudad-destino">Tadó</span>
+                            </div>
+                            <div class="etiqueta-categoria intermunicipal">Intermunicipal</div>
+                        </div>
+                        <div class="info-ruta">
+                            <div class="distancia">
+                                <span class="icono-distancia">📍</span>
+                                <span>85 km</span>
+                            </div>
+                            <div class="tiempo">
+                                <span class="icono-tiempo">⏱️</span>
+                                <span>2h 30min</span>
+                            </div>
+                            <div class="precio">
+                                <span class="icono-precio">💰</span>
+                                <span>$18,000</span>
+                            </div>
+                        </div>
+                        <div class="horarios-ruta">
+                            <strong>Salidas:</strong> 6:00 AM, 9:00 AM, 2:00 PM, 5:00 PM
+                        </div>
+                        <div class="descripcion-ruta">
+                            Ruta principal que conecta la capital chocoana con Tadó, pasando por paisajes únicos del
+                            Pacífico.
+                        </div>
+                    </div>
+
+                    <div class="tarjeta-ruta-choco" data-categoria="intermunicipales">
+                        <div class="cabecera-ruta">
+                            <div class="origen-destino">
+                                <span class="ciudad-origen">Quibdó</span>
+                                <div class="separador-ruta">↔</div>
+                                <span class="ciudad-destino">Istmina</span>
+                            </div>
+                            <div class="etiqueta-categoria intermunicipal">Intermunicipal</div>
+                        </div>
+                        <div class="info-ruta">
+                            <div class="distancia">
+                                <span class="icono-distancia">📍</span>
+                                <span>72 km</span>
+                            </div>
+                            <div class="tiempo">
+                                <span class="icono-tiempo">⏱️</span>
+                                <span>1h 45min</span>
+                            </div>
+                            <div class="precio">
+                                <span class="icono-precio">💰</span>
+                                <span>$15,000</span>
+                            </div>
+                        </div>
+                        <div class="horarios-ruta">
+                            <strong>Salidas:</strong> Cada 2 horas desde 5:30 AM hasta 6:30 PM
+                        </div>
+                        <div class="descripcion-ruta">
+                            Conexión frecuente con Istmina, importante centro minero y comercial del departamento.
+                        </div>
+                    </div>
+
+                    <div class="tarjeta-ruta-choco" data-categoria="intermunicipales">
+                        <div class="cabecera-ruta">
+                            <div class="origen-destino">
+                                <span class="ciudad-origen">Quibdó</span>
+                                <div class="separador-ruta">↔</div>
+                                <span class="ciudad-destino">Condoto</span>
+                            </div>
+                            <div class="etiqueta-categoria intermunicipal">Intermunicipal</div>
+                        </div>
+                        <div class="info-ruta">
+                            <div class="distancia">
+                                <span class="icono-distancia">📍</span>
+                                <span>95 km</span>
+                            </div>
+                            <div class="tiempo">
+                                <span class="icono-tiempo">⏱️</span>
+                                <span>2h 15min</span>
+                            </div>
+                            <div class="precio">
+                                <span class="icono-precio">💰</span>
+                                <span>$20,000</span>
+                            </div>
+                        </div>
+                        <div class="horarios-ruta">
+                            <strong>Salidas:</strong> 7:00 AM, 1:00 PM, 4:00 PM
+                        </div>
+                        <div class="descripcion-ruta">
+                            Ruta hacia el importante municipio minero de Condoto, conocido por su riqueza aurífera.
+                        </div>
+                    </div>
+
+                    <div class="tarjeta-ruta-choco" data-categoria="intermunicipales">
+                        <div class="cabecera-ruta">
+                            <div class="origen-destino">
+                                <span class="ciudad-origen">Quibdó</span>
+                                <div class="separador-ruta">↔</div>
+                                <span class="ciudad-destino">Riosucio</span>
+                            </div>
+                            <div class="etiqueta-categoria intermunicipal">Intermunicipal</div>
+                        </div>
+                        <div class="info-ruta">
+                            <div class="distancia">
+                                <span class="icono-distancia">📍</span>
+                                <span>110 km</span>
+                            </div>
+                            <div class="tiempo">
+                                <span class="icono-tiempo">⏱️</span>
+                                <span>3h 00min</span>
+                            </div>
+                            <div class="precio">
+                                <span class="icono-precio">💰</span>
+                                <span>$25,000</span>
+                            </div>
+                        </div>
+                        <div class="horarios-ruta">
+                            <strong>Salidas:</strong> 6:30 AM, 2:30 PM
+                        </div>
+                        <div class="descripcion-ruta">
+                            Conexión con Riosucio, municipio fronterizo importante para el comercio regional.
+                        </div>
+                    </div>
+
+                    <div class="tarjeta-ruta-choco" data-categoria="rurales">
+                        <div class="cabecera-ruta">
+                            <div class="origen-destino">
+                                <span class="ciudad-origen">Quibdó</span>
+                                <div class="separador-ruta">↔</div>
+                                <span class="ciudad-destino">Bagadó</span>
+                            </div>
+                            <div class="etiqueta-categoria rural">Rural</div>
+                        </div>
+                        <div class="info-ruta">
+                            <div class="distancia">
+                                <span class="icono-distancia">📍</span>
+                                <span>125 km</span>
+                            </div>
+                            <div class="tiempo">
+                                <span class="icono-tiempo">⏱️</span>
+                                <span>3h 30min</span>
+                            </div>
+                            <div class="precio">
+                                <span class="icono-precio">💰</span>
+                                <span>$28,000</span>
+                            </div>
+                        </div>
+                        <div class="horarios-ruta">
+                            <strong>Salidas:</strong> 7:00 AM, 3:00 PM
+                        </div>
+                        <div class="descripcion-ruta">
+                            Ruta hacia Bagadó con vehículos 4x4 por terrenos de difícil acceso pero paisajes
+                            espectaculares.
+                        </div>
+                    </div>
+
+                    <div class="tarjeta-ruta-choco" data-categoria="rurales">
+                        <div class="cabecera-ruta">
+                            <div class="origen-destino">
+                                <span class="ciudad-origen">Quibdó</span>
+                                <div class="separador-ruta">↔</div>
+                                <span class="ciudad-destino">Bahía Solano</span>
+                            </div>
+                            <div class="etiqueta-categoria rural">Rural</div>
+                        </div>
+                        <div class="info-ruta">
+                            <div class="distancia">
+                                <span class="icono-distancia">📍</span>
+                                <span>180 km</span>
+                            </div>
+                            <div class="tiempo">
+                                <span class="icono-tiempo">⏱️</span>
+                                <span>5h 00min</span>
+                            </div>
+                            <div class="precio">
+                                <span class="icono-precio">💰</span>
+                                <span>$45,000</span>
+                            </div>
+                        </div>
+                        <div class="horarios-ruta">
+                            <strong>Salidas:</strong> 5:00 AM (Martes, Jueves, Sábado)
+                        </div>
+                        <div class="descripcion-ruta">
+                            Ruta especial hacia el paraíso costero de Bahía Solano, ideal para turistas y pescadores.
+                        </div>
+                    </div>
+
+                    <div class="tarjeta-ruta-choco" data-categoria="urbanas">
+                        <div class="cabecera-ruta">
+                            <div class="origen-destino">
+                                <span class="ciudad-origen">Centro</span>
+                                <div class="separador-ruta">↔</div>
+                                <span class="ciudad-destino">Kennedy</span>
+                            </div>
+                            <div class="etiqueta-categoria urbana">Urbana</div>
+                        </div>
+                        <div class="info-ruta">
+                            <div class="distancia">
+                                <span class="icono-distancia">📍</span>
+                                <span>8 km</span>
+                            </div>
+                            <div class="tiempo">
+                                <span class="icono-tiempo">⏱️</span>
+                                <span>20min</span>
+                            </div>
+                            <div class="precio">
+                                <span class="icono-precio">💰</span>
+                                <span>$3,000</span>
+                            </div>
+                        </div>
+                        <div class="horarios-ruta">
+                            <strong>Servicio:</strong> Cada 15 minutos de 5:00 AM a 10:00 PM
+                        </div>
+                        <div class="descripcion-ruta">
+                            Ruta urbana que conecta el centro de Quibdó con el barrio Kennedy y zonas aledañas.
+                        </div>
+                    </div>
+
+                    <div class="tarjeta-ruta-choco" data-categoria="intermunicipales">
+                        <div class="cabecera-ruta">
+                            <div class="origen-destino">
+                                <span class="ciudad-origen">Istmina</span>
+                                <div class="separador-ruta">↔</div>
+                                <span class="ciudad-destino">Condoto</span>
+                            </div>
+                            <div class="etiqueta-categoria intermunicipal">Intermunicipal</div>
+                        </div>
+                        <div class="info-ruta">
+                            <div class="distancia">
+                                <span class="icono-distancia">📍</span>
+                                <span>45 km</span>
+                            </div>
+                            <div class="tiempo">
+                                <span class="icono-tiempo">⏱️</span>
+                                <span>1h 15min</span>
+                            </div>
+                            <div class="precio">
+                                <span class="icono-precio">💰</span>
+                                <span>$10,000</span>
+                            </div>
+                        </div>
+                        <div class="horarios-ruta">
+                            <strong>Salidas:</strong> 8:00 AM, 12:00 PM, 4:00 PM
+                        </div>
+                        <div class="descripcion-ruta">
+                            Conexión directa entre dos importantes centros mineros del departamento.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="info-adicional-rutas">
+                    <div class="tarjeta-info">
+                        <div class="icono-info">ℹ️</div>
+                        <h3>Información Importante</h3>
+                        <ul>
+                            <li>Los horarios pueden variar según las condiciones climáticas</li>
+                            <li>Se recomienda llegar 15 minutos antes de la salida</li>
+                            <li>Equipaje adicional puede tener costo extra</li>
+                            <li>Descuentos disponibles para estudiantes y adultos mayores</li>
+                        </ul>
+                    </div>
+
+                    <div class="tarjeta-info">
+                        <div class="icono-info">📞</div>
+                        <h3>Contacto y Reservas</h3>
+                        <ul>
+                            <li>Teléfono: (4) 671-2345</li>
+                            <li>WhatsApp: +57 300 123 4567</li>
+                            <li>Email: info@transporteaguila.com</li>
+                            <li>Terminal de Transporte - Quibdó</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="contenedor">
+            <p>&copy; 2024 Transporte Águila S.A.S. - Conectando el Chocó con seguridad y confianza</p>
+        </div>
+    </footer>
+
+    <script>
+        document.getElementById('boton-menu').addEventListener('click', function () {
+            document.getElementById('enlaces-nav').classList.toggle('activo');
+        });
+
+        const filtros = document.querySelectorAll('.filtro-btn');
+        const tarjetas = document.querySelectorAll('.tarjeta-ruta-choco');
+
+        filtros.forEach(filtro => {
+            filtro.addEventListener('click', function () {
+                filtros.forEach(f => f.classList.remove('activo'));
+                this.classList.add('activo');
+
+                const categoria = this.getAttribute('data-filtro');
+
+                tarjetas.forEach(tarjeta => {
+                    if (categoria === 'todas') {
+                        tarjeta.style.display = 'block';
+                        setTimeout(() => tarjeta.classList.add('visible'), 10);
+                    } else {
+                        const tarjetaCategoria = tarjeta.getAttribute('data-categoria');
+                        if (tarjetaCategoria === categoria) {
+                            tarjeta.style.display = 'block';
+                            setTimeout(() => tarjeta.classList.add('visible'), 10);
+                        } else {
+                            tarjeta.classList.remove('visible');
+                            setTimeout(() => tarjeta.style.display = 'none', 300);
+                        }
+                    }
+                });
+            });
+        });
+
+        document.addEventListener('DOMContentLoaded', function () {
+            tarjetas.forEach(tarjeta => {
+                tarjeta.classList.add('visible');
+            });
+        });
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('aparecer');
+                }
+            });
+        }, {
+            threshold: 0.1
+        });
+
+        document.querySelectorAll('.tarjeta-ruta-choco, .tarjeta-info').forEach(el => {
+            observer.observe(el);
+        });
+
+        async function obtenerDatosUsuario() {
+            try {
+                const response = await fetch('/api/usuario');
+                const data = await response.json();
+
+                if (data.success) {
+                    return data.usuario;
+                } else {
+                    window.location.href = '/login';
+                    return null;
+                }
+            } catch (error) {
+                console.error('Error obteniendo datos del usuario:', error);
+                return null;
+            }
+        }
+
+        function generarColorAleatorio() {
+            const colores = [
+                '#6366f1', '#4f46e5', '#8b5cf6', '#06b6d4',
+                '#22c55e', '#f59e0b', '#ef4444', '#8b5cf6'
+            ];
+            return colores[Math.floor(Math.random() * colores.length)];
+        }
+
+        function obtenerIniciales(nombre, apellido) {
+            const inicial1 = nombre ? nombre.charAt(0).toUpperCase() : 'U';
+            const inicial2 = apellido ? apellido.charAt(0).toUpperCase() : 'S';
+            return inicial1 + inicial2;
+        }
+
+        async function configurarAreaUsuario() {
+            const datos = await obtenerDatosUsuario();
+            if (!datos) return;
+
+            const iniciales = obtenerIniciales(datos.nombre, datos.apellido);
+            const color = generarColorAleatorio();
+
+            document.getElementById('iniciales-usuario').textContent = iniciales;
+            document.getElementById('nombre-display').textContent = `${datos.nombre} ${datos.apellido}`;
+            document.getElementById('avatar-usuario').style.background = `linear-gradient(135deg, ${color}, ${color}dd)`;
+
+            const hora = new Date().getHours();
+            let saludo = '¡Bienvenido!';
+            if (hora < 12) saludo = '¡Buenos días!';
+            else if (hora < 18) saludo = '¡Buenas tardes!';
+            else saludo = '¡Buenas noches!';
+
+            document.getElementById('saludo-usuario').textContent = saludo;
+        }
+
+        function verPerfil() {
+            alert('Funcionalidad de perfil - próximamente');
+        }
+
+        function verHistorial() {
+            alert('Funcionalidad de historial - próximamente');
+        }
+
+        async function cerrarSesion() {
+            if (confirm('¿Estás seguro de que deseas cerrar sesión?')) {
+                try {
+                    await fetch('/api/logout', { method: 'POST' });
+                    window.location.href = '/login';
+                } catch (error) {
+                    console.error('Error cerrando sesión:', error);
+                    window.location.href = '/login';
+                }
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', function () {
+            configurarAreaUsuario();
+        });
+    </script>
+</body>
+
+</html>

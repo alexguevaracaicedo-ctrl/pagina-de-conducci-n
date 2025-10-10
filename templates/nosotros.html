@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nosotros - Transporte Águila S.A.S.</title>
+    <link href="{{ url_for('static', filename='css/transporte-mejorado.css') }}" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/nosotros.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/area-usuario.css') }}">
+</head>
+
+<body>
+    <div class="patron-fondo"></div>
+
+    <!-- Área de usuario -->
+    <div class="area-usuario" id="area-usuario">
+        <div class="avatar-usuario" id="avatar-usuario">
+            <span id="iniciales-usuario">US</span>
+        </div>
+        <div class="info-usuario">
+            <span class="nombre-usuario" id="nombre-display">Cargando...</span>
+            <span class="saludo-usuario" id="saludo-usuario">¡Bienvenido!</span>
+        </div>
+
+        <div class="menu-usuario">
+            <div class="opcion-menu" onclick="window.location.href='/perfil'">
+                <span class="icono-menu">👤</span>
+                <span>Mi Perfil</span>
+            </div>
+            <div class="opcion-menu" onclick="verHistorial()">
+                <span class="icono-menu">📋</span>
+                <span>Mis Viajes</span>
+            </div>
+            <div class="opcion-menu" onclick="cerrarSesion()">
+                <span class="icono-menu">🚪</span>
+                <span>Cerrar Sesión</span>
+            </div>
+        </div>
+    </div>
+
+    <main>
+        <!-- pagina de nosotros -->
+        <section class="seccion">
+            <div class="contenedor">
+                <div class="titulo-seccion">
+                    <h1>Sobre Nosotros</h1>
+                    <p>Conectando el Chocó con excelencia y confiabilidad</p>
+                </div>
+                <!-- navegacion -->
+                <nav class="barra-navegacion">
+                    <div class="contenido-nav">
+                        <div class="logotipo">
+                            <div class="icono-logo">🦅</div>
+                            <span>Águila</span>
+                        </div>
+
+                        <ul class="enlaces-nav" id="enlaces-nav">
+                            <li><a href="/dashboard" class="enlace-nav">Inicio</a></li>
+                            <li><a href="/nosotros" class="enlace-nav activo">Nosotros</a></li>
+                            <li><a href="/servicios" class="enlace-nav">Servicios</a></li>
+                            <li><a href="/rutas" class="enlace-nav">Rutas</a></li>
+                            <li><a href="/reservar" class="enlace-nav">Reservar</a></li>
+                        </ul>
+
+                        <button class="boton-menu" id="boton-menu">☰</button>
+                    </div>
+                </nav>
+
+                <div class="contenedor-centrado">
+                    <div class="tarjeta-informacion aparecer">
+                        <p class="texto-grande">
+                            En <strong class="texto-destacado">Transporte Águila S.A.S.</strong> trabajamos
+                            para ofrecer a nuestros usuarios una experiencia de viaje segura, confiable y accesible
+                            en el Chocó y más allá.
+                        </p>
+                        <p class="texto-mediano">
+                            Nuestra plataforma web facilita la consulta de rutas, horarios y servicios, permitiendo
+                            a los pasajeros planear sus desplazamientos con facilidad. Entre nuestras principales
+                            características se encuentran la posibilidad de visualizar rutas populares, elegir entre
+                            diferentes tipos de transporte (moto, carro, bus o 4x4) y acceder a información
+                            actualizada sobre salidas y destinos.
+                        </p>
+                        <p class="texto-mediano">
+                            La finalidad de esta página es conectar a las personas con opciones de transporte
+                            adaptadas a sus necesidades, optimizando el tiempo y mejorando la comodidad de cada
+                            viaje.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- caracteristicas principales -->
+                <div class="titulo-seccion">
+                    <h2>Nuestras Fortalezas</h2>
+                    <p>Lo que nos diferencia en el mercado del transporte</p>
+                </div>
+
+                <div class="grilla-caracteristicas">
+                    <div class="tarjeta-caracteristica aparecer">
+                        <div class="icono-caracteristica">🛡️</div>
+                        <h3>Seguridad Garantizada</h3>
+                        <p>Todos nuestros vehículos cuentan con mantenimiento preventivo y conductores certificados</p>
+                    </div>
+
+                    <div class="tarjeta-caracteristica aparecer">
+                        <div class="icono-caracteristica">⏰</div>
+                        <h3>Puntualidad</h3>
+                        <p>Cumplimiento estricto de horarios para que llegues a tiempo a tu destino</p>
+                    </div>
+
+                    <div class="tarjeta-caracteristica aparecer">
+                        <div class="icono-caracteristica">💰</div>
+                        <h3>Precios Accesibles</h3>
+                        <p>Tarifas competitivas sin comprometer la calidad del servicio</p>
+                    </div>
+
+                    <div class="tarjeta-caracteristica aparecer">
+                        <div class="icono-caracteristica">🌟</div>
+                        <h3>Calidad de Servicio</h3>
+                        <p>Atención personalizada y vehículos en óptimas condiciones para tu comodidad</p>
+                    </div>
+                </div>
+
+                <!-- valores corporativos -->
+                <div class="titulo-seccion margen-superior-grande">
+                    <h2>Nuestros Valores</h2>
+                    <p>Los principios que guían cada una de nuestras acciones</p>
+                </div>
+
+                <div class="grilla-valores">
+                    <div class="tarjeta-valor aparecer">
+                        <div class="encabezado-valor">
+                            <div class="icono-valor">🎯</div>
+                            <h3 class="titulo-valor">Misión</h3>
+                        </div>
+                        <p class="descripcion-valor">
+                            Brindar servicios de transporte seguros, confiables y accesibles que conecten
+                            las comunidades del Chocó, mejorando la movilidad y calidad de vida de nuestros usuarios.
+                        </p>
+                    </div>
+
+                    <div class="tarjeta-valor aparecer">
+                        <div class="encabezado-valor">
+                            <div class="icono-valor">🚀</div>
+                            <h3 class="titulo-valor">Visión</h3>
+                        </div>
+                        <p class="descripcion-valor">
+                            Ser la empresa líder en transporte del Chocó, reconocida por nuestra innovación,
+                            excelencia en el servicio y compromiso con el desarrollo regional.
+                        </p>
+                    </div>
+
+                    <div class="tarjeta-valor aparecer">
+                        <div class="encabezado-valor">
+                            <div class="icono-valor">💎</div>
+                            <h3 class="titulo-valor">Valores</h3>
+                        </div>
+                        <p class="descripcion-valor">
+                            Seguridad, puntualidad, respeto, honestidad y compromiso social son los pilares
+                            fundamentales que guían nuestro trabajo diario y relación con los clientes.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="contenedor">
+            <p>&copy; 2024 Transporte Águila S.A.S. - Conectando el Chocó con seguridad y confianza</p>
+        </div>
+    </footer>
+
+    <script>
+
+        document.getElementById('boton-menu').addEventListener('click', function () {
+            document.getElementById('enlaces-nav').classList.toggle('activo');
+        });
+
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('aparecer');
+                }
+            });
+        });
+
+        document.querySelectorAll('.aparecer').forEach(el => {
+            observer.observe(el);
+        });
+
+
+        async function obtenerDatosUsuario() {
+            try {
+                const response = await fetch('/api/usuario');
+                const data = await response.json();
+
+                if (data.success) {
+                    return data.usuario;
+                } else {
+
+                    window.location.href = '/login';
+                    return null;
+                }
+            } catch (error) {
+                console.error('Error obteniendo datos del usuario:', error);
+                return null;
+            }
+        }
+
+        function generarColorAleatorio() {
+            const colores = [
+                '#6366f1', '#4f46e5', '#8b5cf6', '#06b6d4',
+                '#22c55e', '#f59e0b', '#ef4444', '#8b5cf6'
+            ];
+            return colores[Math.floor(Math.random() * colores.length)];
+        }
+
+        function obtenerIniciales(nombre, apellido) {
+            const inicial1 = nombre ? nombre.charAt(0).toUpperCase() : 'U';
+            const inicial2 = apellido ? apellido.charAt(0).toUpperCase() : 'S';
+            return inicial1 + inicial2;
+        }
+
+        async function configurarAreaUsuario() {
+            const datos = await obtenerDatosUsuario();
+            if (!datos) return;
+
+            const iniciales = obtenerIniciales(datos.nombre, datos.apellido);
+            const color = generarColorAleatorio();
+
+            document.getElementById('iniciales-usuario').textContent = iniciales;
+            document.getElementById('nombre-display').textContent = `${datos.nombre} ${datos.apellido}`;
+            document.getElementById('avatar-usuario').style.background = `linear-gradient(135deg, ${color}, ${color}dd)`;
+
+            const hora = new Date().getHours();
+            let saludo = '¡Bienvenido!';
+            if (hora < 12) saludo = '¡Buenos días!';
+            else if (hora < 18) saludo = '¡Buenas tardes!';
+            else saludo = '¡Buenas noches!';
+
+            document.getElementById('saludo-usuario').textContent = saludo;
+        }
+
+        function verPerfil() {
+            alert('Funcionalidad de perfil - próximamente');
+        }
+
+        function verHistorial() {
+            alert('Funcionalidad de historial - próximamente');
+        }
+
+        async function cerrarSesion() {
+            if (confirm('¿Estás seguro de que deseas cerrar sesión?')) {
+                try {
+                    await fetch('/api/logout', { method: 'POST' });
+                    window.location.href = '/login';
+                } catch (error) {
+                    console.error('Error cerrando sesión:', error);
+                    window.location.href = '/login';
+                }
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', function () {
+            configurarAreaUsuario();
+        });
+    </script>
+</body>
+
+</html>

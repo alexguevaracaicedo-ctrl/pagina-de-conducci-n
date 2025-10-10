@@ -1,0 +1,736 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Servicios - Transporte Águila S.A.S.</title>
+    <link href="{{ url_for('static', filename='css/transporte-mejorado.css') }}" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/servicios.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/area-usuario.css') }}">
+</head>
+
+<body>
+    <div class="patron-fondo"></div>
+
+    <!-- Área de usuario -->
+    <div class="area-usuario" id="area-usuario">
+        <div class="avatar-usuario" id="avatar-usuario">
+            <span id="iniciales-usuario">US</span>
+        </div>
+        <div class="info-usuario">
+            <span class="nombre-usuario" id="nombre-display">Cargando...</span>
+            <span class="saludo-usuario" id="saludo-usuario">¡Bienvenido!</span>
+        </div>
+
+        <div class="menu-usuario">
+            <div class="opcion-menu" onclick="window.location.href='/perfil'">
+                <span class="icono-menu">👤</span>
+                <span>Mi Perfil</span>
+            </div>
+            <div class="opcion-menu" onclick="verHistorial()">
+                <span class="icono-menu">📋</span>
+                <span>Mis Viajes</span>
+            </div>
+            <div class="opcion-menu" onclick="cerrarSesion()">
+                <span class="icono-menu">🚪</span>
+                <span>Cerrar Sesión</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- navegacion -->
+    <nav class="barra-navegacion">
+        <div class="contenido-nav">
+            <div class="logotipo">
+                <div class="icono-logo">🦅</div>
+                <span>Águila</span>
+            </div>
+
+            <ul class="enlaces-nav" id="enlaces-nav">
+                <li><a href="/dashboard" class="enlace-nav">Inicio</a></li>
+                <li><a href="/nosotros" class="enlace-nav">Nosotros</a></li>
+                <li><a href="/servicios" class="enlace-nav activo">Servicios</a></li>
+                <li><a href="/rutas" class="enlace-nav">Rutas</a></li>
+                <li><a href="/reservar" class="enlace-nav">Reservar</a></li>
+            </ul>
+
+            <button class="boton-menu" id="boton-menu">☰</button>
+        </div>
+    </nav>
+
+    <main>
+        <!-- seccion principal de servicios -->
+        <section class="seccion">
+            <div class="contenedor">
+                <div class="titulo-seccion">
+                    <h1>Nuestros Servicios</h1>
+                    <p>Soluciones de transporte adaptadas a cada necesidad en el Chocó</p>
+                </div>
+
+                <!-- servicios principales -->
+                <div class="grilla-servicios-detallados">
+                    <div class="tarjeta-servicio-detallada aparecer">
+                        <div class="encabezado-servicio-detallado">
+                            <div class="icono-servicio-detallado">🏍️</div>
+                            <div class="info-servicio-detallado">
+                                <h3>Servicio en Moto</h3>
+                                <span class="etiqueta-servicio urbano">Urbano</span>
+                                <div class="precio-servicio">Desde $5,000</div>
+                            </div>
+                        </div>
+                        <p class="descripcion-servicio-detallada">
+                            Perfecto para recorridos cortos dentro de la ciudad. Rápido, económico y eficiente
+                            para desplazamientos urbanos y trayectos de emergencia.
+                        </p>
+                        <div class="caracteristicas-servicio-detalladas">
+                            <div class="caracteristica-item">
+                                <span class="icono-check">✓</span>
+                                <span>Servicio 24/7 disponible</span>
+                            </div>
+                            <div class="caracteristica-item">
+                                <span class="icono-check">✓</span>
+                                <span>Conductores certificados</span>
+                            </div>
+                            <div class="caracteristica-item">
+                                <span class="icono-check">✓</span>
+                                <span>Tiempo promedio: 15-30 min</span>
+                            </div>
+                            <div class="caracteristica-item">
+                                <span class="icono-check">✓</span>
+                                <span>Ideal para 1 pasajero + equipaje ligero</span>
+                            </div>
+                        </div>
+                        <button class="boton boton-primario" onclick="solicitarServicio('moto')">Solicitar Moto</button>
+                    </div>
+
+                    <div class="tarjeta-servicio-detallada aparecer">
+                        <div class="encabezado-servicio-detallado">
+                            <div class="icono-servicio-detallado">🚗</div>
+                            <div class="info-servicio-detallado">
+                                <h3>Servicio en Carro</h3>
+                                <span class="etiqueta-servicio familiar">Familiar</span>
+                                <div class="precio-servicio">Desde $15,000</div>
+                            </div>
+                        </div>
+                        <p class="descripcion-servicio-detallada">
+                            Mayor comodidad y espacio para equipaje. Ideal para familias, grupos pequeños
+                            y trayectos con más comodidades.
+                        </p>
+                        <div class="caracteristicas-servicio-detalladas">
+                            <div class="caracteristica-item">
+                                <span class="icono-check">✓</span>
+                                <span>Aire acondicionado</span>
+                            </div>
+                            <div class="caracteristica-item">
+                                <span class="icono-check">✓</span>
+                                <span>Capacidad hasta 4 pasajeros</span>
+                            </div>
+                            <div class="caracteristica-item">
+                                <span class="icono-check">✓</span>
+                                <span>Amplio espacio para equipaje</span>
+                            </div>
+                            <div class="caracteristica-item">
+                                <span class="icono-check">✓</span>
+                                <span>Vehículos modelo reciente</span>
+                            </div>
+                        </div>
+                        <button class="boton boton-primario" onclick="solicitarServicio('carro')">Solicitar
+                            Carro</button>
+                    </div>
+
+                    <div class="tarjeta-servicio-detallada aparecer">
+                        <div class="encabezado-servicio-detallado">
+                            <div class="icono-servicio-detallado">🚌</div>
+                            <div class="info-servicio-detallado">
+                                <h3>Servicio en Bus</h3>
+                                <span class="etiqueta-servicio intermunicipal">Intermunicipal</span>
+                                <div class="precio-servicio">Desde $25,000</div>
+                            </div>
+                        </div>
+                        <p class="descripcion-servicio-detallada">
+                            Para viajes largos y grupos grandes. Rutas intermunicipales con máxima
+                            comodidad y seguridad en carretera.
+                        </p>
+                        <div class="caracteristicas-servicio-detalladas">
+                            <div class="caracteristica-item">
+                                <span class="icono-check">✓</span>
+                                <span>Asientos reclinables</span>
+                            </div>
+                            <div class="caracteristica-item">
+                                <span class="icono-check">✓</span>
+                                <span>Capacidad 30+ pasajeros</span>
+                            </div>
+                            <div class="caracteristica-item">
+                                <span class="icono-check">✓</span>
+                                <span>Compartimiento de equipaje</span>
+                            </div>
+                            <div class="caracteristica-item">
+                                <span class="icono-check">✓</span>
+                                <span>Sistema de entretenimiento</span>
+                            </div>
+                        </div>
+                        <button class="boton boton-primario" onclick="solicitarServicio('bus')">Solicitar Bus</button>
+                    </div>
+
+                    <div class="tarjeta-servicio-detallada aparecer">
+                        <div class="encabezado-servicio-detallado">
+                            <div class="icono-servicio-detallado">🚙</div>
+                            <div class="info-servicio-detallado">
+                                <h3>Servicio 4x4</h3>
+                                <span class="etiqueta-servicio aventura">Aventura</span>
+                                <div class="precio-servicio">Desde $40,000</div>
+                            </div>
+                        </div>
+                        <p class="descripcion-servicio-detallada">
+                            Para zonas de difícil acceso y terrenos complicados. Vehículos especializados
+                            para llegar donde otros no pueden.
+                        </p>
+                        <div class="caracteristicas-servicio-detalladas">
+                            <div class="caracteristica-item">
+                                <span class="icono-check">✓</span>
+                                <span>Tracción en las 4 ruedas</span>
+                            </div>
+                            <div class="caracteristica-item">
+                                <span class="icono-check">✓</span>
+                                <span>Capacidad 5-7 pasajeros</span>
+                            </div>
+                            <div class="caracteristica-item">
+                                <span class="icono-check">✓</span>
+                                <span>Acceso a zonas rurales</span>
+                            </div>
+                            <div class="caracteristica-item">
+                                <span class="icono-check">✓</span>
+                                <span>Conductores especializados</span>
+                            </div>
+                        </div>
+                        <button class="boton boton-primario" onclick="solicitarServicio('4x4')">Solicitar 4x4</button>
+                    </div>
+                </div>
+
+                <!-- seccion de rutas populares -->
+                <div class="titulo-seccion margen-superior-grande">
+                    <h2>Rutas Más Solicitadas</h2>
+                    <p>Conexiones frecuentes con horarios establecidos y tarifas fijas</p>
+                </div>
+
+                <div class="grilla-rutas-servicios">
+                    <div class="tarjeta-ruta-servicio aparecer">
+                        <div class="encabezado-ruta-servicio">
+                            <div class="origen-destino">
+                                <span class="ciudad-origen">Quibdó</span>
+                                <div class="flecha-ruta">→</div>
+                                <span class="ciudad-destino">Tadó</span>
+                            </div>
+                            <div class="frecuencia-ruta">Diario</div>
+                        </div>
+                        <div class="info-ruta-servicio">
+                            <div class="horario-ruta">
+                                <span class="etiqueta-info">Salidas:</span>
+                                <span class="valor-info">6:00 AM, 2:00 PM</span>
+                            </div>
+                            <div class="duracion-ruta">
+                                <span class="etiqueta-info">Duración:</span>
+                                <span class="valor-info">2.5 horas</span>
+                            </div>
+                            <div class="precio-ruta">
+                                <span class="etiqueta-info">Desde:</span>
+                                <span class="valor-precio">$18,000</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="tarjeta-ruta-servicio aparecer">
+                        <div class="encabezado-ruta-servicio">
+                            <div class="origen-destino">
+                                <span class="ciudad-origen">Quibdó</span>
+                                <div class="flecha-ruta">→</div>
+                                <span class="ciudad-destino">Pereira</span>
+                            </div>
+                            <div class="frecuencia-ruta">Intermunicipal</div>
+                        </div>
+                        <div class="info-ruta-servicio">
+                            <div class="horario-ruta">
+                                <span class="etiqueta-info">Salidas:</span>
+                                <span class="valor-info">7:00 AM, 3:00 PM</span>
+                            </div>
+                            <div class="duracion-ruta">
+                                <span class="etiqueta-info">Duración:</span>
+                                <span class="valor-info">6 horas</span>
+                            </div>
+                            <div class="precio-ruta">
+                                <span class="etiqueta-info">Desde:</span>
+                                <span class="valor-precio">$45,000</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="tarjeta-ruta-servicio aparecer">
+                        <div class="encabezado-ruta-servicio">
+                            <div class="origen-destino">
+                                <span class="ciudad-origen">Quibdó</span>
+                                <div class="flecha-ruta">→</div>
+                                <span class="ciudad-destino">Istmina</span>
+                            </div>
+                            <div class="frecuencia-ruta">Frecuente</div>
+                        </div>
+                        <div class="info-ruta-servicio">
+                            <div class="horario-ruta">
+                                <span class="etiqueta-info">Salidas:</span>
+                                <span class="valor-info">Cada 2 horas</span>
+                            </div>
+                            <div class="duracion-ruta">
+                                <span class="etiqueta-info">Duración:</span>
+                                <span class="valor-info">1.5 horas</span>
+                            </div>
+                            <div class="precio-ruta">
+                                <span class="etiqueta-info">Desde:</span>
+                                <span class="valor-precio">$12,000</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- seccion de servicios adicionales -->
+                <div class="titulo-seccion margen-superior-grande">
+                    <h2>Servicios Adicionales</h2>
+                    <p>Beneficios extra que hacen la diferencia en tu viaje</p>
+                </div>
+
+                <div class="grilla-servicios-adicionales">
+                    <div class="servicio-adicional aparecer">
+                        <div class="icono-servicio-adicional">📱</div>
+                        <h4>Seguimiento en Tiempo Real</h4>
+                        <p>Monitorea tu viaje desde la app y comparte tu ubicación con familiares</p>
+                    </div>
+
+                    <div class="servicio-adicional aparecer">
+                        <div class="icono-servicio-adicional">🛡️</div>
+                        <h4>Seguro de Viaje</h4>
+                        <p>Cobertura completa durante todo el trayecto para tu tranquilidad</p>
+                    </div>
+
+                    <div class="servicio-adicional aparecer">
+                        <div class="icono-servicio-adicional">💳</div>
+                        <h4>Múltiples Formas de Pago</h4>
+                        <p>Efectivo, tarjeta, transferencias y billeteras digitales</p>
+                    </div>
+
+                    <div class="servicio-adicional aparecer">
+                        <div class="icono-servicio-adicional">🎧</div>
+                        <h4>Soporte 24/7</h4>
+                        <p>Atención al cliente disponible las 24 horas del día</p>
+                    </div>
+
+                    <div class="servicio-adicional aparecer">
+                        <div class="icono-servicio-adicional">📦</div>
+                        <h4>Envío de Paquetes</h4>
+                        <p>Servicio de mensajería y envío de encomiendas entre ciudades</p>
+                    </div>
+
+                    <div class="servicio-adicional aparecer">
+                        <div class="icono-servicio-adicional">🔄</div>
+                        <h4>Viajes de Ida y Vuelta</h4>
+                        <p>Descuentos especiales en boletos de retorno programados</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="contenedor">
+            <p>&copy; 2024 Transporte Águila S.A.S. - Conectando el Chocó con seguridad y confianza</p>
+        </div>
+    </footer>
+
+    <script>
+
+        document.getElementById('boton-menu').addEventListener('click', function () {
+            document.getElementById('enlaces-nav').classList.toggle('activo');
+        });
+
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('aparecer');
+                }
+            });
+        });
+
+        document.querySelectorAll('.aparecer').forEach(el => {
+            observer.observe(el);
+        });
+
+
+        async function obtenerDatosUsuario() {
+            try {
+                const response = await fetch('/api/usuario');
+                const data = await response.json();
+
+                if (data.success) {
+                    return data.usuario;
+                } else {
+                    window.location.href = '/login';
+                    return null;
+                }
+            } catch (error) {
+                console.error('Error obteniendo datos del usuario:', error);
+                return null;
+            }
+        }
+
+        function generarColorAleatorio() {
+            const colores = [
+                '#6366f1', '#4f46e5', '#8b5cf6', '#06b6d4',
+                '#22c55e', '#f59e0b', '#ef4444', '#8b5cf6'
+            ];
+            return colores[Math.floor(Math.random() * colores.length)];
+        }
+
+        function obtenerIniciales(nombre, apellido) {
+            const inicial1 = nombre ? nombre.charAt(0).toUpperCase() : 'U';
+            const inicial2 = apellido ? apellido.charAt(0).toUpperCase() : 'S';
+            return inicial1 + inicial2;
+        }
+
+        async function configurarAreaUsuario() {
+            const datos = await obtenerDatosUsuario();
+            if (!datos) return;
+
+            const iniciales = obtenerIniciales(datos.nombre, datos.apellido);
+            const color = generarColorAleatorio();
+
+            document.getElementById('iniciales-usuario').textContent = iniciales;
+            document.getElementById('nombre-display').textContent = `${datos.nombre} ${datos.apellido}`;
+            document.getElementById('avatar-usuario').style.background = `linear-gradient(135deg, ${color}, ${color}dd)`;
+
+            const hora = new Date().getHours();
+            let saludo = '¡Bienvenido!';
+            if (hora < 12) saludo = '¡Buenos días!';
+            else if (hora < 18) saludo = '¡Buenas tardes!';
+            else saludo = '¡Buenas noches!';
+
+            document.getElementById('saludo-usuario').textContent = saludo;
+        }
+
+        function verPerfil() {
+            alert('Funcionalidad de perfil - próximamente');
+        }
+
+        function verHistorial() {
+            alert('Funcionalidad de historial - próximamente');
+        }
+
+        async function cerrarSesion() {
+            if (confirm('¿Estás seguro de que deseas cerrar sesión?')) {
+                try {
+                    await fetch('/api/logout', { method: 'POST' });
+                    window.location.href = '/login';
+                } catch (error) {
+                    console.error('Error cerrando sesión:', error);
+                    window.location.href = '/login';
+                }
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', function () {
+            configurarAreaUsuario();
+        });
+
+
+        function solicitarServicio(tipoVehiculo) {
+            mostrarModalSolicitud(tipoVehiculo);
+        }
+
+
+        function manejarSeleccionOrigen() {
+            const select = document.getElementById('origen-select');
+            const input = document.getElementById('origen-solicitud');
+
+            if (select.value === 'otro') {
+                select.style.display = 'none';
+                input.style.display = 'block';
+                input.value = '';
+                input.focus();
+                input.required = true;
+                select.required = false;
+            } else {
+                input.value = select.value;
+            }
+        }
+
+        function manejarSeleccionDestino() {
+            const select = document.getElementById('destino-select');
+            const input = document.getElementById('destino-solicitud');
+
+            if (select.value === 'otro') {
+                select.style.display = 'none';
+                input.style.display = 'block';
+                input.value = '';
+                input.focus();
+                input.required = true;
+                select.required = false;
+            } else {
+                input.value = select.value;
+            }
+        }
+
+
+        function mostrarModalSolicitud(tipoVehiculo) {
+
+            const modal = document.createElement('div');
+            modal.className = 'modal-solicitud';
+            modal.innerHTML = `
+                <div class="modal-contenido-solicitud">
+                    <div class="modal-encabezado">
+                        <h3>Solicitar ${tipoVehiculo.toUpperCase()}</h3>
+                        <button class="cerrar-modal" onclick="cerrarModalSolicitud()">&times;</button>
+                    </div>
+                    
+                    <div class="formulario-solicitud">
+                        <div class="info-servicio-modal">
+                            <div class="icono-servicio-modal">${obtenerIconoVehiculo(tipoVehiculo)}</div>
+                            <p>Complete los siguientes datos para solicitar su ${tipoVehiculo}</p>
+                        </div>
+
+                        <form id="form-solicitud-servicio">
+                            <div class="grupo-input-modal">
+                                <label>Punto de origen *</label>
+                                <select id="origen-select" required onchange="manejarSeleccionOrigen()">
+                                    <option value="">Seleccione un punto de origen</option>
+                                    <option value="Quibdó">Quibdó</option>
+                                    <option value="Tadó">Tadó</option>
+                                    <option value="Istmina">Istmina</option>
+                                    <option value="Condoto">Condoto</option>
+                                    <option value="Riosucio">Riosucio</option>
+                                    <option value="Bagadó">Bagadó</option>
+                                    <option value="Bahía Solano">Bahía Solano</option>
+                                    <option value="Centro">Centro (Quibdó)</option>
+                                    <option value="Kennedy">Kennedy (Quibdó)</option>
+                                    <option value="Pereira">Pereira</option>
+                                    <option value="otro">📍 Otro lugar</option>
+                                </select>
+                                <input type="text" id="origen-solicitud" placeholder="Escriba el punto de origen" style="display: none;" required>
+                            </div>
+
+                            <div class="grupo-input-modal">
+                                <label>Punto de destino *</label>
+                                <select id="destino-select" required onchange="manejarSeleccionDestino()">
+                                    <option value="">Seleccione un punto de destino</option>
+                                    <option value="Quibdó">Quibdó</option>
+                                    <option value="Tadó">Tadó</option>
+                                    <option value="Istmina">Istmina</option>
+                                    <option value="Condoto">Condoto</option>
+                                    <option value="Riosucio">Riosucio</option>
+                                    <option value="Bagadó">Bagadó</option>
+                                    <option value="Bahía Solano">Bahía Solano</option>
+                                    <option value="Centro">Centro (Quibdó)</option>
+                                    <option value="Kennedy">Kennedy (Quibdó)</option>
+                                    <option value="Pereira">Pereira</option>
+                                    <option value="otro">📍 Otro lugar</option>
+                                </select>
+                                <input type="text" id="destino-solicitud" placeholder="Escriba el punto de destino" style="display: none;" required>
+                            </div>
+
+                            <div class="grupo-input-doble-modal">
+                                <div class="grupo-input-modal">
+                                    <label>Fecha *</label>
+                                    <input type="date" id="fecha-solicitud" required>
+                                </div>
+                                <div class="grupo-input-modal">
+                                    <label>Hora *</label>
+                                    <input type="time" id="hora-solicitud" required>
+                                </div>
+                            </div>
+
+                            <div class="grupo-input-modal">
+                                <label>Número de pasajeros *</label>
+                                <select id="pasajeros-solicitud" required>
+                                    ${generarOpcionesPasajeros(tipoVehiculo)}
+                                </select>
+                            </div>
+
+                            <div class="grupo-input-modal">
+                                <label>Teléfono de contacto *</label>
+                                <input type="tel" id="telefono-solicitud" placeholder="+57 300 123 4567" required>
+                            </div>
+
+                            <div class="grupo-input-modal">
+                                <label>Observaciones adicionales</label>
+                                <textarea id="observaciones-solicitud" placeholder="Equipaje especial, paradas adicionales, etc."></textarea>
+                            </div>
+
+                            <div class="precio-estimado">
+                                <span class="etiqueta-precio">Precio estimado:</span>
+                                <span class="valor-precio" id="precio-estimado">${obtenerPrecioBase(tipoVehiculo)}</span>
+                            </div>
+
+                            <div class="botones-modal">
+                                <button type="button" class="boton boton-secundario" onclick="cerrarModalSolicitud()">
+                                    Cancelar
+                                </button>
+                                <button type="submit" class="boton boton-primario">
+                                    Confirmar Solicitud
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            `;
+
+            document.body.appendChild(modal);
+
+
+            const hoy = new Date().toISOString().split('T')[0];
+            document.getElementById('fecha-solicitud').min = hoy;
+            document.getElementById('fecha-solicitud').value = hoy;
+
+
+            setTimeout(() => modal.classList.add('visible'), 10);
+
+
+            document.getElementById('form-solicitud-servicio').addEventListener('submit', function (e) {
+                e.preventDefault();
+                procesarSolicitudServicio(tipoVehiculo);
+            });
+        }
+
+
+        function obtenerIconoVehiculo(tipo) {
+            const iconos = {
+                'moto': '🏍️',
+                'carro': '🚗',
+                'bus': '🚌',
+                '4x4': '🚙'
+            };
+            return iconos[tipo] || '🚗';
+        }
+
+
+        function generarOpcionesPasajeros(tipo) {
+            const capacidades = {
+                'moto': 1,
+                'carro': 4,
+                'bus': 35,
+                '4x4': 7
+            };
+
+            const max = capacidades[tipo] || 4;
+            let opciones = '';
+
+            for (let i = 1; i <= max; i++) {
+                opciones += `<option value="${i}">${i} pasajero${i > 1 ? 's' : ''}</option>`;
+            }
+
+            return opciones;
+        }
+
+
+        function obtenerPrecioBase(tipo) {
+            const precios = {
+                'moto': 'Desde $5,000',
+                'carro': 'Desde $15,000',
+                'bus': 'Desde $25,000',
+                '4x4': 'Desde $40,000'
+            };
+            return precios[tipo] || 'A calcular';
+        }
+
+
+        function cerrarModalSolicitud() {
+            const modal = document.querySelector('.modal-solicitud');
+            if (modal) {
+                modal.classList.remove('visible');
+                setTimeout(() => modal.remove(), 300);
+            }
+        }
+
+
+        function procesarSolicitudServicio(tipoVehiculo) {
+
+            const origenSelect = document.getElementById('origen-select');
+            const origenInput = document.getElementById('origen-solicitud');
+            const destinoSelect = document.getElementById('destino-select');
+            const destinoInput = document.getElementById('destino-solicitud');
+
+            const origen = origenSelect.style.display === 'none' ? origenInput.value : origenSelect.value;
+            const destino = destinoSelect.style.display === 'none' ? destinoInput.value : destinoSelect.value;
+
+            const formData = {
+                tipoVehiculo: tipoVehiculo,
+                origen: origen,
+                destino: destino,
+                fecha: document.getElementById('fecha-solicitud').value,
+                hora: document.getElementById('hora-solicitud').value,
+                pasajeros: document.getElementById('pasajeros-solicitud').value,
+                telefono: document.getElementById('telefono-solicitud').value,
+                observaciones: document.getElementById('observaciones-solicitud').value
+            };
+
+
+            const submitBtn = document.querySelector('#form-solicitud-servicio .boton-primario');
+            const textoOriginal = submitBtn.innerHTML;
+            submitBtn.innerHTML = 'Procesando...';
+            submitBtn.disabled = true;
+
+            setTimeout(() => {
+                mostrarConfirmacionSolicitud(formData);
+                cerrarModalSolicitud();
+            }, 2000);
+        }
+
+
+        function mostrarConfirmacionSolicitud(data) {
+            const modal = document.createElement('div');
+            modal.className = 'modal-solicitud';
+            modal.innerHTML = `
+                <div class="modal-contenido-solicitud">
+                    <div class="confirmacion-servicio">
+                        <div class="icono-confirmacion">✅</div>
+                        <h3>¡Solicitud enviada!</h3>
+                        <p>Hemos recibido su solicitud de ${data.tipoVehiculo.toUpperCase()}</p>
+                        
+                        <div class="detalles-solicitud">
+                            <div class="detalle">
+                                <span class="etiqueta">Ruta:</span>
+                                <span class="valor">${data.origen} → ${data.destino}</span>
+                            </div>
+                            <div class="detalle">
+                                <span class="etiqueta">Fecha y hora:</span>
+                                <span class="valor">${new Date(data.fecha).toLocaleDateString()} - ${data.hora}</span>
+                            </div>
+                            <div class="detalle">
+                                <span class="etiqueta">Pasajeros:</span>
+                                <span class="valor">${data.pasajeros}</span>
+                            </div>
+                            <div class="detalle">
+                                <span class="etiqueta">Contacto:</span>
+                                <span class="valor">${data.telefono}</span>
+                            </div>
+                        </div>
+
+                        <div class="siguiente-paso">
+                            <p><strong>Próximos pasos:</strong></p>
+                            <ul>
+                                <li>Nos contactaremos en los próximos 15 minutos</li>
+                                <li>Confirmaremos disponibilidad y precio exacto</li>
+                                <li>El conductor llegará a la hora acordada</li>
+                            </ul>
+                        </div>
+
+                        <button class="boton boton-primario" onclick="cerrarModalSolicitud()">
+                            Entendido
+                        </button>
+                    </div>
+                </div>
+            `;
+
+            document.body.appendChild(modal);
+            setTimeout(() => modal.classList.add('visible'), 10);
+        }
+    </script>
+</body>
+
+</html>

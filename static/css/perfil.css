@@ -1,0 +1,458 @@
+/* CSS para mi-perfil.html - Compatible con transporte-mejorado.css */
+
+.seccion-perfil {
+    padding: 140px 0 80px;
+    min-height: 100vh;
+}
+
+.contenido-perfil {
+    display: grid;
+    gap: 32px;
+    max-width: 1000px;
+    margin: 0 auto;
+}
+
+/* Tarjetas del perfil */
+.tarjeta-perfil {
+    background: var(--fondo-tarjeta);
+    border: 1px solid var(--borde);
+    border-radius: 24px;
+    padding: 32px;
+    transition: all 0.3s ease;
+}
+
+.tarjeta-perfil:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--sombra);
+    border-color: var(--primario);
+}
+
+/* Encabezado de la tarjeta de perfil principal */
+.encabezado-tarjeta {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    padding-bottom: 24px;
+    border-bottom: 1px solid var(--borde);
+    margin-bottom: 32px;
+    position: relative;
+}
+
+.avatar-perfil {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: 700;
+    font-size: 32px;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+    transition: all 0.3s ease;
+    flex-shrink: 0;
+}
+
+.avatar-perfil:hover {
+    transform: scale(1.05);
+}
+
+.info-encabezado {
+    flex: 1;
+}
+
+.info-encabezado h2 {
+    font-size: 2rem;
+    font-weight: 700;
+    margin-bottom: 8px;
+    color: var(--texto-primario);
+}
+
+.info-encabezado p {
+    color: var(--texto-secundario);
+    font-size: 1.1rem;
+    margin-bottom: 8px;
+}
+
+.fecha-registro {
+    color: var(--texto-silenciado);
+    font-size: 0.9rem;
+}
+
+.boton-editar {
+    background: linear-gradient(135deg, var(--primario), var(--secundario));
+    color: white;
+    border: none;
+    border-radius: 12px;
+    padding: 12px 20px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: absolute;
+    top: 0;
+    right: 0;
+}
+
+.boton-editar:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(99, 102, 241, 0.4);
+}
+
+/* Encabezado de secciones */
+.encabezado-seccion {
+    margin-bottom: 32px;
+}
+
+.encabezado-seccion h3 {
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin-bottom: 8px;
+    color: var(--texto-primario);
+}
+
+.encabezado-seccion p {
+    color: var(--texto-secundario);
+    font-size: 1rem;
+}
+
+/* Formularios del perfil */
+.formulario-perfil {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+.grupo-input-doble {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+}
+
+.grupo-input {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.grupo-input label {
+    font-weight: 600;
+    color: var(--texto-primario);
+    font-size: 0.9rem;
+}
+
+.grupo-input input,
+.grupo-input select,
+.grupo-input textarea {
+    padding: 16px;
+    background: var(--fondo-cristal);
+    border: 1px solid var(--borde);
+    border-radius: 12px;
+    color: var(--texto-primario);
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    font-family: inherit;
+}
+
+.grupo-input input:focus,
+.grupo-input select:focus,
+.grupo-input textarea:focus {
+    outline: none;
+    border-color: var(--primario);
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+    background: rgba(99, 102, 241, 0.05);
+}
+
+.grupo-input input:read-only {
+    background: rgba(255, 255, 255, 0.02);
+    color: var(--texto-secundario);
+    cursor: not-allowed;
+}
+
+.grupo-input input.editable {
+    background: var(--fondo-cristal);
+    color: var(--texto-primario);
+    cursor: text;
+    border-color: var(--acento);
+}
+
+.ayuda-input {
+    font-size: 0.85rem;
+    color: var(--texto-silenciado);
+    margin-top: 4px;
+}
+
+/* Botones del formulario */
+.botones-formulario {
+    display: flex;
+    gap: 16px;
+    justify-content: flex-end;
+    margin-top: 24px;
+}
+
+.botones-formulario .boton {
+    min-width: 140px;
+    padding: 12px 24px;
+    border-radius: 12px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+/* Estadísticas del usuario */
+.estadisticas-usuario {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 24px;
+    margin-top: 24px;
+}
+
+.stat-item {
+    text-align: center;
+    padding: 24px;
+    background: var(--fondo-cristal);
+    border: 1px solid var(--borde);
+    border-radius: 16px;
+    transition: all 0.3s ease;
+}
+
+.stat-item:hover {
+    transform: translateY(-4px);
+    border-color: var(--acento);
+}
+
+.stat-numero {
+    font-size: 2.5rem;
+    font-weight: 800;
+    color: var(--acento);
+    margin-bottom: 8px;
+    display: block;
+    line-height: 1;
+}
+
+.stat-etiqueta {
+    color: var(--texto-secundario);
+    font-weight: 500;
+    font-size: 0.9rem;
+}
+
+/* Estados y animaciones */
+.oculto {
+    display: none !important;
+}
+
+.aparecer {
+    opacity: 0;
+    transform: translateY(30px);
+    animation: aparecer-perfil 0.6s ease forwards;
+}
+
+@keyframes aparecer-perfil {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Efectos especiales */
+.tarjeta-perfil::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(135deg, var(--primario), var(--acento));
+    border-radius: 24px 24px 0 0;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.tarjeta-perfil:hover::before {
+    opacity: 1;
+}
+
+/* Mensajes de validación y notificaciones */
+.mensaje-exito,
+.mensaje-error {
+    padding: 12px 16px;
+    border-radius: 8px;
+    margin-bottom: 16px;
+    font-weight: 500;
+}
+
+.mensaje-exito {
+    background: rgba(34, 197, 94, 0.1);
+    border: 1px solid rgba(34, 197, 94, 0.3);
+    color: #22c55e;
+}
+
+.mensaje-error {
+    background: rgba(239, 68, 68, 0.1);
+    border: 1px solid rgba(239, 68, 68, 0.3);
+    color: #ef4444;
+}
+
+/* Indicadores de estado */
+.indicador-online {
+    position: relative;
+}
+
+.indicador-online::after {
+    content: '';
+    position: absolute;
+    bottom: 4px;
+    right: 4px;
+    width: 16px;
+    height: 16px;
+    background: #22c55e;
+    border: 3px solid white;
+    border-radius: 50%;
+    box-shadow: 0 0 0 1px var(--fondo-tarjeta);
+}
+
+/* Diseño responsivo */
+@media (max-width: 768px) {
+    .seccion-perfil {
+        padding: 120px 0 60px;
+    }
+
+    .contenido-perfil {
+        gap: 24px;
+        padding: 0 16px;
+    }
+
+    .tarjeta-perfil {
+        padding: 24px;
+        border-radius: 16px;
+    }
+
+    .encabezado-tarjeta {
+        flex-direction: column;
+        text-align: center;
+        gap: 16px;
+    }
+
+    .avatar-perfil {
+        width: 64px;
+        height: 64px;
+        font-size: 24px;
+    }
+
+    .info-encabezado h2 {
+        font-size: 1.5rem;
+    }
+
+    .boton-editar {
+        position: static;
+        width: 100%;
+        margin-top: 16px;
+    }
+
+    .grupo-input-doble {
+        grid-template-columns: 1fr;
+        gap: 16px;
+    }
+
+    .botones-formulario {
+        flex-direction: column;
+    }
+
+    .estadisticas-usuario {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 16px;
+    }
+
+    .stat-item {
+        padding: 16px;
+    }
+
+    .stat-numero {
+        font-size: 2rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .encabezado-tarjeta {
+        padding-bottom: 16px;
+        margin-bottom: 24px;
+    }
+
+    .estadisticas-usuario {
+        grid-template-columns: 1fr;
+    }
+
+    .grupo-input input,
+    .grupo-input select,
+    .grupo-input textarea {
+        padding: 12px;
+    }
+}
+
+/* Animaciones de loading para botones */
+.boton.loading {
+    position: relative;
+    color: transparent;
+}
+
+.boton.loading::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 20px;
+    height: 20px;
+    margin: -10px 0 0 -10px;
+    border: 2px solid transparent;
+    border-top-color: currentColor;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* Efectos hover mejorados */
+.tarjeta-perfil:hover .avatar-perfil {
+    transform: scale(1.05) rotate(2deg);
+}
+
+.grupo-input:hover label {
+    color: var(--primario);
+    transition: color 0.3s ease;
+}
+
+/* Gradientes personalizados */
+.estadisticas-usuario .stat-item:nth-child(1) .stat-numero {
+    background: linear-gradient(135deg, var(--primario), var(--secundario));
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.estadisticas-usuario .stat-item:nth-child(2) .stat-numero {
+    background: linear-gradient(135deg, var(--acento), var(--secundario));
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.estadisticas-usuario .stat-item:nth-child(3) .stat-numero {
+    background: linear-gradient(135deg, var(--secundario), var(--primario));
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.estadisticas-usuario .stat-item:nth-child(4) .stat-numero {
+    background: linear-gradient(135deg, var(--acento), var(--primario));
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}

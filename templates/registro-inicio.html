@@ -1,0 +1,571 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bienvenido a Transporte Águila S.A.S.</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/transporte-mejorado.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/registro.css') }}">
+</head>
+
+<body>
+    <div class="patron-fondo"></div>
+
+    <div class="container-auth">
+        <div class="seccion-bienvenida">
+            <div class="logo-principal">
+                <div class="icono-logo">🦅</div>
+                <div class="texto-logo">
+                    <h1>Transporte Águila</h1>
+                    <span>S.A.S.</span>
+                </div>
+            </div>
+
+            <div class="contenido-bienvenida">
+                <h2>Conectando el Chocó con seguridad y confianza</h2>
+                <p>Únete a la plataforma de transporte más confiable del Pacífico colombiano. Accede a rutas seguras,
+                    horarios actualizados y servicios adaptados a tus necesidades.</p>
+
+                <div class="beneficios-lista">
+                    <div class="beneficio-item">
+                        <div class="icono-beneficio">🚌</div>
+                        <span>Múltiples opciones de transporte</span>
+                    </div>
+                    <div class="beneficio-item">
+                        <div class="icono-beneficio">🗺️</div>
+                        <span>Rutas por todo el Chocó</span>
+                    </div>
+                    <div class="beneficio-item">
+                        <div class="icono-beneficio">⏰</div>
+                        <span>Horarios en tiempo real</span>
+                    </div>
+                    <div class="beneficio-item">
+                        <div class="icono-beneficio">🛡️</div>
+                        <span>Viajes seguros y confiables</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="seccion-auth">
+            <div class="contenedor-formularios">
+                <!-- FORMULARIO DE LOGIN -->
+                <div class="formulario-contenedor" id="login-form">
+                    <div class="encabezado-formulario">
+                        <h3>Iniciar Sesión</h3>
+                        <p>Accede a tu cuenta para continuar</p>
+                    </div>
+
+                    <form class="formulario-auth" id="form-login">
+                        <div class="grupo-input">
+                            <label for="login-email">Correo electrónico</label>
+                            <input type="email" id="login-email" name="email" placeholder="tu@ejemplo.com" required>
+                        </div>
+
+                        <div class="grupo-input">
+                            <label for="login-password">Contraseña</label>
+                            <input type="password" id="login-password" name="password" placeholder="••••••••" required>
+                        </div>
+
+                        <div class="opciones-extras">
+                            <label class="checkbox-container">
+                                <input type="checkbox" name="recordar">
+                                <span class="checkmark"></span>
+                                Recordarme
+                            </label>
+                            <a href="#" class="link-recuperar">¿Olvidaste tu contraseña?</a>
+                        </div>
+
+                        <div id="login-error" class="mensaje-error" style="display: none;"></div>
+
+                        <button type="submit" class="boton-auth boton-primario" id="btn-login">
+                            <span>Iniciar Sesión</span>
+                            <div class="icono-boton">→</div>
+                        </button>
+                    </form>
+
+                    <div class="separador-formulario">
+                        <span>¿No tienes cuenta?</span>
+                        <button type="button" class="boton-cambiar" onclick="mostrarSeleccionTipo()">
+                            Créate una aquí
+                        </button>
+                    </div>
+                </div>
+
+                <!-- SELECCIÓN DE TIPO DE USUARIO -->
+                <div class="formulario-contenedor oculto" id="tipo-usuario-form">
+                    <div class="encabezado-formulario">
+                        <h3>¿Cómo deseas usar Águila?</h3>
+                        <p>Selecciona el tipo de cuenta que necesitas</p>
+                    </div>
+
+                    <div class="selector-tipo-usuario">
+                        <div class="tarjeta-tipo-usuario" onclick="seleccionarTipo('pasajero')">
+                            <div class="icono-tipo-usuario">🧳</div>
+                            <h4>Soy Pasajero</h4>
+                            <p>Quiero viajar y reservar servicios de transporte</p>
+                            <div class="caracteristicas-tipo">
+                                <span>✓ Reservar viajes</span>
+                                <span>✓ Ver horarios</span>
+                                <span>✓ Gestionar reservas</span>
+                            </div>
+                        </div>
+
+                        <div class="tarjeta-tipo-usuario" onclick="seleccionarTipo('conductor')">
+                            <div class="icono-tipo-usuario">🚗</div>
+                            <h4>Soy Conductor</h4>
+                            <p>Quiero ofrecer mis servicios de transporte</p>
+                            <div class="caracteristicas-tipo">
+                                <span>✓ Recibir solicitudes</span>
+                                <span>✓ Gestionar servicios</span>
+                                <span>✓ Generar ingresos</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="separador-formulario">
+                        <button type="button" class="boton-cambiar" onclick="mostrarLogin()">
+                            ← Volver al inicio
+                        </button>
+                    </div>
+                </div>
+
+                <!-- FORMULARIO DE REGISTRO PASAJERO -->
+                <div class="formulario-contenedor oculto" id="register-pasajero-form">
+                    <div class="encabezado-formulario">
+                        <h3>Crear Cuenta - Pasajero</h3>
+                        <p>Regístrate para acceder a todos nuestros servicios</p>
+                    </div>
+
+                    <form class="formulario-auth" id="form-registro-pasajero">
+                        <input type="hidden" name="tipo_usuario" value="pasajero">
+
+                        <div class="grupo-input-doble">
+                            <div class="grupo-input">
+                                <label for="pasajero-nombre">Nombre</label>
+                                <input type="text" id="pasajero-nombre" name="nombre" placeholder="Tu nombre" required>
+                            </div>
+                            <div class="grupo-input">
+                                <label for="pasajero-apellido">Apellido</label>
+                                <input type="text" id="pasajero-apellido" name="apellido" placeholder="Tu apellido"
+                                    required>
+                            </div>
+                        </div>
+
+                        <div class="grupo-input">
+                            <label for="pasajero-email">Correo electrónico</label>
+                            <input type="email" id="pasajero-email" name="email" placeholder="tu@ejemplo.com" required>
+                        </div>
+
+                        <div class="grupo-input">
+                            <label for="pasajero-telefono">Teléfono</label>
+                            <input type="tel" id="pasajero-telefono" name="telefono" placeholder="+57 300 123 4567"
+                                required>
+                        </div>
+
+                        <div class="grupo-input">
+                            <label for="pasajero-cedula">Número de identificación</label>
+                            <input type="text" id="pasajero-cedula" name="cedula" placeholder="12345678" required>
+                        </div>
+
+                        <div class="grupo-input">
+                            <label for="pasajero-password">Contraseña</label>
+                            <input type="password" id="pasajero-password" name="password" placeholder="••••••••"
+                                required>
+                            <small class="ayuda-password">Mínimo 8 caracteres, incluir letras y números</small>
+                        </div>
+
+                        <div class="grupo-input">
+                            <label for="pasajero-confirm-password">Confirmar contraseña</label>
+                            <input type="password" id="pasajero-confirm-password" name="confirm_password"
+                                placeholder="••••••••" required>
+                        </div>
+
+                        <div class="opciones-extras">
+                            <label class="checkbox-container">
+                                <input type="checkbox" name="terminos" required>
+                                <span class="checkmark"></span>
+                                Acepto los términos y condiciones
+                            </label>
+                        </div>
+
+                        <div id="register-pasajero-error" class="mensaje-error" style="display: none;"></div>
+
+                        <button type="submit" class="boton-auth boton-primario" id="btn-registro-pasajero">
+                            <span>Crear Cuenta</span>
+                            <div class="icono-boton">✓</div>
+                        </button>
+                    </form>
+
+                    <div class="separador-formulario">
+                        <button type="button" class="boton-cambiar" onclick="mostrarSeleccionTipo()">
+                            ← Volver
+                        </button>
+                    </div>
+                </div>
+
+                <!-- FORMULARIO DE REGISTRO CONDUCTOR -->
+                <div class="formulario-contenedor oculto" id="register-conductor-form">
+                    <div class="encabezado-formulario">
+                        <h3>Crear Cuenta - Conductor</h3>
+                        <p>Completa tu información para trabajar con nosotros</p>
+                    </div>
+
+                    <form class="formulario-auth" id="form-registro-conductor">
+                        <input type="hidden" name="tipo_usuario" value="conductor">
+
+                        <div class="seccion-formulario">
+                            <h4 class="titulo-seccion-form">Datos Personales</h4>
+
+                            <div class="grupo-input-doble">
+                                <div class="grupo-input">
+                                    <label for="conductor-nombre">Nombre *</label>
+                                    <input type="text" id="conductor-nombre" name="nombre" required>
+                                </div>
+                                <div class="grupo-input">
+                                    <label for="conductor-apellido">Apellido *</label>
+                                    <input type="text" id="conductor-apellido" name="apellido" required>
+                                </div>
+                            </div>
+
+                            <div class="grupo-input">
+                                <label for="conductor-email">Correo electrónico *</label>
+                                <input type="email" id="conductor-email" name="email" required>
+                            </div>
+
+                            <div class="grupo-input-doble">
+                                <div class="grupo-input">
+                                    <label for="conductor-telefono">Teléfono *</label>
+                                    <input type="tel" id="conductor-telefono" name="telefono" required>
+                                </div>
+                                <div class="grupo-input">
+                                    <label for="conductor-cedula">Cédula *</label>
+                                    <input type="text" id="conductor-cedula" name="cedula" required>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="seccion-formulario">
+                            <h4 class="titulo-seccion-form">Información de Licencia</h4>
+
+                            <div class="grupo-input">
+                                <label for="conductor-licencia">Número de Licencia *</label>
+                                <input type="text" id="conductor-licencia" name="numero_licencia" required>
+                            </div>
+
+                            <div class="grupo-input-doble">
+                                <div class="grupo-input">
+                                    <label for="conductor-categoria">Categoría *</label>
+                                    <select id="conductor-categoria" name="categoria_licencia" required>
+                                        <option value="">Seleccionar</option>
+                                        <option value="A1">A1 - Motocicletas hasta 125cc</option>
+                                        <option value="A2">A2 - Motocicletas mayores 125cc</option>
+                                        <option value="B1">B1 - Automóviles</option>
+                                        <option value="B2">B2 - Camionetas y camperos</option>
+                                        <option value="C1">C1 - Camiones rígidos</option>
+                                        <option value="C2">C2 - Vehículos articulados</option>
+                                    </select>
+                                </div>
+                                <div class="grupo-input">
+                                    <label for="conductor-vencimiento">Vencimiento *</label>
+                                    <input type="date" id="conductor-vencimiento" name="fecha_vencimiento_licencia"
+                                        required>
+                                </div>
+                            </div>
+
+                            <div class="grupo-input">
+                                <label for="conductor-experiencia">Años de Experiencia *</label>
+                                <input type="number" id="conductor-experiencia" name="años_experiencia" min="0" max="50"
+                                    required>
+                            </div>
+
+                            <div class="grupo-input">
+                                <label class="checkbox-container">
+                                    <input type="checkbox" name="vehiculo_propio" id="conductor-vehiculo-propio">
+                                    <span class="checkmark"></span>
+                                    Tengo vehículo propio
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="seccion-formulario">
+                            <h4 class="titulo-seccion-form">Seguridad</h4>
+
+                            <div class="grupo-input">
+                                <label for="conductor-password">Contraseña *</label>
+                                <input type="password" id="conductor-password" name="password" required>
+                                <small class="ayuda-password">Mínimo 8 caracteres, incluir letras y números</small>
+                            </div>
+
+                            <div class="grupo-input">
+                                <label for="conductor-confirm-password">Confirmar contraseña *</label>
+                                <input type="password" id="conductor-confirm-password" name="confirm_password" required>
+                            </div>
+                        </div>
+
+                        <div class="opciones-extras">
+                            <label class="checkbox-container">
+                                <input type="checkbox" name="terminos" required>
+                                <span class="checkmark"></span>
+                                Acepto los términos y condiciones
+                            </label>
+                        </div>
+
+                        <div class="alerta-info">
+                            <span class="icono-alerta">ℹ️</span>
+                            <p>Tu solicitud será revisada por nuestro equipo. Te notificaremos por email cuando sea
+                                aprobada.</p>
+                        </div>
+
+                        <div id="register-conductor-error" class="mensaje-error" style="display: none;"></div>
+
+                        <button type="submit" class="boton-auth boton-primario" id="btn-registro-conductor">
+                            <span>Enviar Solicitud</span>
+                            <div class="icono-boton">✓</div>
+                        </button>
+                    </form>
+
+                    <div class="separador-formulario">
+                        <button type="button" class="boton-cambiar" onclick="mostrarSeleccionTipo()">
+                            ← Volver
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL DE ÉXITO -->
+    <div id="modal-exito" class="modal oculto">
+        <div class="modal-contenido">
+            <div class="modal-icono">✓</div>
+            <h3 id="modal-titulo">¡Bienvenido a Transporte Águila!</h3>
+            <p id="modal-mensaje">Tu cuenta ha sido creada exitosamente.</p>
+            <button class="boton-auth boton-primario" onclick="mostrarLogin()">
+                Iniciar Sesión
+            </button>
+        </div>
+    </div>
+
+    <script>
+        const loginForm = document.getElementById('login-form');
+        const tipoUsuarioForm = document.getElementById('tipo-usuario-form');
+        const registerPasajeroForm = document.getElementById('register-pasajero-form');
+        const registerConductorForm = document.getElementById('register-conductor-form');
+        const modalExito = document.getElementById('modal-exito');
+
+        let tipoUsuarioSeleccionado = 'pasajero';
+
+        function mostrarError(elementId, mensaje) {
+            const errorDiv = document.getElementById(elementId);
+            errorDiv.textContent = mensaje;
+            errorDiv.style.display = 'block';
+            setTimeout(() => {
+                errorDiv.style.display = 'none';
+            }, 5000);
+        }
+
+        function ocultarTodos() {
+            [loginForm, tipoUsuarioForm, registerPasajeroForm, registerConductorForm].forEach(form => {
+                form.classList.add('oculto');
+                form.classList.remove('visible');
+            });
+        }
+
+        function mostrarFormulario(formulario) {
+            ocultarTodos();
+            formulario.classList.remove('oculto');
+            setTimeout(() => {
+                formulario.classList.add('visible');
+            }, 50);
+        }
+
+        function mostrarLogin() {
+            mostrarFormulario(loginForm);
+            modalExito.classList.add('oculto');
+        }
+
+        function mostrarSeleccionTipo() {
+            mostrarFormulario(tipoUsuarioForm);
+        }
+
+        function seleccionarTipo(tipo) {
+            tipoUsuarioSeleccionado = tipo;
+            if (tipo === 'pasajero') {
+                mostrarFormulario(registerPasajeroForm);
+            } else {
+                mostrarFormulario(registerConductorForm);
+            }
+        }
+
+
+        document.getElementById('form-login').addEventListener('submit', async function (e) {
+            e.preventDefault();
+
+            const email = document.getElementById('login-email').value;
+            const password = document.getElementById('login-password').value;
+            const boton = document.getElementById('btn-login');
+
+            if (!email || !password) {
+                mostrarError('login-error', 'Por favor, completa todos los campos');
+                return;
+            }
+
+            const textoOriginal = boton.innerHTML;
+            boton.innerHTML = '<span>Iniciando...</span><div class="loader"></div>';
+            boton.disabled = true;
+
+            try {
+                const response = await fetch('/api/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        email: email,
+                        password: password
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    window.location.href = '/dashboard';
+                } else {
+                    mostrarError('login-error', data.message);
+                }
+            } catch (error) {
+                mostrarError('login-error', 'Error de conexión. Intenta nuevamente.');
+            } finally {
+                boton.innerHTML = textoOriginal;
+                boton.disabled = false;
+            }
+        });
+
+
+        document.getElementById('form-registro-pasajero').addEventListener('submit', async function (e) {
+            e.preventDefault();
+
+            const formData = new FormData(this);
+            const data = Object.fromEntries(formData);
+            const boton = document.getElementById('btn-registro-pasajero');
+
+            if (data.password !== data.confirm_password) {
+                mostrarError('register-pasajero-error', 'Las contraseñas no coinciden');
+                return;
+            }
+
+            if (!data.terminos) {
+                mostrarError('register-pasajero-error', 'Debes aceptar los términos y condiciones');
+                return;
+            }
+
+            const textoOriginal = boton.innerHTML;
+            boton.innerHTML = '<span>Creando cuenta...</span><div class="loader"></div>';
+            boton.disabled = true;
+
+            try {
+                const response = await fetch('/api/registro', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(data)
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    document.getElementById('modal-titulo').textContent = '¡Bienvenido a Transporte Águila!';
+                    document.getElementById('modal-mensaje').textContent = 'Tu cuenta ha sido creada exitosamente. Ahora puedes iniciar sesión.';
+                    modalExito.classList.remove('oculto');
+                    modalExito.classList.add('visible');
+                    this.reset();
+                } else {
+                    mostrarError('register-pasajero-error', result.message);
+                }
+            } catch (error) {
+                mostrarError('register-pasajero-error', 'Error de conexión. Intenta nuevamente.');
+            } finally {
+                boton.innerHTML = textoOriginal;
+                boton.disabled = false;
+            }
+        });
+
+
+        document.getElementById('form-registro-conductor').addEventListener('submit', async function (e) {
+            e.preventDefault();
+
+            const formData = new FormData(this);
+            const data = Object.fromEntries(formData);
+            data.vehiculo_propio = document.getElementById('conductor-vehiculo-propio').checked;
+            const boton = document.getElementById('btn-registro-conductor');
+
+            if (data.password !== data.confirm_password) {
+                mostrarError('register-conductor-error', 'Las contraseñas no coinciden');
+                return;
+            }
+
+            if (!data.terminos) {
+                mostrarError('register-conductor-error', 'Debes aceptar los términos y condiciones');
+                return;
+            }
+
+
+            const fechaVencimiento = new Date(data.fecha_vencimiento_licencia);
+            const hoy = new Date();
+            if (fechaVencimiento < hoy) {
+                mostrarError('register-conductor-error', 'La licencia está vencida');
+                return;
+            }
+
+            const textoOriginal = boton.innerHTML;
+            boton.innerHTML = '<span>Enviando solicitud...</span><div class="loader"></div>';
+            boton.disabled = true;
+
+            try {
+                const response = await fetch('/api/registro', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(data)
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    document.getElementById('modal-titulo').textContent = '¡Solicitud Enviada!';
+                    document.getElementById('modal-mensaje').textContent = 'Tu solicitud como conductor está siendo revisada. Te notificaremos por email cuando sea aprobada.';
+                    modalExito.classList.remove('oculto');
+                    modalExito.classList.add('visible');
+                    this.reset();
+                } else {
+                    mostrarError('register-conductor-error', result.message);
+                }
+            } catch (error) {
+                mostrarError('register-conductor-error', 'Error de conexión. Intenta nuevamente.');
+            } finally {
+                boton.innerHTML = textoOriginal;
+                boton.disabled = false;
+            }
+        });
+
+
+        const fechaVencimientoInput = document.getElementById('conductor-vencimiento');
+        if (fechaVencimientoInput) {
+            const hoy = new Date().toISOString().split('T')[0];
+            fechaVencimientoInput.min = hoy;
+        }
+
+
+        document.addEventListener('DOMContentLoaded', function () {
+            setTimeout(() => {
+                loginForm.classList.add('visible');
+            }, 100);
+        });
+    </script>
+</body>
+
+</html>

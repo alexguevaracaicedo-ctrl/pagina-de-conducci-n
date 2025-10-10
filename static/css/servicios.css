@@ -1,0 +1,685 @@
+.grilla-servicios-detallados {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+    gap: 32px;
+    margin-bottom: 80px;
+}
+
+.tarjeta-servicio-detallada {
+    background: var(--fondo-tarjeta);
+    border: 1px solid var(--borde);
+    border-radius: 24px;
+    padding: 40px;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.tarjeta-servicio-detallada::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(135deg, var(--primario), var(--acento));
+}
+
+.tarjeta-servicio-detallada:hover {
+    transform: translateY(-8px);
+    box-shadow: var(--sombra);
+    border-color: var(--primario);
+}
+
+.encabezado-servicio-detallado {
+    display: flex;
+    align-items: flex-start;
+    gap: 20px;
+    margin-bottom: 24px;
+}
+
+.icono-servicio-detallado {
+    width: 64px;
+    height: 64px;
+    background: linear-gradient(135deg, var(--primario), var(--secundario));
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 28px;
+    flex-shrink: 0;
+}
+
+.info-servicio-detallado {
+    flex: 1;
+}
+
+.info-servicio-detallado h3 {
+    font-size: 1.4rem;
+    font-weight: 700;
+    margin-bottom: 8px;
+    color: var(--texto-primario);
+}
+
+.etiqueta-servicio {
+    display: inline-block;
+    padding: 6px 16px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    margin-bottom: 8px;
+}
+
+.etiqueta-servicio.urbano {
+    background: rgba(6, 182, 212, 0.2);
+    color: var(--acento);
+    border: 1px solid rgba(6, 182, 212, 0.3);
+}
+
+.etiqueta-servicio.familiar {
+    background: rgba(139, 92, 246, 0.2);
+    color: var(--secundario);
+    border: 1px solid rgba(139, 92, 246, 0.3);
+}
+
+.etiqueta-servicio.intermunicipal {
+    background: rgba(99, 102, 241, 0.2);
+    color: var(--primario);
+    border: 1px solid rgba(99, 102, 241, 0.3);
+}
+
+.etiqueta-servicio.aventura {
+    background: rgba(34, 197, 94, 0.2);
+    color: #22c55e;
+    border: 1px solid rgba(34, 197, 94, 0.3);
+}
+
+.precio-servicio {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--acento);
+}
+
+.descripcion-servicio-detallada {
+    color: var(--texto-secundario);
+    line-height: 1.6;
+    margin-bottom: 24px;
+    font-size: 1rem;
+}
+
+.caracteristicas-servicio-detalladas {
+    margin-bottom: 32px;
+}
+
+.caracteristica-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 12px;
+    color: #ffffff;
+}
+
+.icono-check {
+    width: 20px;
+    height: 20px;
+    background: linear-gradient(135deg, var(--acento), var(--secundario));
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 12px;
+    font-weight: bold;
+    flex-shrink: 0;
+}
+
+
+.grilla-rutas-servicios {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 24px;
+    margin-bottom: 80px;
+}
+
+.tarjeta-ruta-servicio {
+    background: var(--fondo-tarjeta);
+    border: 1px solid var(--borde);
+    border-radius: 20px;
+    padding: 32px;
+    transition: all 0.3s ease;
+    position: relative;
+}
+
+.tarjeta-ruta-servicio::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(135deg, var(--secundario), var(--acento));
+}
+
+.tarjeta-ruta-servicio:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--sombra);
+    border-color: var(--acento);
+}
+
+.encabezado-ruta-servicio {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.origen-destino {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.ciudad-origen,
+.ciudad-destino {
+    font-weight: 600;
+    font-size: 1.1rem;
+    color: var(--texto-primario);
+}
+
+.flecha-ruta {
+    color: var(--acento);
+    font-weight: bold;
+    font-size: 1.2rem;
+}
+
+.frecuencia-ruta {
+    background: var(--fondo-cristal);
+    color: var(--primario);
+    padding: 6px 12px;
+    border-radius: 15px;
+    font-size: 0.85rem;
+    font-weight: 500;
+}
+
+.info-ruta-servicio {
+    display: grid;
+    gap: 12px;
+}
+
+.horario-ruta,
+.duracion-ruta,
+.precio-ruta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.etiqueta-info {
+    color: #ffffff;
+    font-size: 0.9rem;
+}
+
+.valor-info {
+    color: var(--texto-primario);
+    font-weight: 500;
+}
+
+.valor-precio {
+    color: var(--acento);
+    font-weight: 700;
+    font-size: 1.1rem;
+}
+
+
+.grilla-servicios-adicionales {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 24px;
+    margin-bottom: 80px;
+}
+
+.servicio-adicional {
+    background: var(--fondo-tarjeta);
+    border: 1px solid var(--borde);
+    border-radius: 16px;
+    padding: 32px;
+    text-align: center;
+    transition: all 0.3s ease;
+    position: relative;
+}
+
+.servicio-adicional:hover {
+    transform: translateY(-4px);
+    border-color: var(--secundario);
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
+}
+
+.icono-servicio-adicional {
+    width: 60px;
+    height: 60px;
+    background: linear-gradient(135deg, var(--secundario), var(--acento));
+    border-radius: 15px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 16px;
+    color: white;
+    font-size: 24px;
+}
+
+.servicio-adicional h4 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin-bottom: 12px;
+    color: var(--texto-primario);
+}
+
+.servicio-adicional p {
+    color: var(--texto-secundario);
+    font-size: 0.95rem;
+    line-height: 1.5;
+}
+
+
+.tarjeta-servicio-detallada:hover .icono-servicio-detallado {
+    transform: rotate(5deg) scale(1.05);
+    box-shadow: 0 8px 25px rgba(99, 102, 241, 0.4);
+}
+
+.servicio-adicional:hover .icono-servicio-adicional {
+    transform: scale(1.1);
+    box-shadow: 0 8px 25px rgba(139, 92, 246, 0.4);
+}
+
+
+@media (max-width: 768px) {
+
+    .grilla-servicios-detallados,
+    .grilla-rutas-servicios,
+    .grilla-servicios-adicionales {
+        grid-template-columns: 1fr;
+    }
+
+    .tarjeta-servicio-detallada {
+        padding: 24px;
+    }
+
+    .encabezado-servicio-detallado {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        gap: 16px;
+    }
+
+    .info-servicio-detallado {
+        text-align: center;
+    }
+
+    .icono-servicio-detallado {
+        width: 56px;
+        height: 56px;
+        font-size: 24px;
+    }
+
+    .encabezado-ruta-servicio {
+        flex-direction: column;
+        gap: 12px;
+        text-align: center;
+    }
+
+    .origen-destino {
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .flecha-ruta {
+        transform: rotate(90deg);
+    }
+}
+
+
+.aparecer {
+    opacity: 0;
+    transform: translateY(30px);
+}
+
+.aparecer.visible {
+    opacity: 1;
+    transform: translateY(0);
+    transition: all 0.6s ease;
+}
+
+
+.tarjeta-servicio-detallada:hover::before {
+    background: linear-gradient(135deg, var(--primario), var(--secundario), var(--acento));
+    animation: gradienteAnimado 3s ease infinite;
+}
+
+@keyframes gradienteAnimado {
+
+    0%,
+    100% {
+        background-position: 0% 50%;
+    }
+
+    50% {
+        background-position: 100% 50%;
+    }
+}
+
+.tarjeta-ruta-servicio:hover .flecha-ruta {
+    animation: pulsarFlecha 1s ease-in-out infinite;
+}
+
+@keyframes pulsarFlecha {
+
+    0%,
+    100% {
+        transform: scale(1);
+    }
+
+    50% {
+        transform: scale(1.2);
+    }
+}
+
+
+.modal-solicitud {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.8);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 2000;
+    opacity: 0;
+    backdrop-filter: blur(8px);
+    transition: all 0.3s ease;
+}
+
+.modal-solicitud.visible {
+    opacity: 1;
+}
+
+.modal-contenido-solicitud {
+    background: var(--fondo-tarjeta);
+    border: 1px solid var(--borde);
+    border-radius: 20px;
+    width: 90%;
+    max-width: 500px;
+    max-height: 90vh;
+    overflow-y: auto;
+    transform: scale(0.8) translateY(40px);
+    transition: transform 0.3s ease;
+}
+
+.modal-solicitud.visible .modal-contenido-solicitud {
+    transform: scale(1) translateY(0);
+}
+
+.modal-encabezado {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 24px 32px;
+    border-bottom: 1px solid var(--borde);
+}
+
+.modal-encabezado h3 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--texto-primario);
+    margin: 0;
+}
+
+.cerrar-modal {
+    background: none;
+    border: none;
+    font-size: 2rem;
+    color: var(--texto-secundario);
+    cursor: pointer;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+}
+
+.cerrar-modal:hover {
+    background: var(--fondo-cristal);
+    color: var(--texto-primario);
+}
+
+.formulario-solicitud {
+    padding: 32px;
+}
+
+.info-servicio-modal {
+    text-align: center;
+    margin-bottom: 32px;
+}
+
+.icono-servicio-modal {
+    font-size: 3rem;
+    margin-bottom: 16px;
+    display: block;
+}
+
+.info-servicio-modal p {
+    color: #ffffff;
+    font-size: 1rem;
+}
+
+.grupo-input-modal {
+    margin-bottom: 20px;
+}
+
+.grupo-input-doble-modal {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 20px;
+}
+
+.grupo-input-modal label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 600;
+    color: #ffffff;
+    font-size: 0.9rem;
+}
+
+.grupo-input-modal input,
+.grupo-input-modal select,
+.grupo-input-modal textarea {
+    width: 100%;
+    padding: 12px 16px;
+    background: var(--fondo-cristal);
+    border: 1px solid var(--borde);
+    border-radius: 8px;
+    color: #ffffff;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    font-family: inherit;
+}
+
+.grupo-input-modal select {
+    cursor: pointer;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg width='12' height='8' viewBox='0 0 12 8' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1L6 6L11 1' stroke='%23ffffff' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 16px center;
+    padding-right: 40px;
+}
+
+.grupo-input-modal select option {
+    background: var(--fondo-tarjeta);
+    color: #ffffff;
+    padding: 12px;
+}
+
+.grupo-input-modal textarea {
+    min-height: 80px;
+    resize: vertical;
+}
+
+.grupo-input-modal input:focus,
+.grupo-input-modal select:focus,
+.grupo-input-modal textarea:focus {
+    outline: none;
+    border-color: var(--primario);
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+}
+
+.grupo-input-modal input::placeholder,
+.grupo-input-modal textarea::placeholder {
+    color: rgba(255, 255, 255, 0.5);
+}
+
+.precio-estimado {
+    background: var(--fondo-cristal);
+    border: 1px solid var(--borde);
+    border-radius: 12px;
+    padding: 16px;
+    margin: 24px 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.etiqueta-precio {
+    color: #ffffff;
+    font-weight: 500;
+}
+
+.valor-precio {
+    color: var(--acento);
+    font-size: 1.2rem;
+    font-weight: 700;
+}
+
+.botones-modal {
+    display: flex;
+    gap: 16px;
+    margin-top: 32px;
+}
+
+.botones-modal .boton {
+    flex: 1;
+}
+
+
+.confirmacion-servicio {
+    padding: 40px 32px;
+    text-align: center;
+}
+
+.icono-confirmacion {
+    font-size: 4rem;
+    margin-bottom: 24px;
+    display: block;
+}
+
+.confirmacion-servicio h3 {
+    font-size: 1.8rem;
+    font-weight: 700;
+    margin-bottom: 12px;
+    color: var(--texto-primario);
+}
+
+.confirmacion-servicio p {
+    color: #ffffff;
+    margin-bottom: 32px;
+    font-size: 1.1rem;
+}
+
+.detalles-solicitud {
+    background: var(--fondo-cristal);
+    border: 1px solid var(--borde);
+    border-radius: 12px;
+    padding: 24px;
+    margin-bottom: 32px;
+    text-align: left;
+}
+
+.detalles-solicitud .detalle {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--borde);
+}
+
+.detalles-solicitud .detalle:last-child {
+    border-bottom: none;
+}
+
+.detalles-solicitud .etiqueta {
+    color: #ffffff;
+    font-weight: 500;
+}
+
+.detalles-solicitud .valor {
+    color: var(--texto-primario);
+    font-weight: 600;
+}
+
+.siguiente-paso {
+    background: rgba(34, 197, 94, 0.1);
+    border: 1px solid rgba(34, 197, 94, 0.3);
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 32px;
+    text-align: left;
+}
+
+.siguiente-paso p {
+    margin: 0 0 12px 0;
+    color: #ffffff;
+    font-weight: 600;
+}
+
+.siguiente-paso ul {
+    margin: 0;
+    padding-left: 20px;
+    color: #ffffff;
+}
+
+.siguiente-paso li {
+    margin-bottom: 8px;
+    line-height: 1.4;
+}
+
+
+@media (max-width: 768px) {
+    .modal-contenido-solicitud {
+        width: 95%;
+        margin: 20px;
+    }
+
+    .modal-encabezado {
+        padding: 20px 24px;
+    }
+
+    .formulario-solicitud {
+        padding: 24px;
+    }
+
+    .grupo-input-doble-modal {
+        grid-template-columns: 1fr;
+    }
+
+    .botones-modal {
+        flex-direction: column;
+    }
+
+    .confirmacion-servicio {
+        padding: 32px 24px;
+    }
+}

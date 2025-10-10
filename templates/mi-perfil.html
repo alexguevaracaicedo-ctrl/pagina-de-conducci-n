@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mi Perfil - Transporte Águila S.A.S.</title>
+    <link href="{{ url_for('static', filename='css/transporte-mejorado.css') }}" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/area-usuario.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/perfil.css') }}">
+</head>
+
+<body>
+    <div class="patron-fondo"></div>
+
+    <div class="area-usuario" id="area-usuario">
+        <div class="avatar-usuario" id="avatar-usuario">
+            <span id="iniciales-usuario">US</span>
+        </div>
+        <div class="info-usuario">
+            <span class="nombre-usuario" id="nombre-display">Cargando...</span>
+            <span class="saludo-usuario" id="saludo-usuario">¡Bienvenido!</span>
+        </div>
+        <div class="menu-usuario">
+            <div class="opcion-menu" onclick="window.location.href='/perfil'">
+                <span class="icono-menu">👤</span>
+                <span>Mi Perfil</span>
+            </div>
+            <div class="opcion-menu" onclick=>
+                <span class="icono-menu">📋</span>
+                <span>Mis Viajes</span>
+            </div>
+            <div class="opcion-menu" onclick="cerrarSesion()">
+                <span class="icono-menu">🚪</span>
+                <span>Cerrar Sesión</span>
+            </div>
+        </div>
+    </div>
+
+    <nav class="barra-navegacion">
+        <div class="contenido-nav">
+            <div class="logotipo">
+                <div class="icono-logo">🦅</div>
+                <span>Águila</span>
+            </div>
+            <ul class="enlaces-nav" id="enlaces-nav">
+                <li><a href="/dashboard" class="enlace-nav">Inicio</a></li>
+                <li><a href="/nosotros" class="enlace-nav">Nosotros</a></li>
+                <li><a href="/servicios" class="enlace-nav">Servicios</a></li>
+                <li><a href="/rutas" class="enlace-nav">Rutas</a></li>
+                <li><a href="/reservar" class="enlace-nav">Reservar</a></li>
+            </ul>
+            <button class="boton-menu" id="boton-menu">☰</button>
+        </div>
+    </nav>
+
+    <main>
+        <section class="seccion-perfil">
+            <div class="contenedor">
+                <div class="titulo-seccion">
+                    <h1>Mi Perfil</h1>
+                    <p>Gestiona tu información personal y configuración de cuenta</p>
+                </div>
+
+                <div class="contenido-perfil">
+                    <div class="tarjeta-perfil">
+                        <div class="encabezado-tarjeta">
+                            <div class="avatar-perfil" id="avatar-perfil">
+                                <span id="iniciales-perfil">US</span>
+                            </div>
+                            <div class="info-encabezado">
+                                <h2 id="nombre-perfil">Cargando...</h2>
+                                <p id="email-perfil">cargando@email.com</p>
+                                <span class="fecha-registro">Miembro desde: <span id="fecha-registro">...</span></span>
+                            </div>
+                            <button class="boton-editar" onclick="activarModoEdicion()">
+                                ✏️ Editar
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="tarjeta-perfil">
+                        <div class="encabezado-seccion">
+                            <h3>Información Personal</h3>
+                            <p>Mantén tu información actualizada para un mejor servicio</p>
+                        </div>
+
+                        <form class="formulario-perfil" id="form-perfil">
+                            <div class="grupo-input-doble">
+                                <div class="grupo-input">
+                                    <label for="nombre">Nombre *</label>
+                                    <input type="text" id="nombre" name="nombre" readonly>
+                                </div>
+                                <div class="grupo-input">
+                                    <label for="apellido">Apellido *</label>
+                                    <input type="text" id="apellido" name="apellido" readonly>
+                                </div>
+                            </div>
+
+                            <div class="grupo-input">
+                                <label for="email">Correo electrónico *</label>
+                                <input type="email" id="email" name="email" readonly>
+                            </div>
+
+                            <div class="grupo-input-doble">
+                                <div class="grupo-input">
+                                    <label for="telefono">Teléfono *</label>
+                                    <input type="tel" id="telefono" name="telefono" readonly>
+                                </div>
+                                <div class="grupo-input">
+                                    <label for="cedula">Cédula *</label>
+                                    <input type="text" id="cedula" name="cedula" readonly>
+                                </div>
+                            </div>
+
+                            <div class="botones-formulario oculto" id="botones-edicion">
+                                <button type="button" class="boton boton-secundario" onclick="cancelarEdicion()">
+                                    Cancelar
+                                </button>
+                                <button type="submit" class="boton boton-primario">
+                                    Guardar Cambios
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+
+                    <div class="tarjeta-perfil">
+                        <div class="encabezado-seccion">
+                            <h3>Cambiar Contraseña</h3>
+                            <p>Actualiza tu contraseña para mantener tu cuenta segura</p>
+                        </div>
+
+                        <form class="formulario-perfil" id="form-password">
+                            <div class="grupo-input">
+                                <label for="password-actual">Contraseña actual *</label>
+                                <input type="password" id="password-actual" name="password-actual" required>
+                            </div>
+
+                            <div class="grupo-input">
+                                <label for="password-nueva">Nueva contraseña *</label>
+                                <input type="password" id="password-nueva" name="password-nueva" required>
+                                <small class="ayuda-input">Mínimo 8 caracteres, incluir letras y números</small>
+                            </div>
+
+                            <div class="grupo-input">
+                                <label for="password-confirmar">Confirmar nueva contraseña *</label>
+                                <input type="password" id="password-confirmar" name="password-confirmar" required>
+                            </div>
+
+                            <div class="botones-formulario">
+                                <button type="submit" class="boton boton-primario">
+                                    Actualizar Contraseña
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+
+                    <div class="tarjeta-perfil">
+                        <div class="encabezado-seccion">
+                            <h3>Mis Estadísticas</h3>
+                            <p>Resumen de tu actividad en la plataforma</p>
+                        </div>
+
+                        <div class="estadisticas-usuario">
+                            <div class="stat-item">
+                                <div class="stat-numero" id="total-viajes">0</div>
+                                <div class="stat-etiqueta">Viajes Realizados</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-numero" id="reservas-activas">0</div>
+                                <div class="stat-etiqueta">Reservas Activas</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-numero" id="rutas-favoritas">3</div>
+                                <div class="stat-etiqueta">Rutas Favoritas</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-numero" id="puntos-fidelidad">250</div>
+                                <div class="stat-etiqueta">Puntos Águila</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="contenedor">
+            <p>&copy; 2024 Transporte Águila S.A.S. - Conectando el Chocó con seguridad y confianza</p>
+        </div>
+    </footer>
+
+    <script>
+        let datosOriginales = {};
+        let enModoEdicion = false;
+
+        document.addEventListener('DOMContentLoaded', function () {
+            configurarAreaUsuario();
+            cargarDatosPerfil();
+            cargarEstadisticas();
+        });
+
+        async function configurarAreaUsuario() {
+            try {
+                const response = await fetch('/api/usuario');
+                const data = await response.json();
+
+                if (data.success) {
+                    const usuario = data.usuario;
+                    const iniciales = `${usuario.nombre.charAt(0)}${usuario.apellido.charAt(0)}`.toUpperCase();
+                    const color = generarColor(usuario.nombre + usuario.apellido);
+
+                    document.getElementById('iniciales-usuario').textContent = iniciales;
+                    document.getElementById('nombre-display').textContent = `${usuario.nombre} ${usuario.apellido}`;
+                    document.getElementById('avatar-usuario').style.background = `linear-gradient(135deg, ${color}, ${color}dd)`;
+
+                    const hora = new Date().getHours();
+                    let saludo = '¡Bienvenido!';
+                    if (hora < 12) saludo = '¡Buenos días!';
+                    else if (hora < 18) saludo = '¡Buenas tardes!';
+                    else saludo = '¡Buenas noches!';
+                    document.getElementById('saludo-usuario').textContent = saludo;
+                } else {
+                    window.location.href = '/login';
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                window.location.href = '/login';
+            }
+        }
+
+        async function cargarDatosPerfil() {
+            try {
+                const response = await fetch('/api/usuario');
+                const data = await response.json();
+
+                if (data.success) {
+                    const usuario = data.usuario;
+                    const iniciales = `${usuario.nombre.charAt(0)}${usuario.apellido.charAt(0)}`.toUpperCase();
+                    const color = generarColor(usuario.nombre + usuario.apellido);
+
+                    document.getElementById('iniciales-perfil').textContent = iniciales;
+                    document.getElementById('avatar-perfil').style.background = `linear-gradient(135deg, ${color}, ${color}dd)`;
+                    document.getElementById('nombre-perfil').textContent = `${usuario.nombre} ${usuario.apellido}`;
+                    document.getElementById('email-perfil').textContent = usuario.email;
+                    document.getElementById('fecha-registro').textContent = 'Enero 2024';
+
+                    document.getElementById('nombre').value = usuario.nombre;
+                    document.getElementById('apellido').value = usuario.apellido;
+                    document.getElementById('email').value = usuario.email;
+                    document.getElementById('telefono').value = '300 123 4567';
+                    document.getElementById('cedula').value = '12345678';
+
+                    datosOriginales = { ...usuario };
+                }
+            } catch (error) {
+                console.error('Error cargando perfil:', error);
+            }
+        }
+
+        async function cargarEstadisticas() {
+            try {
+                const response = await fetch('/api/mis-reservas');
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.success) {
+                        const reservas = data.reservas;
+                        document.getElementById('total-viajes').textContent = reservas.filter(r => r.estado === 'confirmada').length;
+                        document.getElementById('reservas-activas').textContent = reservas.filter(r => r.estado === 'pendiente').length;
+                    }
+                }
+            } catch (error) {
+                console.error('Error cargando estadísticas:', error);
+            }
+        }
+
+        function activarModoEdicion() {
+            enModoEdicion = true;
+
+            const inputs = document.querySelectorAll('#form-perfil input');
+            inputs.forEach(input => {
+                if (input.name !== 'email') {
+                    input.readOnly = false;
+                    input.classList.add('editable');
+                }
+            });
+
+            document.getElementById('botones-edicion').classList.remove('oculto');
+
+            document.querySelector('.boton-editar').innerHTML = '⌐ Cancelar';
+            document.querySelector('.boton-editar').onclick = cancelarEdicion;
+        }
+
+        function cancelarEdicion() {
+            enModoEdicion = false;
+
+            document.getElementById('nombre').value = datosOriginales.nombre;
+            document.getElementById('apellido').value = datosOriginales.apellido;
+
+            const inputs = document.querySelectorAll('#form-perfil input');
+            inputs.forEach(input => {
+                input.readOnly = true;
+                input.classList.remove('editable');
+            });
+
+            document.getElementById('botones-edicion').classList.add('oculto');
+
+            document.querySelector('.boton-editar').innerHTML = '✏️ Editar';
+            document.querySelector('.boton-editar').onclick = activarModoEdicion;
+        }
+
+        document.getElementById('form-perfil').addEventListener('submit', async function (e) {
+            e.preventDefault();
+
+            if (!enModoEdicion) return;
+
+            const formData = new FormData(this);
+            const datos = Object.fromEntries(formData);
+
+            try {
+                const submitBtn = this.querySelector('button[type="submit"]');
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = 'Guardando...';
+
+                await new Promise(resolve => setTimeout(resolve, 1500));
+
+                datosOriginales = { ...datos };
+                cancelarEdicion();
+                mostrarMensaje('Perfil actualizado correctamente', 'exito');
+
+                configurarAreaUsuario();
+
+            } catch (error) {
+                mostrarMensaje('Error actualizando perfil', 'error');
+            } finally {
+                const submitBtn = this.querySelector('button[type="submit"]');
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = 'Guardar Cambios';
+            }
+        });
+
+        document.getElementById('form-password').addEventListener('submit', async function (e) {
+            e.preventDefault();
+
+            const passwordNueva = document.getElementById('password-nueva').value;
+            const passwordConfirmar = document.getElementById('password-confirmar').value;
+
+            if (passwordNueva !== passwordConfirmar) {
+                mostrarMensaje('Las contraseñas no coinciden', 'error');
+                return;
+            }
+
+            if (passwordNueva.length < 8) {
+                mostrarMensaje('La contraseña debe tener al menos 8 caracteres', 'error');
+                return;
+            }
+
+            try {
+                const submitBtn = this.querySelector('button[type="submit"]');
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = 'Actualizando...';
+
+                await new Promise(resolve => setTimeout(resolve, 2000));
+
+                this.reset();
+                mostrarMensaje('Contraseña actualizada correctamente', 'exito');
+
+            } catch (error) {
+                mostrarMensaje('Error actualizando contraseña', 'error');
+            } finally {
+                const submitBtn = this.querySelector('button[type="submit"]');
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = 'Actualizar Contraseña';
+            }
+        });
+
+        function generarColor(texto) {
+            const colores = ['#6366f1', '#4f46e5', '#8b5cf6', '#06b6d4', '#22c55e', '#f59e0b', '#ef4444'];
+            let hash = 0;
+            for (let i = 0; i < texto.length; i++) {
+                hash = texto.charCodeAt(i) + ((hash << 5) - hash);
+            }
+            return colores[Math.abs(hash) % colores.length];
+        }
+
+        function mostrarMensaje(mensaje, tipo) {
+            const div = document.createElement('div');
+            div.className = `mensaje-${tipo}`;
+            div.textContent = mensaje;
+            div.style.cssText = `
+                position: fixed; top: 20px; right: 20px; z-index: 10000;
+                padding: 16px 24px; border-radius: 8px; color: white;
+                background: ${tipo === 'exito' ? '#22c55e' : '#ef4444'};
+                box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            `;
+
+            document.body.appendChild(div);
+
+            setTimeout(() => {
+                div.style.opacity = '0';
+                setTimeout(() => div.remove(), 300);
+            }, 3000);
+        }
+
+        function verPerfil() {
+        }
+
+        async function cerrarSesion() {
+            if (confirm('¿Estás seguro de que deseas cerrar sesión?')) {
+                try {
+                    await fetch('/api/logout', { method: 'POST' });
+                    window.location.href = '/login';
+                } catch (error) {
+                    window.location.href = '/login';
+                }
+            }
+        }
+
+        document.getElementById('boton-menu').addEventListener('click', function () {
+            document.getElementById('enlaces-nav').classList.toggle('activo');
+        });
+    </script>
+</body>
+
+</html>
