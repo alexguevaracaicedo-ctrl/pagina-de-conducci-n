@@ -894,6 +894,128 @@ def rutas():
         return redirect(url_for('login'))
     return render_template('rutas.html')
 
+# Agregar estas rutas al archivo auth_server.py (antes de if __name__ == '__main__':)
+
+@app.route('/api/rutas', methods=['GET'])
+def api_rutas():
+    """Obtiene todas las rutas disponibles"""
+    if 'usuario_id' not in session:
+        return jsonify({'success': False, 'message': 'No autorizado'}), 401
+    
+    try:
+        conn = sqlite3.connect(DATABASE)
+        cursor = conn.cursor()
+        
+        cursor.execute('''
+            SELECT id, origen, destino, distancia_km, duracion_horas, 
+                   precio_base, tipo_ruta, descripcion, activa
+            FROM rutas
+            WHERE activa = 1
+            ORDER BY origen, destino
+        ''')
+        
+        rutas = cursor.fetchall()
+        conn.close()
+        
+        rutas_list = []
+        for r in rutas:
+            rutas_list.append({
+                'id': r[0],
+                'origen': r[1],
+                'destino': r[2],
+                'distancia_km': r[3],
+                'duracion_horas': r[4],
+                'precio_base': r[5],
+                'tipo_ruta': r[6],
+                'descripcion': r[7],
+                'activa': r[8]
+            })
+        
+        return jsonify({
+            'success': True,
+            'rutas': rutas_list
+        })
+    except Exception as e:
+        print(f"Error obteniendo rutas: {e}")
+        return jsonify({
+            'success': False,
+            'message': 'Error obteniendo rutas'
+        }), 500
+
+@app.route('/api/horarios/<int:ruta_id>', methods=['GET'])
+def api_horarios(ruta_id):
+    """Obtiene los horarios disponibles para una ruta específica"""
+    if 'usuario_id' not in session:
+        return jsonify({'success': False, 'message': 'No autorizado'}), 401
+    
+    try:
+        fecha = request.args.get('fecha')
+        if not fecha:
+            return jsonify({
+                'success': False,
+                'message': 'Fecha es requerida'
+            }), 400
+        
+        conn = sqlite3.connect(DATABASE)
+        cursor = conn.cursor()
+        
+        # Obtener información de la ruta
+        cursor.execute('SELECT origen, destino, duracion_horas FROM rutas WHERE id = ?', (ruta_id,))
+        ruta = cursor.fetchone()
+        
+        if not ruta:
+            conn.close()
+            return jsonify({
+                'success': False,
+                'message': 'Ruta no encontrada'
+            }), 404
+        
+        # Obtener horarios disponibles
+        cursor.execute('''
+            SELECT h.id, h.fecha_salida, h.fecha_llegada, h.precio, 
+                   h.asientos_disponibles, h.estado,
+                   v.placa, v.tipo_vehiculo, v.marca, v.modelo
+            FROM horarios h
+            JOIN vehiculos v ON h.vehiculo_id = v.id
+            WHERE h.ruta_id = ? 
+            AND DATE(h.fecha_salida) = ?
+            AND h.estado = 'programado'
+            AND h.asientos_disponibles > 0
+            ORDER BY h.fecha_salida
+        ''', (ruta_id, fecha))
+        
+        horarios = cursor.fetchall()
+        conn.close()
+        
+        horarios_list = []
+        for h in horarios:
+            horarios_list.append({
+                'id': h[0],
+                'fecha_salida': h[1],
+                'fecha_llegada': h[2],
+                'precio': h[3],
+                'asientos_disponibles': h[4],
+                'estado': h[5],
+                'placa': h[6],
+                'tipo_vehiculo': h[7],
+                'marca': h[8],
+                'modelo': h[9],
+                'origen': ruta[0],
+                'destino': ruta[1],
+                'duracion_horas': ruta[2]
+            })
+        
+        return jsonify({
+            'success': True,
+            'horarios': horarios_list
+        })
+    except Exception as e:
+        print(f"Error obteniendo horarios: {e}")
+        return jsonify({
+            'success': False,
+            'message': 'Error obteniendo horarios'
+        }), 500
+
 @app.route('/servicios')
 def servicios():
     if 'usuario_id' not in session:
