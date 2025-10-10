@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mis Viajes - Transporte Águila</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/mis-viajes.css') }}">
+</head>
+
+<body>
+    <div class="patron-fondo"></div>
+
+    <nav class="barra-navegacion">
+        <div class="contenido-nav">
+            <div class="logotipo">
+                <div class="icono-logo">🦅</div>
+                <span>Águila</span>
+            </div>
+
+            <ul class="enlaces-nav">
+                <li><a href="/dashboard">Inicio</a></li>
+                <li><a href="/nosotros">Nosotros</a></li>
+                <li><a href="/servicios">Servicios</a></li>
+                <li><a href="/rutas">Rutas</a></li>
+                <li><a href="/reservar">Reservar</a></li>
+                <li><a href="/mis-viajes" class="activo">Mis Viajes</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <main class="contenedor">
+        <h1 class="titulo">🚗 Mis Viajes</h1>
+
+        {% if viajes and viajes|length > 0 %}
+        <div class="grilla-viajes">
+            {% for v in viajes %}
+            <div class="tarjeta-viaje">
+                <div class="encabezado-viaje">
+                    <h3>{{ v['origen'] }} → {{ v['destino'] }}</h3>
+                    <span class="estado {{ v['estado'] }}">{{ v['estado'] | capitalize }}</span>
+                </div>
+                <div class="detalles-viaje">
+                    <p><strong>Fecha:</strong> {{ v['fecha_servicio'] }}</p>
+                    <p><strong>Hora:</strong> {{ v['hora_servicio'] }}</p>
+                    <p><strong>Vehículo:</strong> {{ v['tipo_vehiculo'] }}</p>
+                    <p><strong>Precio:</strong> ${{ v['precio_final'] or v['precio_estimado'] }}</p>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <p class="sin-viajes">Aún no tienes viajes registrados.</p>
+        {% endif %}
+    </main>
+</body>
+
+</html>

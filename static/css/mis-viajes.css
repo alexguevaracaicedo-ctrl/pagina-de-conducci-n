@@ -1,0 +1,98 @@
+body {
+    font-family: 'Segoe UI', sans-serif;
+    margin: 0;
+    background: #f8fafc;
+    color: #222;
+}
+
+.barra-navegacion {
+    background: #004d40;
+    color: white;
+    padding: 10px 20px;
+}
+
+.barra-navegacion .logotipo {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.barra-navegacion .logotipo span {
+    font-size: 1.2rem;
+    font-weight: bold;
+}
+
+.enlaces-nav {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    gap: 15px;
+}
+
+.enlaces-nav a {
+    color: white;
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.enlaces-nav a.activo {
+    border-bottom: 2px solid #00e676;
+}
+
+.contenedor {
+    padding: 40px 20px;
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+.titulo {
+    text-align: center;
+    margin-bottom: 30px;
+    color: #004d40;
+}
+
+.grilla-viajes {
+    display: grid;
+    gap: 20px;
+}
+
+.tarjeta-viaje {
+    background: white;
+    border-radius: 10px;
+    padding: 20px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+.encabezado-viaje {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.encabezado-viaje h3 {
+    margin: 0;
+    color: #00695c;
+}
+
+.estado {
+    padding: 4px 10px;
+    border-radius: 5px;
+    font-size: 0.9rem;
+    text-transform: capitalize;
+}
+
+.estado.pendiente { background: #ffe082; }
+.estado.completada { background: #c8e6c9; }
+.estado.cancelada { background: #ffcdd2; }
+
+.detalles-viaje p {
+    margin: 5px 0;
+}
+
+.sin-viajes {
+    text-align: center;
+    color: #777;
+    font-style: italic;
+}
