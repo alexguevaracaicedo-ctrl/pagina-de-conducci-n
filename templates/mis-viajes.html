@@ -4,49 +4,127 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mis Viajes</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='mis_viajes.css') }}">
+    <title>Mis Viajes - Transporte Águila S.A.S.</title>
+    <link href="{{ url_for('static', filename='css/transporte-mejorado.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/area-usuario.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/mis-viajes.css') }}" rel="stylesheet">
 </head>
 
 <body>
-    <header class="mv-header">
-        <div class="mv-header-content">
-            <h1>🚌 Mis Viajes</h1>
-            <button class="mv-back-btn" onclick="window.location.href='/dashboard'">← Volver</button>
-        </div>
-    </header>
+    <div class="patron-fondo"></div>
 
-    <main class="mv-main">
-        {% if viajes|length == 0 %}
-        <div class="mv-empty">
-            <h2>No tienes viajes registrados todavía</h2>
-            <p>Cuando realices una reserva, aparecerá aquí tu historial de viajes.</p>
+    <!-- Área de usuario -->
+    <div class="area-usuario" id="area-usuario">
+        <div class="avatar-usuario" id="avatar-usuario">
+            <span id="iniciales-usuario">US</span>
         </div>
-        {% else %}
-        <section class="mv-grid">
-            {% for v in viajes %}
-            <article class="mv-card">
-                <header class="mv-card-header">
-                    <h3>{{ v.origen }} → {{ v.destino }}</h3>
-                    <span class="mv-status {{ v.estado|lower }}">{{ v.estado }}</span>
-                </header>
+        <div class="info-usuario">
+            <span class="nombre-usuario" id="nombre-display">Cargando...</span>
+            <span class="saludo-usuario" id="saludo-usuario">¡Bienvenido!</span>
+        </div>
 
-                <div class="mv-card-body">
-                    <p><strong>Fecha:</strong> {{ v.fecha_servicio }}</p>
-                    <p><strong>Hora:</strong> {{ v.hora_servicio }}</p>
-                    <p><strong>Vehículo:</strong> {{ v.tipo_vehiculo }}</p>
-                    <p><strong>Precio:</strong> {{ v.precio_final or v.precio_estimado or '—' }} COP</p>
-                    <p class="mv-code"><em>Código: {{ v.codigo_solicitud }}</em></p>
-                </div>
-            </article>
-            {% endfor %}
-        </section>
-        {% endif %}
+        <div class="menu-usuario">
+            <div class="opcion-menu" onclick="window.location.href='/perfil'">
+                <span class="icono-menu">👤</span>
+                <span>Mi Perfil</span>
+            </div>
+            <div class="opcion-menu" onclick="window.location.href='/mis-viajes'">
+                <span class="icono-menu">📋</span>
+                <span>Mis Viajes</span>
+            </div>
+            <div class="opcion-menu" onclick="cerrarSesion()">
+                <span class="icono-menu">🚪</span>
+                <span>Cerrar Sesión</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Navegación -->
+    <nav class="barra-navegacion">
+        <div class="contenido-nav">
+            <div class="logotipo">
+                <div class="icono-logo">🦅</div>
+                <span>Águila</span>
+            </div>
+
+            <ul class="enlaces-nav" id="enlaces-nav">
+                <li><a href="/dashboard" class="enlace-nav activo">Inicio</a></li>
+                <li><a href="/nosotros" class="enlace-nav">Nosotros</a></li>
+                <li><a href="/servicios" class="enlace-nav">Servicios</a></li>
+                <li><a href="/rutas" class="enlace-nav">Rutas</a></li>
+                <li><a href="/reservar" class="enlace-nav">Reservar</a></li>
+            </ul>
+
+            <button class="boton-menu" id="boton-menu">☰</button>
+        </div>
+    </nav>
+
+    <!-- Main -->
+    <main class="contenido-principal">
+        <h1 class="titulo-principal">Mis Viajes</h1>
+        <div class="grilla-viajes" id="grilla-viajes">
+            <!-- Las tarjetas de viajes se generan aquí -->
+        </div>
+        <div class="mensaje-vacio" id="mensaje-vacio" style="display: none;">
+            <h3>No tienes viajes</h3>
+            <p>Aún no has reservado ningún viaje.</p>
+        </div>
     </main>
 
-    <footer class="mv-footer">
-        <p>Transporte Águila © 2025</p>
+    <footer>
+        <div class="contenedor">
+            <p>&copy; 2024 Transporte Águila S.A.S. - Conectando el Chocó con seguridad y confianza</p>
+        </div>
     </footer>
+
+    <script>
+        document.getElementById('boton-menu').addEventListener('click', function () {
+            document.getElementById('enlaces-nav').classList.toggle('activo');
+        });
+
+        async function obtenerViajes() {
+            try {
+                const res = await fetch('/api/mis-viajes');
+                const data = await res.json();
+                const grilla = document.getElementById('grilla-viajes');
+                const mensaje = document.getElementById('mensaje-vacio');
+
+                if (data.viajes && data.viajes.length > 0) {
+                    mensaje.style.display = 'none';
+                    data.viajes.forEach(viaje => {
+                        const tarjeta = document.createElement('div');
+                        tarjeta.className = 'tarjeta-viaje aparecer';
+                        tarjeta.innerHTML = `
+                            <div class="encabezado-viaje">
+                                <div class="icono-viaje">🚌</div>
+                                <div class="informacion-viaje">
+                                    <h3>${viaje.origen} ↔ ${viaje.destino}</h3>
+                                    <span class="tipo-viaje">${viaje.tipo}</span>
+                                </div>
+                            </div>
+                            <div class="detalles-viaje">
+                                <div class="detalle-viaje">
+                                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
+                                    <span>Salida: ${viaje.hora}</span>
+                                </div>
+                                <div class="detalle-viaje">
+                                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                                    <span>${viaje.valoracion}⭐ Valoración</span>
+                                </div>
+                            </div>
+                        `;
+                        grilla.appendChild(tarjeta);
+                    });
+                } else {
+                    mensaje.style.display = 'block';
+                }
+            } catch (error) {
+                console.error('Error cargando viajes:', error);
+            }
+        }
+
+        obtenerViajes();
+    </script>
 </body>
 
 </html>
