@@ -916,30 +916,33 @@ def mis_viajes():
 
     conn = sqlite3.connect(DATABASE)
     cursor = conn.cursor()
-    cursor.execute('''
-        SELECT origen, destino, fecha_servicio, hora_servicio, tipo_vehiculo, 
-               precio_estimado, precio_final, estado
-        FROM solicitudes_servicio
-        WHERE usuario_id = ?
-        ORDER BY fecha_servicio DESC
-    ''', (session['usuario_id'],))
-    rows = cursor.fetchall()
-    conn.close()
-
     viajes = []
-    for r in rows:
-        viajes.append({
-            'origen': r[0],
-            'destino': r[1],
-            'fecha_servicio': r[2],
-            'hora_servicio': r[3],
-            'tipo_vehiculo': r[4],
-            'precio_estimado': r[5],
-            'precio_final': r[6],
-            'estado': r[7]
-        })
+
+    try:
+        cursor.execute('''
+            SELECT codigo_solicitud, origen, destino, fecha_servicio, hora_servicio,
+                   tipo_vehiculo, precio_estimado, precio_final, estado
+            FROM solicitudes_servicio
+            WHERE usuario_id = ?
+            ORDER BY fecha_servicio DESC
+        ''', (session['usuario_id'],))
+        for r in cursor.fetchall():
+            viajes.append({
+                'codigo_solicitud': r[0],
+                'origen': r[1],
+                'destino': r[2],
+                'fecha_servicio': r[3],
+                'hora_servicio': r[4],
+                'tipo_vehiculo': r[5],
+                'precio_estimado': r[6],
+                'precio_final': r[7],
+                'estado': r[8]
+            })
+    finally:
+        conn.close()
 
     return render_template('mis-viajes.html', viajes=viajes)
+
 
 
 if __name__ == '__main__':

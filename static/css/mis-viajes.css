@@ -1,67 +1,31 @@
-body {
-    font-family: 'Segoe UI', sans-serif;
-    margin: 0;
-    background: #f8fafc;
-    color: #222;
-}
-
-.barra-navegacion {
-    background: #004d40;
-    color: white;
-    padding: 10px 20px;
-}
-
-.barra-navegacion .logotipo {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-
-.barra-navegacion .logotipo span {
-    font-size: 1.2rem;
-    font-weight: bold;
-}
-
-.enlaces-nav {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-    display: flex;
-    gap: 15px;
-}
-
-.enlaces-nav a {
-    color: white;
-    text-decoration: none;
-    font-weight: 500;
-}
-
-.enlaces-nav a.activo {
-    border-bottom: 2px solid #00e676;
-}
-
 .contenedor {
-    padding: 40px 20px;
-    max-width: 900px;
+    max-width: 1000px;
     margin: 0 auto;
+    padding: 30px;
 }
 
 .titulo {
     text-align: center;
-    margin-bottom: 30px;
     color: #004d40;
+    margin-bottom: 25px;
 }
 
 .grilla-viajes {
     display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
     gap: 20px;
 }
 
 .tarjeta-viaje {
-    background: white;
+    background: #fff;
     border-radius: 10px;
     padding: 20px;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+    transition: transform 0.2s;
+}
+
+.tarjeta-viaje:hover {
+    transform: translateY(-5px);
 }
 
 .encabezado-viaje {
@@ -79,13 +43,23 @@ body {
 .estado {
     padding: 4px 10px;
     border-radius: 5px;
-    font-size: 0.9rem;
     text-transform: capitalize;
+    font-size: 0.9rem;
+    color: #fff;
 }
 
-.estado.pendiente { background: #ffe082; }
-.estado.completada { background: #c8e6c9; }
-.estado.cancelada { background: #ffcdd2; }
+.estado.pendiente {
+    background: #ffca28;
+    color: #000;
+}
+
+.estado.completada {
+    background: #66bb6a;
+}
+
+.estado.cancelada {
+    background: #ef5350;
+}
 
 .detalles-viaje p {
     margin: 5px 0;
@@ -93,6 +67,6 @@ body {
 
 .sin-viajes {
     text-align: center;
-    color: #777;
+    color: #666;
     font-style: italic;
 }
