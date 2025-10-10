@@ -650,7 +650,9 @@
         }
 
 
-        function procesarSolicitudServicio(tipoVehiculo) {
+
+
+        async function procesarSolicitudServicio(tipoVehiculo) {
 
             const origenSelect = document.getElementById('origen-select');
             const origenInput = document.getElementById('origen-solicitud');
@@ -661,14 +663,15 @@
             const destino = destinoSelect.style.display === 'none' ? destinoInput.value : destinoSelect.value;
 
             const formData = {
-                tipoVehiculo: tipoVehiculo,
+                tipo_vehiculo: tipoVehiculo,
                 origen: origen,
                 destino: destino,
-                fecha: document.getElementById('fecha-solicitud').value,
-                hora: document.getElementById('hora-solicitud').value,
-                pasajeros: document.getElementById('pasajeros-solicitud').value,
-                telefono: document.getElementById('telefono-solicitud').value,
-                observaciones: document.getElementById('observaciones-solicitud').value
+                fecha_servicio: document.getElementById('fecha-solicitud').value,
+                hora_servicio: document.getElementById('hora-solicitud').value,
+                numero_pasajeros: parseInt(document.getElementById('pasajeros-solicitud').value),
+                telefono_contacto: document.getElementById('telefono-solicitud').value,
+                observaciones: document.getElementById('observaciones-solicitud').value,
+                precio_estimado: obtenerPrecioEstimado(tipoVehiculo, origen, destino)
             };
 
 
@@ -677,10 +680,68 @@
             submitBtn.innerHTML = 'Procesando...';
             submitBtn.disabled = true;
 
-            setTimeout(() => {
-                mostrarConfirmacionSolicitud(formData);
-                cerrarModalSolicitud();
-            }, 2000);
+            try {
+
+                const response = await fetch('/api/solicitud-servicio', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(formData)
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+
+                    mostrarConfirmacionSolicitud({
+                        ...formData,
+                        codigo_solicitud: data.solicitud.codigo_solicitud
+                    });
+                    cerrarModalSolicitud();
+                } else {
+                    alert('Error al procesar la solicitud: ' + data.message);
+                    submitBtn.innerHTML = textoOriginal;
+                    submitBtn.disabled = false;
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error de conexión. Por favor intenta nuevamente.');
+                submitBtn.innerHTML = textoOriginal;
+                submitBtn.disabled = false;
+            }
+        }
+
+
+        function obtenerPrecioEstimado(tipo, origen, destino) {
+
+            const preciosBase = {
+                'moto': 5000,
+                'carro': 15000,
+                'bus': 25000,
+                '4x4': 40000
+            };
+
+
+            const rutasConocidas = {
+                'Quibdó-Tadó': 18000,
+                'Quibdó-Pereira': 45000,
+                'Quibdó-Istmina': 12000,
+                'Quibdó-Condoto': 20000,
+                'Centro-Kennedy': 3000
+            };
+
+            const rutaKey = `${origen}-${destino}`;
+            const rutaInversa = `${destino}-${origen}`;
+
+            if (rutasConocidas[rutaKey]) {
+                return rutasConocidas[rutaKey];
+            } else if (rutasConocidas[rutaInversa]) {
+                return rutasConocidas[rutaInversa];
+            }
+
+
+            return preciosBase[tipo] || 15000;
         }
 
 
@@ -688,46 +749,61 @@
             const modal = document.createElement('div');
             modal.className = 'modal-solicitud';
             modal.innerHTML = `
-                <div class="modal-contenido-solicitud">
-                    <div class="confirmacion-servicio">
-                        <div class="icono-confirmacion">✅</div>
-                        <h3>¡Solicitud enviada!</h3>
-                        <p>Hemos recibido su solicitud de ${data.tipoVehiculo.toUpperCase()}</p>
-                        
-                        <div class="detalles-solicitud">
-                            <div class="detalle">
-                                <span class="etiqueta">Ruta:</span>
-                                <span class="valor">${data.origen} → ${data.destino}</span>
-                            </div>
-                            <div class="detalle">
-                                <span class="etiqueta">Fecha y hora:</span>
-                                <span class="valor">${new Date(data.fecha).toLocaleDateString()} - ${data.hora}</span>
-                            </div>
-                            <div class="detalle">
-                                <span class="etiqueta">Pasajeros:</span>
-                                <span class="valor">${data.pasajeros}</span>
-                            </div>
-                            <div class="detalle">
-                                <span class="etiqueta">Contacto:</span>
-                                <span class="valor">${data.telefono}</span>
-                            </div>
-                        </div>
-
-                        <div class="siguiente-paso">
-                            <p><strong>Próximos pasos:</strong></p>
-                            <ul>
-                                <li>Nos contactaremos en los próximos 15 minutos</li>
-                                <li>Confirmaremos disponibilidad y precio exacto</li>
-                                <li>El conductor llegará a la hora acordada</li>
-                            </ul>
-                        </div>
-
-                        <button class="boton boton-primario" onclick="cerrarModalSolicitud()">
-                            Entendido
-                        </button>
+        <div class="modal-contenido-solicitud">
+            <div class="confirmacion-servicio">
+                <div class="icono-confirmacion">✅</div>
+                <h3>¡Solicitud enviada exitosamente!</h3>
+                <p>Tu solicitud de ${data.tipo_vehiculo.toUpperCase()} ha sido registrada</p>
+                
+                <div class="codigo-solicitud-grande">
+                    <span class="label-codigo">Código de seguimiento:</span>
+                    <span class="codigo">#${data.codigo_solicitud}</span>
+                </div>
+                
+                <div class="detalles-solicitud">
+                    <div class="detalle">
+                        <span class="etiqueta">Ruta:</span>
+                        <span class="valor">${data.origen} → ${data.destino}</span>
+                    </div>
+                    <div class="detalle">
+                        <span class="etiqueta">Fecha y hora:</span>
+                        <span class="valor">${new Date(data.fecha_servicio).toLocaleDateString('es-CO')} - ${data.hora_servicio}</span>
+                    </div>
+                    <div class="detalle">
+                        <span class="etiqueta">Pasajeros:</span>
+                        <span class="valor">${data.numero_pasajeros}</span>
+                    </div>
+                    <div class="detalle">
+                        <span class="etiqueta">Contacto:</span>
+                        <span class="valor">${data.telefono_contacto}</span>
+                    </div>
+                    <div class="detalle">
+                        <span class="etiqueta">Precio estimado:</span>
+                        <span class="valor">$${data.precio_estimado.toLocaleString()}</span>
                     </div>
                 </div>
-            `;
+
+                <div class="siguiente-paso">
+                    <p><strong>Próximos pasos:</strong></p>
+                    <ul>
+                        <li>Los conductores disponibles verán tu solicitud</li>
+                        <li>Un conductor aceptará tu servicio y confirmará el precio final</li>
+                        <li>Recibirás una notificación cuando un conductor acepte</li>
+                        <li>El conductor llegará a la hora acordada</li>
+                    </ul>
+                </div>
+
+                <div class="botones-confirmacion">
+                    <button class="boton boton-primario" onclick="window.location.href='/mis-viajes'">
+                        Ver mis solicitudes
+                    </button>
+                    <button class="boton boton-secundario" onclick="cerrarModalSolicitud()">
+                        Cerrar
+                    </button>
+                </div>
+            </div>
+        </div>
+    `;
 
             document.body.appendChild(modal);
             setTimeout(() => modal.classList.add('visible'), 10);

@@ -918,6 +918,79 @@ def mis_reservas():
         return redirect(url_for('login'))
     return render_template('mis-reservas.html')
 
+# Agregar esta función al archivo auth_server.py
+
+def obtener_solicitudes_usuario(usuario_id):
+    """Obtiene todas las solicitudes de un usuario pasajero"""
+    conn = sqlite3.connect(DATABASE)
+    cursor = conn.cursor()
+    cursor.execute('''
+        SELECT s.id, s.codigo_solicitud, s.tipo_vehiculo, s.origen, s.destino,
+               s.fecha_servicio, s.hora_servicio, s.numero_pasajeros, 
+               s.precio_estimado, s.precio_final, s.estado, s.fecha_solicitud,
+               s.observaciones, s.telefono_contacto,
+               c.usuario_id as conductor_usuario_id,
+               u.nombre as conductor_nombre, u.apellido as conductor_apellido, 
+               u.telefono as conductor_telefono
+        FROM solicitudes_servicio s
+        LEFT JOIN conductores c ON s.conductor_id = c.id
+        LEFT JOIN usuarios u ON c.usuario_id = u.id
+        WHERE s.usuario_id = ?
+        ORDER BY s.fecha_solicitud DESC
+    ''', (usuario_id,))
+    solicitudes = cursor.fetchall()
+    conn.close()
+    return solicitudes
+
+# Agregar esta ruta al archivo auth_server.py
+@app.route('/api/mis-solicitudes', methods=['GET'])
+def api_mis_solicitudes():
+    """Obtiene las solicitudes del pasajero autenticado"""
+    if 'usuario_id' not in session or session.get('tipo_usuario') != 'pasajero':
+        return jsonify({'success': False, 'message': 'No autorizado'}), 401
+    
+    try:
+        solicitudes = obtener_solicitudes_usuario(session['usuario_id'])
+        
+        solicitudes_list = []
+        for s in solicitudes:
+            solicitud_data = {
+                'id': s[0],
+                'codigo_solicitud': s[1],
+                'tipo_vehiculo': s[2],
+                'origen': s[3],
+                'destino': s[4],
+                'fecha_servicio': s[5],
+                'hora_servicio': s[6],
+                'numero_pasajeros': s[7],
+                'precio_estimado': s[8],
+                'precio_final': s[9],
+                'estado': s[10],
+                'fecha_solicitud': s[11],
+                'observaciones': s[12],
+                'telefono_contacto': s[13]
+            }
+            
+            
+            if s[14]: 
+                solicitud_data['conductor'] = {
+                    'nombre': f"{s[15]} {s[16]}",
+                    'telefono': s[17]
+                }
+            
+            solicitudes_list.append(solicitud_data)
+        
+        return jsonify({
+            'success': True,
+            'solicitudes': solicitudes_list
+        })
+    except Exception as e:
+        print(f"Error obteniendo solicitudes: {e}")
+        return jsonify({
+            'success': False,
+            'message': 'Error obteniendo solicitudes'
+        }), 500
+
 @app.route('/mis-viajes')
 def mis_viajes():
     if 'usuario_id' not in session or session.get('tipo_usuario') != 'pasajero':

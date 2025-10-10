@@ -78,41 +78,112 @@
     </footer>
 
     <script>
+
+
         document.getElementById('boton-menu').addEventListener('click', function () {
             document.getElementById('enlaces-nav').classList.toggle('activo');
         });
 
         async function obtenerViajes() {
             try {
-                const res = await fetch('/api/mis-viajes');
+                const res = await fetch('/api/mis-solicitudes');
                 const data = await res.json();
                 const grilla = document.getElementById('grilla-viajes');
                 const mensaje = document.getElementById('mensaje-vacio');
 
-                if (data.viajes && data.viajes.length > 0) {
+                grilla.innerHTML = '';
+
+                if (data.success && data.solicitudes && data.solicitudes.length > 0) {
                     mensaje.style.display = 'none';
-                    data.viajes.forEach(viaje => {
+
+                    data.solicitudes.forEach(solicitud => {
                         const tarjeta = document.createElement('div');
                         tarjeta.className = 'tarjeta-viaje aparecer';
+
+
+                        const estadoClasses = {
+                            'pendiente': 'estado-pendiente',
+                            'aceptada': 'estado-aceptada',
+                            'en_curso': 'estado-en-curso',
+                            'completada': 'estado-completada',
+                            'cancelada': 'estado-cancelada'
+                        };
+
+                        const estadoTextos = {
+                            'pendiente': '⏳ Pendiente',
+                            'aceptada': '✅ Aceptada',
+                            'en_curso': '🚗 En Curso',
+                            'completada': '✔️ Completada',
+                            'cancelada': '❌ Cancelada'
+                        };
+
+                        const fecha = new Date(solicitud.fecha_servicio);
+                        const fechaFormateada = fecha.toLocaleDateString('es-CO', {
+                            weekday: 'long',
+                            year: 'numeric',
+                            month: 'long',
+                            day: 'numeric'
+                        });
+
+                        const conductorHTML = solicitud.conductor ? `
+                    <div class="info-conductor">
+                        <strong>Conductor:</strong> ${solicitud.conductor.nombre}<br>
+                        <strong>Teléfono:</strong> ${solicitud.conductor.telefono}
+                    </div>
+                ` : '';
+
                         tarjeta.innerHTML = `
-                            <div class="encabezado-viaje">
-                                <div class="icono-viaje">🚌</div>
-                                <div class="informacion-viaje">
-                                    <h3>${viaje.origen} ↔ ${viaje.destino}</h3>
-                                    <span class="tipo-viaje">${viaje.tipo}</span>
-                                </div>
-                            </div>
-                            <div class="detalles-viaje">
-                                <div class="detalle-viaje">
-                                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
-                                    <span>Salida: ${viaje.hora}</span>
-                                </div>
-                                <div class="detalle-viaje">
-                                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
-                                    <span>${viaje.valoracion}⭐ Valoración</span>
-                                </div>
-                            </div>
-                        `;
+                    <div class="encabezado-viaje">
+                        <div class="codigo-viaje">#${solicitud.codigo_solicitud}</div>
+                        <div class="estado-viaje ${estadoClasses[solicitud.estado] || ''}">
+                            ${estadoTextos[solicitud.estado] || solicitud.estado}
+                        </div>
+                    </div>
+                    
+                    <div class="tipo-vehiculo-badge">
+                        ${obtenerIconoVehiculo(solicitud.tipo_vehiculo)} ${solicitud.tipo_vehiculo.toUpperCase()}
+                    </div>
+                    
+                    <div class="ruta-viaje">
+                        <div class="punto-inicio">
+                            <span class="icono-punto">📍</span>
+                            <span>${solicitud.origen}</span>
+                        </div>
+                        <div class="linea-ruta">→</div>
+                        <div class="punto-final">
+                            <span class="icono-punto">🎯</span>
+                            <span>${solicitud.destino}</span>
+                        </div>
+                    </div>
+                    
+                    <div class="detalles-viaje">
+                        <div class="detalle-item">
+                            <span class="icono-detalle">📅</span>
+                            <span>${fechaFormateada}</span>
+                        </div>
+                        <div class="detalle-item">
+                            <span class="icono-detalle">⏰</span>
+                            <span>${solicitud.hora_servicio}</span>
+                        </div>
+                        <div class="detalle-item">
+                            <span class="icono-detalle">👥</span>
+                            <span>${solicitud.numero_pasajeros} pasajero${solicitud.numero_pasajeros > 1 ? 's' : ''}</span>
+                        </div>
+                        <div class="detalle-item precio">
+                            <span class="icono-detalle">💰</span>
+                            <span>${solicitud.precio_final ? '$' + solicitud.precio_final.toLocaleString() : '$' + solicitud.precio_estimado.toLocaleString() + ' (estimado)'}</span>
+                        </div>
+                    </div>
+                    
+                    ${conductorHTML}
+                    
+                    ${solicitud.observaciones ? `
+                        <div class="observaciones-viaje">
+                            <strong>Observaciones:</strong> ${solicitud.observaciones}
+                        </div>
+                    ` : ''}
+                `;
+
                         grilla.appendChild(tarjeta);
                     });
                 } else {
@@ -120,10 +191,76 @@
                 }
             } catch (error) {
                 console.error('Error cargando viajes:', error);
+                document.getElementById('mensaje-vacio').innerHTML = `
+            <h3>Error al cargar viajes</h3>
+            <p>Por favor, intenta nuevamente más tarde.</p>
+        `;
+                document.getElementById('mensaje-vacio').style.display = 'block';
             }
         }
 
-        obtenerViajes();
+        function obtenerIconoVehiculo(tipo) {
+            const iconos = {
+                'moto': '🏍️',
+                'carro': '🚗',
+                'bus': '🚌',
+                '4x4': '🚙'
+            };
+            return iconos[tipo] || '🚗';
+        }
+
+
+        async function configurarAreaUsuario() {
+            try {
+                const response = await fetch('/api/usuario');
+                const data = await response.json();
+
+                if (data.success) {
+                    const usuario = data.usuario;
+                    const iniciales = `${usuario.nombre.charAt(0)}${usuario.apellido.charAt(0)}`.toUpperCase();
+                    const color = generarColor(usuario.nombre + usuario.apellido);
+
+                    document.getElementById('iniciales-usuario').textContent = iniciales;
+                    document.getElementById('nombre-display').textContent = `${usuario.nombre} ${usuario.apellido}`;
+                    document.getElementById('avatar-usuario').style.background = `linear-gradient(135deg, ${color}, ${color}dd)`;
+
+                    const hora = new Date().getHours();
+                    let saludo = '¡Bienvenido!';
+                    if (hora < 12) saludo = '¡Buenos días!';
+                    else if (hora < 18) saludo = '¡Buenas tardes!';
+                    else saludo = '¡Buenas noches!';
+                    document.getElementById('saludo-usuario').textContent = saludo;
+                }
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        }
+
+        function generarColor(texto) {
+            const colores = ['#6366f1', '#4f46e5', '#8b5cf6', '#06b6d4', '#22c55e', '#f59e0b', '#ef4444'];
+            let hash = 0;
+            for (let i = 0; i < texto.length; i++) {
+                hash = texto.charCodeAt(i) + ((hash << 5) - hash);
+            }
+            return colores[Math.abs(hash) % colores.length];
+        }
+
+        async function cerrarSesion() {
+            if (confirm('¿Estás seguro de que deseas cerrar sesión?')) {
+                try {
+                    await fetch('/api/logout', { method: 'POST' });
+                    window.location.href = '/login';
+                } catch (error) {
+                    window.location.href = '/login';
+                }
+            }
+        }
+
+
+        document.addEventListener('DOMContentLoaded', function () {
+            configurarAreaUsuario();
+            obtenerViajes();
+        });
     </script>
 </body>
 
