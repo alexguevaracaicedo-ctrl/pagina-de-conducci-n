@@ -781,6 +781,640 @@
             observer.observe(el);
         });
     </script>
+    <!-- Widget de Chat Flotante - Agregar antes del cierre de </body> en todas las páginas -->
+    <style>
+        /* Estilos del Chat Widget */
+        .chat-widget-container {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            z-index: 9999;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .chat-widget-button {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            border: none;
+            cursor: pointer;
+            box-shadow: 0 8px 25px rgba(99, 102, 241, 0.4);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .chat-widget-button:hover {
+            transform: scale(1.1);
+            box-shadow: 0 12px 35px rgba(99, 102, 241, 0.5);
+        }
+
+        .chat-widget-button .icono-chat {
+            font-size: 28px;
+            color: white;
+        }
+
+        .chat-widget-badge {
+            position: absolute;
+            top: -4px;
+            right: -4px;
+            background: #ef4444;
+            color: white;
+            border-radius: 50%;
+            width: 22px;
+            height: 22px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: 700;
+            animation: pulso-badge 2s ease-in-out infinite;
+        }
+
+        @keyframes pulso-badge {
+
+            0%,
+            100% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.1);
+            }
+        }
+
+        .chat-widget-window {
+            position: fixed;
+            bottom: 100px;
+            right: 24px;
+            width: 380px;
+            height: 550px;
+            background: #1a1a2e;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            display: none;
+            flex-direction: column;
+            overflow: hidden;
+            backdrop-filter: blur(20px);
+        }
+
+        .chat-widget-window.visible {
+            display: flex;
+            animation: slideUp 0.3s ease;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .chat-widget-header {
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .chat-widget-header-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .chat-widget-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+        }
+
+        .chat-widget-title {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .chat-widget-title h4 {
+            margin: 0;
+            font-size: 16px;
+            font-weight: 600;
+            color: white;
+        }
+
+        .chat-widget-title span {
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .chat-widget-close {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.3s ease;
+        }
+
+        .chat-widget-close:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .chat-widget-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            background: #0f0f23;
+        }
+
+        .chat-message {
+            display: flex;
+            gap: 10px;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .chat-message.user {
+            flex-direction: row-reverse;
+        }
+
+        .chat-message-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 14px;
+            font-weight: 600;
+            flex-shrink: 0;
+        }
+
+        .chat-message.user .chat-message-avatar {
+            background: linear-gradient(135deg, #06b6d4, #22c55e);
+        }
+
+        .chat-message-content {
+            max-width: 70%;
+        }
+
+        .chat-message-bubble {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 12px 16px;
+            border-radius: 16px;
+            color: white;
+            line-height: 1.5;
+            font-size: 14px;
+        }
+
+        .chat-message.user .chat-message-bubble {
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            border: none;
+        }
+
+        .chat-message-time {
+            font-size: 11px;
+            color: rgba(255, 255, 255, 0.5);
+            margin-top: 4px;
+            padding: 0 4px;
+        }
+
+        .chat-typing-indicator {
+            display: none;
+            align-items: center;
+            gap: 10px;
+            padding: 12px;
+        }
+
+        .chat-typing-indicator.visible {
+            display: flex;
+        }
+
+        .typing-dots {
+            display: flex;
+            gap: 4px;
+        }
+
+        .typing-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.5);
+            animation: typing 1.4s infinite;
+        }
+
+        .typing-dot:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .typing-dot:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+
+        @keyframes typing {
+
+            0%,
+            60%,
+            100% {
+                transform: translateY(0);
+            }
+
+            30% {
+                transform: translateY(-10px);
+            }
+        }
+
+        .chat-widget-input-container {
+            padding: 16px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            background: #1a1a2e;
+        }
+
+        .chat-widget-input-wrapper {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .chat-widget-input {
+            flex: 1;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 25px;
+            padding: 12px 20px;
+            color: white;
+            font-size: 14px;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        .chat-widget-input:focus {
+            border-color: #6366f1;
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+        }
+
+        .chat-widget-input::placeholder {
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        .chat-widget-send {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            color: white;
+            font-size: 18px;
+        }
+
+        .chat-widget-send:hover {
+            transform: scale(1.1);
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.4);
+        }
+
+        .chat-widget-send:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .chat-quick-replies {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 12px;
+        }
+
+        .quick-reply-btn {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 8px 16px;
+            color: white;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .quick-reply-btn:hover {
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            border-color: #6366f1;
+            transform: translateY(-2px);
+        }
+
+        .chat-widget-messages::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .chat-widget-messages::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .chat-widget-messages::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 3px;
+        }
+
+        .chat-widget-messages::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        @media (max-width: 768px) {
+            .chat-widget-window {
+                width: calc(100vw - 32px);
+                right: 16px;
+                left: 16px;
+                bottom: 90px;
+                height: 500px;
+            }
+
+            .chat-widget-container {
+                right: 16px;
+                bottom: 16px;
+            }
+        }
+    </style>
+
+    <!-- HTML del Chat Widget -->
+    <div class="chat-widget-container" id="chatWidget">
+        <!-- Botón flotante -->
+        <button class="chat-widget-button" id="chatToggleBtn">
+            <span class="icono-chat">💬</span>
+            <span class="chat-widget-badge" id="chatBadge" style="display: none;">1</span>
+        </button>
+
+        <!-- Ventana del chat -->
+        <div class="chat-widget-window" id="chatWindow">
+            <!-- Header -->
+            <div class="chat-widget-header">
+                <div class="chat-widget-header-info">
+                    <div class="chat-widget-avatar">🦅</div>
+                    <div class="chat-widget-title">
+                        <h4>Soporte Águila</h4>
+                        <span>⚡ En línea</span>
+                    </div>
+                </div>
+                <button class="chat-widget-close" id="chatCloseBtn">×</button>
+            </div>
+
+            <!-- Mensajes -->
+            <div class="chat-widget-messages" id="chatMessages">
+                <div class="chat-message">
+                    <div class="chat-message-avatar">🦅</div>
+                    <div class="chat-message-content">
+                        <div class="chat-message-bubble">
+                            ¡Hola! 👋 Soy el asistente virtual de Transporte Águila. ¿En qué puedo ayudarte hoy?
+                        </div>
+                        <div class="chat-message-time" id="initialTime"></div>
+                    </div>
+                </div>
+
+                <!-- Respuestas rápidas iniciales -->
+                <div class="chat-quick-replies" id="quickReplies">
+                    <button class="quick-reply-btn" onclick="enviarRespuestaRapida('Consultar horarios')">
+                        📅 Consultar horarios
+                    </button>
+                    <button class="quick-reply-btn" onclick="enviarRespuestaRapida('Mis reservas')">
+                        🎫 Mis reservas
+                    </button>
+                    <button class="quick-reply-btn" onclick="enviarRespuestaRapida('Solicitar servicio')">
+                        🚗 Solicitar servicio
+                    </button>
+                    <button class="quick-reply-btn" onclick="enviarRespuestaRapida('Hablar con agente')">
+                        👤 Hablar con agente
+                    </button>
+                </div>
+            </div>
+
+            <!-- Indicador de escritura -->
+            <div class="chat-typing-indicator" id="typingIndicator">
+                <div class="chat-message-avatar">🦅</div>
+                <div class="typing-dots">
+                    <div class="typing-dot"></div>
+                    <div class="typing-dot"></div>
+                    <div class="typing-dot"></div>
+                </div>
+            </div>
+
+            <!-- Input -->
+            <div class="chat-widget-input-container">
+                <div class="chat-widget-input-wrapper">
+                    <input type="text" class="chat-widget-input" id="chatInput" placeholder="Escribe tu mensaje..."
+                        autocomplete="off">
+                    <button class="chat-widget-send" id="chatSendBtn">
+                        ➤
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // JavaScript del Chat Widget
+        (function () {
+            const chatWidget = document.getElementById('chatWidget');
+            const chatToggleBtn = document.getElementById('chatToggleBtn');
+            const chatCloseBtn = document.getElementById('chatCloseBtn');
+            const chatWindow = document.getElementById('chatWindow');
+            const chatMessages = document.getElementById('chatMessages');
+            const chatInput = document.getElementById('chatInput');
+            const chatSendBtn = document.getElementById('chatSendBtn');
+            const typingIndicator = document.getElementById('typingIndicator');
+            const chatBadge = document.getElementById('chatBadge');
+
+            let isOpen = false;
+            let mensajesPendientes = 0;
+
+            // Inicializar hora del mensaje inicial
+            document.getElementById('initialTime').textContent = obtenerHoraActual();
+
+            // Toggle chat
+            chatToggleBtn.addEventListener('click', toggleChat);
+            chatCloseBtn.addEventListener('click', toggleChat);
+
+            function toggleChat() {
+                isOpen = !isOpen;
+                chatWindow.classList.toggle('visible', isOpen);
+
+                if (isOpen) {
+                    chatInput.focus();
+                    mensajesPendientes = 0;
+                    chatBadge.style.display = 'none';
+                }
+            }
+
+            // Enviar mensaje
+            chatSendBtn.addEventListener('click', enviarMensaje);
+            chatInput.addEventListener('keypress', function (e) {
+                if (e.key === 'Enter') {
+                    enviarMensaje();
+                }
+            });
+
+            function enviarMensaje() {
+                const mensaje = chatInput.value.trim();
+                if (!mensaje) return;
+
+                agregarMensajeUsuario(mensaje);
+                chatInput.value = '';
+
+                // Simular respuesta del bot
+                mostrarIndicadorEscritura();
+                setTimeout(() => {
+                    responderBot(mensaje);
+                }, 1000 + Math.random() * 1000);
+            }
+
+            function agregarMensajeUsuario(texto) {
+                const messageDiv = document.createElement('div');
+                messageDiv.className = 'chat-message user';
+                messageDiv.innerHTML = `
+            <div class="chat-message-avatar">👤</div>
+            <div class="chat-message-content">
+                <div class="chat-message-bubble">${texto}</div>
+                <div class="chat-message-time">${obtenerHoraActual()}</div>
+            </div>
+        `;
+                chatMessages.appendChild(messageDiv);
+                scrollToBottom();
+            }
+
+            function agregarMensajeBot(texto) {
+                const messageDiv = document.createElement('div');
+                messageDiv.className = 'chat-message';
+                messageDiv.innerHTML = `
+            <div class="chat-message-avatar">🦅</div>
+            <div class="chat-message-content">
+                <div class="chat-message-bubble">${texto}</div>
+                <div class="chat-message-time">${obtenerHoraActual()}</div>
+            </div>
+        `;
+                chatMessages.appendChild(messageDiv);
+                scrollToBottom();
+
+                if (!isOpen) {
+                    mensajesPendientes++;
+                    chatBadge.textContent = mensajesPendientes;
+                    chatBadge.style.display = 'flex';
+                }
+            }
+
+            function mostrarIndicadorEscritura() {
+                typingIndicator.classList.add('visible');
+                scrollToBottom();
+            }
+
+            function ocultarIndicadorEscritura() {
+                typingIndicator.classList.remove('visible');
+            }
+
+            function responderBot(mensaje) {
+                ocultarIndicadorEscritura();
+
+                const mensajeLower = mensaje.toLowerCase();
+                let respuesta = '';
+
+                // Lógica de respuestas
+                if (mensajeLower.includes('horario') || mensajeLower.includes('hora')) {
+                    respuesta = 'Puedes consultar todos nuestros horarios en la sección de <a href="/rutas" style="color: #06b6d4; text-decoration: underline;">Rutas</a>. Tenemos salidas diarias a diferentes destinos. ¿Te gustaría información sobre alguna ruta específica?';
+                } else if (mensajeLower.includes('reserva') || mensajeLower.includes('reservar')) {
+                    respuesta = 'Para hacer una reserva, ve a nuestra sección de <a href="/reservar" style="color: #06b6d4; text-decoration: underline;">Reservar</a>. El proceso es muy sencillo:\n1️⃣ Selecciona origen y destino\n2️⃣ Elige fecha y horario\n3️⃣ Completa tus datos\n¿Necesitas ayuda con algo específico?';
+                } else if (mensajeLower.includes('precio') || mensajeLower.includes('costo') || mensajeLower.includes('tarifa')) {
+                    respuesta = '💰 Nuestras tarifas varían según la ruta:\n\n• Quibdó - Tadó: $18,000\n• Quibdó - Pereira: $45,000\n• Quibdó - Istmina: $12,000\n\nPuedes ver todas las tarifas en <a href="/rutas" style="color: #06b6d4; text-decoration: underline;">Rutas</a>';
+                } else if (mensajeLower.includes('servicio') || mensajeLower.includes('solicitar')) {
+                    respuesta = '🚗 Ofrecemos diferentes tipos de servicio:\n\n🏍️ Moto - Urbano desde $5,000\n🚗 Carro - Familiar desde $15,000\n🚌 Bus - Intermunicipal desde $25,000\n🚙 4x4 - Rural desde $40,000\n\n¿Qué tipo de servicio necesitas?';
+                } else if (mensajeLower.includes('contacto') || mensajeLower.includes('teléfono') || mensajeLower.includes('llamar')) {
+                    respuesta = '📞 Puedes contactarnos por:\n\n• Teléfono: (4) 671-2345\n• WhatsApp: +57 300 123 4567\n• Email: info@transporteaguila.com\n\nEstamos disponibles de lunes a domingo de 5:00 AM a 10:00 PM';
+                } else if (mensajeLower.includes('ubicación') || mensajeLower.includes('dirección') || mensajeLower.includes('donde')) {
+                    respuesta = '📍 Nos encontramos en:\n\nTerminal de Transporte de Quibdó\nQuibdó, Chocó, Colombia\n\n¿Te gustaría saber cómo llegar?';
+                } else if (mensajeLower.includes('cancelar') || mensajeLower.includes('cancelación')) {
+                    respuesta = '❌ Para cancelar una reserva:\n\n1. Ve a <a href="/mis-reservas" style="color: #06b6d4; text-decoration: underline;">Mis Reservas</a>\n2. Busca tu reserva\n3. Haz clic en "Cancelar"\n\nRecuerda: Las cancelaciones deben hacerse con al menos 2 horas de anticipación para obtener reembolso completo.';
+                } else if (mensajeLower.includes('agente') || mensajeLower.includes('operador') || mensajeLower.includes('humano')) {
+                    respuesta = '👤 Perfecto, te estoy conectando con un agente humano. Uno de nuestros operadores te atenderá en breve.\n\nMientras tanto, ¿podrías contarme brevemente en qué necesitas ayuda?';
+                } else if (mensajeLower.includes('gracias') || mensajeLower.includes('excelente') || mensajeLower.includes('perfecto')) {
+                    respuesta = '😊 ¡De nada! Es un placer ayudarte. Si necesitas algo más, no dudes en escribirme. ¡Buen viaje con Transporte Águila! 🦅';
+                } else if (mensajeLower.includes('hola') || mensajeLower.includes('buenos') || mensajeLower.includes('buenas')) {
+                    respuesta = '¡Hola! 👋 ¿En qué puedo ayudarte hoy? Puedo ayudarte con:\n\n📅 Horarios y rutas\n🎫 Reservas\n🚗 Solicitud de servicios\n💰 Información de precios\n📞 Contacto';
+                } else {
+                    respuesta = 'Entiendo. ¿Podrías darme más detalles sobre lo que necesitas? También puedes:\n\n• Consultar <a href="/rutas" style="color: #06b6d4; text-decoration: underline;">nuestras rutas</a>\n• Ver <a href="/servicios" style="color: #06b6d4; text-decoration: underline;">nuestros servicios</a>\n• O escribir "hablar con agente" para conectarte con un operador';
+                }
+
+                agregarMensajeBot(respuesta);
+            }
+
+            window.enviarRespuestaRapida = function (texto) {
+                agregarMensajeUsuario(texto);
+                document.getElementById('quickReplies').style.display = 'none';
+
+                mostrarIndicadorEscritura();
+                setTimeout(() => {
+                    responderBot(texto);
+                }, 1000);
+            }
+
+            function obtenerHoraActual() {
+                const ahora = new Date();
+                return ahora.toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit' });
+            }
+
+            function scrollToBottom() {
+                setTimeout(() => {
+                    chatMessages.scrollTop = chatMessages.scrollHeight;
+                }, 100);
+            }
+
+            // Simular mensaje de bienvenida después de 3 segundos si no está abierto
+            setTimeout(() => {
+                if (!isOpen) {
+                    mensajesPendientes = 1;
+                    chatBadge.textContent = '1';
+                    chatBadge.style.display = 'flex';
+                }
+            }, 3000);
+
+        })();
+    </script>
 </body>
 
 </html>

@@ -48,7 +48,7 @@
             </div>
 
             <ul class="enlaces-nav" id="enlaces-nav">
-                <li><a href="/dashboard" class="enlace-nav activo">Inicio</a></li>
+                <li><a href="/dashboard" class="enlace-nav">Inicio</a></li>
                 <li><a href="/nosotros" class="enlace-nav">Nosotros</a></li>
                 <li><a href="/servicios" class="enlace-nav">Servicios</a></li>
                 <li><a href="/rutas" class="enlace-nav">Rutas</a></li>
@@ -62,12 +62,47 @@
     <!-- Main -->
     <main class="contenido-principal">
         <h1 class="titulo-principal">Mis Viajes</h1>
-        <div class="grilla-viajes" id="grilla-viajes">
-            <!-- Las tarjetas de viajes se generan aquí -->
+
+        <!-- Tabs para Solicitudes y Reservas -->
+        <div class="tabs-viajes">
+            <button class="tab-btn activo" onclick="cambiarTab('solicitudes')">
+                🚗 Servicios Solicitados
+            </button>
+            <button class="tab-btn" onclick="cambiarTab('reservas')">
+                🎫 Reservas de Horarios
+            </button>
+            <button class="tab-btn" onclick="cambiarTab('todos')">
+                📋 Todos
+            </button>
         </div>
+
+        <!-- Filtros por estado -->
+        <div class="filtros-estado">
+            <button class="filtro-btn activo" data-filtro="todas">Todas</button>
+            <button class="filtro-btn" data-filtro="pendiente">Pendientes</button>
+            <button class="filtro-btn" data-filtro="aceptada,confirmada">Confirmadas</button>
+            <button class="filtro-btn" data-filtro="completada,pagada">Completadas</button>
+            <button class="filtro-btn" data-filtro="cancelada">Canceladas</button>
+        </div>
+
+        <div class="grilla-viajes" id="grilla-viajes">
+            <div class="mensaje-cargando">
+                <div class="spinner"></div>
+                <p>Cargando viajes...</p>
+            </div>
+        </div>
+
         <div class="mensaje-vacio" id="mensaje-vacio" style="display: none;">
             <h3>No tienes viajes</h3>
-            <p>Aún no has reservado ningún viaje.</p>
+            <p>Aún no has solicitado servicios ni hecho reservas.</p>
+            <div style="display: flex; gap: 16px; justify-content: center; margin-top: 20px;">
+                <button class="boton boton-primario" onclick="window.location.href='/servicios'">
+                    Solicitar Servicio
+                </button>
+                <button class="boton boton-secundario" onclick="window.location.href='/reservar'">
+                    Hacer Reserva
+                </button>
+            </div>
         </div>
     </main>
 
@@ -77,138 +112,18 @@
         </div>
     </footer>
 
-    <script>
+    <!-- Chat Widget se agregará aquí -->
 
+    <script>
+        let todasLasSolicitudes = [];
+        let todasLasReservas = [];
+        let todosLosViajes = [];
+        let tabActual = 'solicitudes';
+        let filtroActual = 'todas';
 
         document.getElementById('boton-menu').addEventListener('click', function () {
             document.getElementById('enlaces-nav').classList.toggle('activo');
         });
-
-        async function obtenerViajes() {
-            try {
-                const res = await fetch('/api/mis-solicitudes');
-                const data = await res.json();
-                const grilla = document.getElementById('grilla-viajes');
-                const mensaje = document.getElementById('mensaje-vacio');
-
-                grilla.innerHTML = '';
-
-                if (data.success && data.solicitudes && data.solicitudes.length > 0) {
-                    mensaje.style.display = 'none';
-
-                    data.solicitudes.forEach(solicitud => {
-                        const tarjeta = document.createElement('div');
-                        tarjeta.className = 'tarjeta-viaje aparecer';
-
-
-                        const estadoClasses = {
-                            'pendiente': 'estado-pendiente',
-                            'aceptada': 'estado-aceptada',
-                            'en_curso': 'estado-en-curso',
-                            'completada': 'estado-completada',
-                            'cancelada': 'estado-cancelada'
-                        };
-
-                        const estadoTextos = {
-                            'pendiente': '⏳ Pendiente',
-                            'aceptada': '✅ Aceptada',
-                            'en_curso': '🚗 En Curso',
-                            'completada': '✔️ Completada',
-                            'cancelada': '❌ Cancelada'
-                        };
-
-                        const fecha = new Date(solicitud.fecha_servicio);
-                        const fechaFormateada = fecha.toLocaleDateString('es-CO', {
-                            weekday: 'long',
-                            year: 'numeric',
-                            month: 'long',
-                            day: 'numeric'
-                        });
-
-                        const conductorHTML = solicitud.conductor ? `
-                    <div class="info-conductor">
-                        <strong>Conductor:</strong> ${solicitud.conductor.nombre}<br>
-                        <strong>Teléfono:</strong> ${solicitud.conductor.telefono}
-                    </div>
-                ` : '';
-
-                        tarjeta.innerHTML = `
-                    <div class="encabezado-viaje">
-                        <div class="codigo-viaje">#${solicitud.codigo_solicitud}</div>
-                        <div class="estado-viaje ${estadoClasses[solicitud.estado] || ''}">
-                            ${estadoTextos[solicitud.estado] || solicitud.estado}
-                        </div>
-                    </div>
-                    
-                    <div class="tipo-vehiculo-badge">
-                        ${obtenerIconoVehiculo(solicitud.tipo_vehiculo)} ${solicitud.tipo_vehiculo.toUpperCase()}
-                    </div>
-                    
-                    <div class="ruta-viaje">
-                        <div class="punto-inicio">
-                            <span class="icono-punto">📍</span>
-                            <span>${solicitud.origen}</span>
-                        </div>
-                        <div class="linea-ruta">→</div>
-                        <div class="punto-final">
-                            <span class="icono-punto">🎯</span>
-                            <span>${solicitud.destino}</span>
-                        </div>
-                    </div>
-                    
-                    <div class="detalles-viaje">
-                        <div class="detalle-item">
-                            <span class="icono-detalle">📅</span>
-                            <span>${fechaFormateada}</span>
-                        </div>
-                        <div class="detalle-item">
-                            <span class="icono-detalle">⏰</span>
-                            <span>${solicitud.hora_servicio}</span>
-                        </div>
-                        <div class="detalle-item">
-                            <span class="icono-detalle">👥</span>
-                            <span>${solicitud.numero_pasajeros} pasajero${solicitud.numero_pasajeros > 1 ? 's' : ''}</span>
-                        </div>
-                        <div class="detalle-item precio">
-                            <span class="icono-detalle">💰</span>
-                            <span>${solicitud.precio_final ? '$' + solicitud.precio_final.toLocaleString() : '$' + solicitud.precio_estimado.toLocaleString() + ' (estimado)'}</span>
-                        </div>
-                    </div>
-                    
-                    ${conductorHTML}
-                    
-                    ${solicitud.observaciones ? `
-                        <div class="observaciones-viaje">
-                            <strong>Observaciones:</strong> ${solicitud.observaciones}
-                        </div>
-                    ` : ''}
-                `;
-
-                        grilla.appendChild(tarjeta);
-                    });
-                } else {
-                    mensaje.style.display = 'block';
-                }
-            } catch (error) {
-                console.error('Error cargando viajes:', error);
-                document.getElementById('mensaje-vacio').innerHTML = `
-            <h3>Error al cargar viajes</h3>
-            <p>Por favor, intenta nuevamente más tarde.</p>
-        `;
-                document.getElementById('mensaje-vacio').style.display = 'block';
-            }
-        }
-
-        function obtenerIconoVehiculo(tipo) {
-            const iconos = {
-                'moto': '🏍️',
-                'carro': '🚗',
-                'bus': '🚌',
-                '4x4': '🚙'
-            };
-            return iconos[tipo] || '🚗';
-        }
-
 
         async function configurarAreaUsuario() {
             try {
@@ -236,6 +151,314 @@
             }
         }
 
+        async function cargarTodosLosViajes() {
+            try {
+                // Cargar solicitudes de servicio
+                const solicitudesResp = await fetch('/api/mis-solicitudes');
+                const solicitudesData = await solicitudesResp.json();
+
+                // Cargar reservas de horarios
+                const reservasResp = await fetch('/api/mis-reservas');
+                const reservasData = await reservasResp.json();
+
+                const grilla = document.getElementById('grilla-viajes');
+                const mensaje = document.getElementById('mensaje-vacio');
+
+                if (solicitudesData.success) {
+                    todasLasSolicitudes = solicitudesData.solicitudes || [];
+                }
+
+                if (reservasData.success) {
+                    todasLasReservas = reservasData.reservas || [];
+                }
+
+                // Combinar y ordenar por fecha
+                todosLosViajes = [
+                    ...todasLasSolicitudes.map(s => ({ ...s, tipo: 'solicitud' })),
+                    ...todasLasReservas.map(r => ({ ...r, tipo: 'reserva' }))
+                ].sort((a, b) => {
+                    const fechaA = new Date(a.fecha_solicitud || a.fecha_reserva);
+                    const fechaB = new Date(b.fecha_solicitud || b.fecha_reserva);
+                    return fechaB - fechaA;
+                });
+
+                if (todosLosViajes.length === 0) {
+                    grilla.innerHTML = '';
+                    mensaje.style.display = 'block';
+                } else {
+                    mensaje.style.display = 'none';
+                    aplicarFiltros();
+                }
+            } catch (error) {
+                console.error('Error cargando viajes:', error);
+                document.getElementById('grilla-viajes').innerHTML = `
+                    <div class="mensaje-error">
+                        <h3>Error al cargar viajes</h3>
+                        <p>Por favor, intenta nuevamente más tarde.</p>
+                    </div>
+                `;
+            }
+        }
+
+        function cambiarTab(tab) {
+            tabActual = tab;
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('activo'));
+            event.target.classList.add('activo');
+            aplicarFiltros();
+        }
+
+        function aplicarFiltros() {
+            let viajesFiltrados = todosLosViajes;
+
+            // Filtrar por tab
+            if (tabActual === 'solicitudes') {
+                viajesFiltrados = viajesFiltrados.filter(v => v.tipo === 'solicitud');
+            } else if (tabActual === 'reservas') {
+                viajesFiltrados = viajesFiltrados.filter(v => v.tipo === 'reserva');
+            }
+
+            // Filtrar por estado
+            if (filtroActual !== 'todas') {
+                const estados = filtroActual.split(',');
+                viajesFiltrados = viajesFiltrados.filter(v => estados.includes(v.estado));
+            }
+
+            mostrarViajes(viajesFiltrados);
+        }
+
+        function mostrarViajes(viajes) {
+            const grilla = document.getElementById('grilla-viajes');
+            grilla.innerHTML = '';
+
+            if (viajes.length === 0) {
+                grilla.innerHTML = `
+                    <div class="mensaje-vacio">
+                        <div class="icono-vacio">🔭</div>
+                        <h3>No hay viajes en esta categoría</h3>
+                        <p>Prueba con otros filtros</p>
+                    </div>
+                `;
+                return;
+            }
+
+            viajes.forEach(viaje => {
+                const tarjeta = document.createElement('div');
+                tarjeta.className = 'tarjeta-viaje aparecer';
+
+                if (viaje.tipo === 'solicitud') {
+                    tarjeta.innerHTML = crearTarjetaSolicitud(viaje);
+                } else {
+                    tarjeta.innerHTML = crearTarjetaReserva(viaje);
+                }
+
+                grilla.appendChild(tarjeta);
+            });
+        }
+
+        function crearTarjetaSolicitud(solicitud) {
+            const estadoClasses = {
+                'pendiente': 'estado-pendiente',
+                'aceptada': 'estado-aceptada',
+                'en_curso': 'estado-en-curso',
+                'completada': 'estado-completada',
+                'cancelada': 'estado-cancelada'
+            };
+
+            const estadoTextos = {
+                'pendiente': '⏳ Buscando Conductor',
+                'aceptada': '✅ Conductor Asignado',
+                'en_curso': '🚗 En Curso',
+                'completada': '✔️ Completada',
+                'cancelada': '❌ Cancelada'
+            };
+
+            const fecha = new Date(solicitud.fecha_servicio);
+            const fechaFormateada = fecha.toLocaleDateString('es-CO', {
+                weekday: 'long',
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+            });
+
+            const conductorHTML = solicitud.conductor ? `
+                <div class="info-conductor">
+                    <strong>🚗 Conductor:</strong> ${solicitud.conductor.nombre}<br>
+                    <strong>📞 Teléfono:</strong> ${solicitud.conductor.telefono}
+                </div>
+            ` : '';
+
+            return `
+                <div class="badge-tipo">🚗 Servicio Solicitado</div>
+                <div class="encabezado-viaje">
+                    <div class="codigo-viaje">#${solicitud.codigo_solicitud}</div>
+                    <div class="estado-viaje ${estadoClasses[solicitud.estado] || ''}">
+                        ${estadoTextos[solicitud.estado] || solicitud.estado}
+                    </div>
+                </div>
+                
+                <div class="tipo-vehiculo-badge">
+                    ${obtenerIconoVehiculo(solicitud.tipo_vehiculo)} ${solicitud.tipo_vehiculo.toUpperCase()}
+                </div>
+                
+                <div class="ruta-viaje">
+                    <div class="punto-inicio">
+                        <span class="icono-punto">📍</span>
+                        <span>${solicitud.origen}</span>
+                    </div>
+                    <div class="linea-ruta">→</div>
+                    <div class="punto-final">
+                        <span class="icono-punto">🎯</span>
+                        <span>${solicitud.destino}</span>
+                    </div>
+                </div>
+                
+                <div class="detalles-viaje">
+                    <div class="detalle-item">
+                        <span class="icono-detalle">📅</span>
+                        <span>${fechaFormateada}</span>
+                    </div>
+                    <div class="detalle-item">
+                        <span class="icono-detalle">⏰</span>
+                        <span>${solicitud.hora_servicio}</span>
+                    </div>
+                    <div class="detalle-item">
+                        <span class="icono-detalle">👥</span>
+                        <span>${solicitud.numero_pasajeros} pasajero${solicitud.numero_pasajeros > 1 ? 's' : ''}</span>
+                    </div>
+                    <div class="detalle-item precio">
+                        <span class="icono-detalle">💰</span>
+                        <span>${solicitud.precio_final ? '$' + solicitud.precio_final.toLocaleString() : '$' + solicitud.precio_estimado.toLocaleString() + ' (estimado)'}</span>
+                    </div>
+                </div>
+                
+                ${conductorHTML}
+                
+                ${solicitud.observaciones ? `
+                    <div class="observaciones-viaje">
+                        <strong>📝 Observaciones:</strong> ${solicitud.observaciones}
+                    </div>
+                ` : ''}
+            `;
+        }
+
+        function crearTarjetaReserva(reserva) {
+            const estadoClasses = {
+                'pendiente': 'estado-pendiente',
+                'confirmada': 'estado-aceptada',
+                'pagada': 'estado-completada',
+                'cancelada': 'estado-cancelada'
+            };
+
+            const estadoTextos = {
+                'pendiente': '⏳ Pendiente de Pago',
+                'confirmada': '✅ Confirmada',
+                'pagada': '💳 Pagada',
+                'cancelada': '❌ Cancelada'
+            };
+
+            const fechaSalida = new Date(reserva.fecha_salida);
+            const fechaFormateada = fechaSalida.toLocaleDateString('es-CO', {
+                weekday: 'long',
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+            });
+
+            return `
+                <div class="badge-tipo">🎫 Reserva de Horario</div>
+                <div class="encabezado-viaje">
+                    <div class="codigo-viaje">${reserva.codigo_reserva}</div>
+                    <div class="estado-viaje ${estadoClasses[reserva.estado] || ''}">
+                        ${estadoTextos[reserva.estado] || reserva.estado}
+                    </div>
+                </div>
+                
+                <div class="tipo-vehiculo-badge">
+                    ${obtenerIconoVehiculo(reserva.tipo_vehiculo)} ${reserva.tipo_vehiculo.toUpperCase()}
+                </div>
+                
+                <div class="ruta-viaje">
+                    <div class="punto-inicio">
+                        <span class="icono-punto">📍</span>
+                        <span>${reserva.origen}</span>
+                    </div>
+                    <div class="linea-ruta">→</div>
+                    <div class="punto-final">
+                        <span class="icono-punto">🎯</span>
+                        <span>${reserva.destino}</span>
+                    </div>
+                </div>
+                
+                <div class="detalles-viaje">
+                    <div class="detalle-item">
+                        <span class="icono-detalle">📅</span>
+                        <span>${fechaFormateada}</span>
+                    </div>
+                    <div class="detalle-item">
+                        <span class="icono-detalle">⏰</span>
+                        <span>${fechaSalida.toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit' })}</span>
+                    </div>
+                    <div class="detalle-item">
+                        <span class="icono-detalle">👤</span>
+                        <span>${reserva.nombre_pasajero}</span>
+                    </div>
+                    <div class="detalle-item precio">
+                        <span class="icono-detalle">💰</span>
+                        <span>$${reserva.precio_total.toLocaleString()}</span>
+                    </div>
+                </div>
+                
+                ${reserva.placa ? `
+                    <div class="info-conductor">
+                        <strong>🚌 Vehículo:</strong> ${reserva.placa}
+                    </div>
+                ` : ''}
+                
+                ${reserva.estado === 'pendiente' ? `
+                    <div class="acciones-viaje">
+                        <button class="boton boton-primario" onclick="confirmarPagoReserva('${reserva.codigo_reserva}')">
+                            Confirmar Pago
+                        </button>
+                        <button class="boton boton-secundario" onclick="cancelarReserva('${reserva.codigo_reserva}')">
+                            Cancelar
+                        </button>
+                    </div>
+                ` : ''}
+            `;
+        }
+
+        function obtenerIconoVehiculo(tipo) {
+            const iconos = {
+                'moto': '🏍️',
+                'carro': '🚗',
+                'bus': '🚌',
+                '4x4': '🚙'
+            };
+            return iconos[tipo] || '🚗';
+        }
+
+        function confirmarPagoReserva(codigo) {
+            if (confirm('¿Deseas confirmar el pago de esta reserva?')) {
+                alert('Funcionalidad de pago - Próximamente\n\nCódigo: ' + codigo);
+            }
+        }
+
+        function cancelarReserva(codigo) {
+            if (confirm('¿Estás seguro de que deseas cancelar esta reserva?')) {
+                alert('Funcionalidad de cancelación - Próximamente\n\nCódigo: ' + codigo);
+            }
+        }
+
+        // Filtros de estado
+        document.querySelectorAll('.filtro-btn').forEach(btn => {
+            btn.addEventListener('click', function () {
+                document.querySelectorAll('.filtro-btn').forEach(b => b.classList.remove('activo'));
+                this.classList.add('activo');
+                filtroActual = this.dataset.filtro;
+                aplicarFiltros();
+            });
+        });
+
         function generarColor(texto) {
             const colores = ['#6366f1', '#4f46e5', '#8b5cf6', '#06b6d4', '#22c55e', '#f59e0b', '#ef4444'];
             let hash = 0;
@@ -256,12 +479,137 @@
             }
         }
 
-
         document.addEventListener('DOMContentLoaded', function () {
             configurarAreaUsuario();
-            obtenerViajes();
+            cargarTodosLosViajes();
         });
     </script>
+
+    <style>
+        .tabs-viajes {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        .tab-btn {
+            padding: 12px 24px;
+            background: var(--fondo-cristal);
+            border: 1px solid var(--borde);
+            border-radius: 25px;
+            color: var(--texto-secundario);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 14px;
+            font-weight: 600;
+            font-family: inherit;
+        }
+
+        .tab-btn.activo,
+        .tab-btn:hover {
+            background: linear-gradient(135deg, var(--primario), var(--secundario));
+            color: white;
+            border-color: var(--primario);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(99, 102, 241, 0.3);
+        }
+
+        .filtros-estado {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            margin-bottom: 40px;
+            flex-wrap: wrap;
+        }
+
+        .filtro-btn {
+            padding: 8px 16px;
+            background: var(--fondo-cristal);
+            border: 1px solid var(--borde);
+            border-radius: 20px;
+            color: var(--texto-secundario);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 13px;
+            font-weight: 500;
+            font-family: inherit;
+        }
+
+        .filtro-btn.activo {
+            background: var(--primario);
+            color: white;
+            border-color: var(--primario);
+        }
+
+        .filtro-btn:hover {
+            border-color: var(--primario);
+            color: var(--primario);
+        }
+
+        .badge-tipo {
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.2), rgba(139, 92, 246, 0.2));
+            border: 1px solid rgba(99, 102, 241, 0.3);
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--primario);
+            margin-bottom: 12px;
+            display: inline-block;
+        }
+
+        .acciones-viaje {
+            display: flex;
+            gap: 12px;
+            margin-top: 16px;
+        }
+
+        .acciones-viaje .boton {
+            flex: 1;
+            padding: 10px;
+            font-size: 13px;
+        }
+
+        .mensaje-cargando {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--texto-secundario);
+            grid-column: 1 / -1;
+        }
+
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid var(--borde);
+            border-top-color: var(--primario);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .acciones-viaje {
+                flex-direction: column;
+            }
+
+            .tabs-viajes {
+                gap: 8px;
+            }
+
+            .tab-btn {
+                padding: 10px 16px;
+                font-size: 13px;
+            }
+        }
+    </style>
 </body>
 
 </html>

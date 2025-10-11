@@ -881,6 +881,8 @@ def debug_solicitudes():
             'message': str(e)
         }), 500
 
+
+
 @app.route('/perfil')
 def perfil():
     if 'usuario_id' not in session:
@@ -896,51 +898,6 @@ def rutas():
 
 # Agregar estas rutas al archivo auth_server.py (antes de if __name__ == '__main__':)
 
-@app.route('/api/rutas', methods=['GET'])
-def api_rutas():
-    """Obtiene todas las rutas disponibles"""
-    if 'usuario_id' not in session:
-        return jsonify({'success': False, 'message': 'No autorizado'}), 401
-    
-    try:
-        conn = sqlite3.connect(DATABASE)
-        cursor = conn.cursor()
-        
-        cursor.execute('''
-            SELECT id, origen, destino, distancia_km, duracion_horas, 
-                   precio_base, tipo_ruta, descripcion, activa
-            FROM rutas
-            WHERE activa = 1
-            ORDER BY origen, destino
-        ''')
-        
-        rutas = cursor.fetchall()
-        conn.close()
-        
-        rutas_list = []
-        for r in rutas:
-            rutas_list.append({
-                'id': r[0],
-                'origen': r[1],
-                'destino': r[2],
-                'distancia_km': r[3],
-                'duracion_horas': r[4],
-                'precio_base': r[5],
-                'tipo_ruta': r[6],
-                'descripcion': r[7],
-                'activa': r[8]
-            })
-        
-        return jsonify({
-            'success': True,
-            'rutas': rutas_list
-        })
-    except Exception as e:
-        print(f"Error obteniendo rutas: {e}")
-        return jsonify({
-            'success': False,
-            'message': 'Error obteniendo rutas'
-        }), 500
 
 @app.route('/api/horarios/<int:ruta_id>', methods=['GET'])
 def api_horarios(ruta_id):
@@ -1034,11 +991,7 @@ def reservar():
         return redirect(url_for('login'))
     return render_template('reservas.html')
 
-@app.route('/mis-reservas')
-def mis_reservas():
-    if 'usuario_id' not in session:
-        return redirect(url_for('login'))
-    return render_template('mis-reservas.html')
+
 
 # Agregar esta función al archivo auth_server.py
 
@@ -1147,12 +1100,317 @@ def mis_viajes():
 
     return render_template('mis-viajes.html', viajes=viajes)
 
+# Agregar estas rutas al archivo auth_server.py
+
+# Función para generar código de reserva único
+def generar_codigo_reserva():
+    import string
+    import random
+    codigo = 'RES-' + ''.join(random.choices(string.ascii_uppercase + string.digits, k=8))
+    conn = sqlite3.connect(DATABASE)
+    cursor = conn.cursor()
+    cursor.execute('SELECT id FROM reservas WHERE codigo_reserva = ?', (codigo,))
+    if cursor.fetchone():
+        conn.close()
+        return generar_codigo_reserva()
+    conn.close()
+    return codigo
+
+# Ruta para obtener todas las rutas disponibles
+@app.route('/api/rutas', methods=['GET'])
+def api_rutas():
+    """Obtiene todas las rutas disponibles"""
+    try:
+        conn = sqlite3.connect(DATABASE)
+        cursor = conn.cursor()
+        cursor.execute('''
+            SELECT id, origen, destino, distancia_km, duracion_horas, 
+                   precio_base, tipo_ruta, descripcion, activa
+            FROM rutas
+            WHERE activa = 1
+            ORDER BY origen, destino
+        ''')
+        rutas = cursor.fetchall()
+        conn.close()
+        
+        rutas_list = []
+        for r in rutas:
+            rutas_list.append({
+                'id': r[0],
+                'origen': r[1],
+                'destino': r[2],
+                'distancia_km': r[3],
+                'duracion_horas': r[4],
+                'precio_base': r[5],
+                'tipo_ruta': r[6],
+                'descripcion': r[7],
+                'activa': r[8]
+            })
+        
+        return jsonify({
+            'success': True,
+            'rutas': rutas_list
+        })
+    except Exception as e:
+        print(f"Error obteniendo rutas: {e}")
+        return jsonify({
+            'success': False,
+            'message': 'Error obteniendo rutas'
+        }), 500
+
+
+# Ruta para crear una reserva
+@app.route('/api/reservar', methods=['POST'])
+def api_reservar():
+    """Crea una nueva reserva"""
+    if 'usuario_id' not in session:
+        return jsonify({'success': False, 'message': 'No autorizado'}), 401
+    
+    try:
+        data = request.get_json()
+        
+        # Validar campos requeridos
+        campos_requeridos = ['horario_id', 'nombre', 'cedula', 'telefono', 'email']
+        for campo in campos_requeridos:
+            if not data.get(campo):
+                return jsonify({
+                    'success': False,
+                    'message': f'El campo {campo} es obligatorio'
+                }), 400
+        
+        conn = sqlite3.connect(DATABASE)
+        cursor = conn.cursor()
+        
+        # Verificar disponibilidad
+        cursor.execute('''
+            SELECT asientos_disponibles, precio 
+            FROM horarios 
+            WHERE id = ? AND estado = 'programado'
+        ''', (data['horario_id'],))
+        
+        horario = cursor.fetchone()
+        
+        if not horario:
+            conn.close()
+            return jsonify({
+                'success': False,
+                'message': 'Horario no disponible'
+            }), 400
+        
+        if horario[0] <= 0:
+            conn.close()
+            return jsonify({
+                'success': False,
+                'message': 'No hay asientos disponibles'
+            }), 400
+        
+        # Generar código de reserva
+        codigo_reserva = generar_codigo_reserva()
+        
+        # Calcular fecha de vencimiento (2 horas después)
+        from datetime import datetime, timedelta
+        fecha_vencimiento = datetime.now() + timedelta(hours=2)
+        
+        # Crear reserva
+        cursor.execute('''
+            INSERT INTO reservas (
+                codigo_reserva, usuario_id, horario_id, nombre_pasajero,
+                cedula_pasajero, telefono_pasajero, email_pasajero,
+                precio_total, estado, fecha_vencimiento, notas
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'pendiente', ?, ?)
+        ''', (
+            codigo_reserva,
+            session['usuario_id'],
+            data['horario_id'],
+            data['nombre'],
+            data['cedula'],
+            data['telefono'],
+            data['email'],
+            horario[1],  # precio del horario
+            fecha_vencimiento.strftime('%Y-%m-%d %H:%M:%S'),
+            data.get('notas', '')
+        ))
+        
+        # Reducir asientos disponibles
+        cursor.execute('''
+            UPDATE horarios 
+            SET asientos_disponibles = asientos_disponibles - 1
+            WHERE id = ?
+        ''', (data['horario_id'],))
+        
+        conn.commit()
+        reserva_id = cursor.lastrowid
+        conn.close()
+        
+        return jsonify({
+            'success': True,
+            'reserva': {
+                'id': reserva_id,
+                'codigo_reserva': codigo_reserva,
+                'fecha_vencimiento': fecha_vencimiento.strftime('%Y-%m-%d %H:%M:%S')
+            },
+            'message': 'Reserva creada exitosamente'
+        })
+        
+    except Exception as e:
+        print(f"Error creando reserva: {e}")
+        return jsonify({
+            'success': False,
+            'message': 'Error procesando la reserva'
+        }), 500
+
+# Ruta para obtener mis reservas
+@app.route('/api/mis-reservas', methods=['GET'])
+def api_mis_reservas():
+    """Obtiene las reservas del usuario autenticado"""
+    if 'usuario_id' not in session:
+        return jsonify({'success': False, 'message': 'No autorizado'}), 401
+    
+    try:
+        conn = sqlite3.connect(DATABASE)
+        cursor = conn.cursor()
+        
+        cursor.execute('''
+            SELECT r.id, r.codigo_reserva, r.nombre_pasajero, r.cedula_pasajero,
+                   r.telefono_pasajero, r.precio_total, r.estado, r.fecha_reserva,
+                   r.fecha_vencimiento, r.notas,
+                   h.fecha_salida, h.fecha_llegada,
+                   ru.origen, ru.destino,
+                   v.tipo_vehiculo, v.placa
+            FROM reservas r
+            JOIN horarios h ON r.horario_id = h.id
+            JOIN rutas ru ON h.ruta_id = ru.id
+            JOIN vehiculos v ON h.vehiculo_id = v.id
+            WHERE r.usuario_id = ?
+            ORDER BY r.fecha_reserva DESC
+        ''', (session['usuario_id'],))
+        
+        reservas = cursor.fetchall()
+        conn.close()
+        
+        reservas_list = []
+        for r in reservas:
+            reservas_list.append({
+                'id': r[0],
+                'codigo_reserva': r[1],
+                'nombre_pasajero': r[2],
+                'cedula_pasajero': r[3],
+                'telefono_pasajero': r[4],
+                'precio_total': r[5],
+                'estado': r[6],
+                'fecha_reserva': r[7],
+                'fecha_vencimiento': r[8],
+                'notas': r[9],
+                'fecha_salida': r[10],
+                'fecha_llegada': r[11],
+                'origen': r[12],
+                'destino': r[13],
+                'tipo_vehiculo': r[14],
+                'placa': r[15]
+            })
+        
+        return jsonify({
+            'success': True,
+            'reservas': reservas_list
+        })
+        
+    except Exception as e:
+        print(f"Error obteniendo reservas: {e}")
+        return jsonify({
+            'success': False,
+            'message': 'Error obteniendo reservas'
+        }), 500
+
+# Agregar esta función al archivo auth_server.py y llamarla después de init_db()
+
+def insertar_horarios_prueba():
+    """Inserta horarios de prueba para las próximas semanas"""
+    conn = sqlite3.connect(DATABASE)
+    cursor = conn.cursor()
+    
+    try:
+        # Verificar si ya existen horarios
+        cursor.execute('SELECT COUNT(*) FROM horarios')
+        if cursor.fetchone()[0] > 0:
+            conn.close()
+            return  # Ya hay horarios, no insertar más
+        
+        from datetime import datetime, timedelta
+        
+        # Obtener IDs de rutas y vehículos
+        cursor.execute('SELECT id FROM rutas WHERE activa = 1')
+        rutas = [r[0] for r in cursor.fetchall()]
+        
+        cursor.execute('SELECT id, capacidad_pasajeros FROM vehiculos WHERE activo = 1')
+        vehiculos = cursor.fetchall()
+        
+        if not rutas or not vehiculos:
+            print("No hay rutas o vehículos disponibles")
+            conn.close()
+            return
+        
+        # Crear horarios para los próximos 30 días
+        fecha_inicio = datetime.now()
+        horarios_prueba = []
+        
+        for dia in range(30):
+            fecha = fecha_inicio + timedelta(days=dia)
+            
+            # Para cada ruta
+            for ruta_id in rutas:
+                # Obtener duración de la ruta
+                cursor.execute('SELECT duracion_horas, precio_base FROM rutas WHERE id = ?', (ruta_id,))
+                ruta_info = cursor.fetchone()
+                duracion_horas = ruta_info[0]
+                precio_base = ruta_info[1]
+                
+                # Crear varios horarios al día
+                horas_salida = ['06:00', '09:00', '14:00', '18:00']
+                
+                for hora_salida in horas_salida:
+                    # Seleccionar vehículo aleatorio
+                    import random
+                    vehiculo = random.choice(vehiculos)
+                    vehiculo_id = vehiculo[0]
+                    capacidad = vehiculo[1]
+                    
+                    # Calcular fecha/hora de salida y llegada
+                    hora, minuto = map(int, hora_salida.split(':'))
+                    fecha_salida = fecha.replace(hour=hora, minute=minuto, second=0, microsecond=0)
+                    fecha_llegada = fecha_salida + timedelta(hours=duracion_horas)
+                    
+                    horarios_prueba.append((
+                        ruta_id,
+                        vehiculo_id,
+                        fecha_salida.strftime('%Y-%m-%d %H:%M:%S'),
+                        fecha_llegada.strftime('%Y-%m-%d %H:%M:%S'),
+                        precio_base,
+                        capacidad,
+                        'programado'
+                    ))
+        
+        # Insertar todos los horarios
+        cursor.executemany('''
+            INSERT INTO horarios (
+                ruta_id, vehiculo_id, fecha_salida, fecha_llegada,
+                precio, asientos_disponibles, estado
+            ) VALUES (?, ?, ?, ?, ?, ?, ?)
+        ''', horarios_prueba)
+        
+        conn.commit()
+        print(f"✅ Se insertaron {len(horarios_prueba)} horarios de prueba")
+        
+    except Exception as e:
+        print(f"Error insertando horarios de prueba: {e}")
+        conn.rollback()
+    finally:
+        conn.close()
 
 
 
 if __name__ == '__main__':
     init_db() 
-
+    insertar_horarios_prueba()
 
 
     
