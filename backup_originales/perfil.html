@@ -4,15 +4,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Liberty Transport S.A.S.</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/transporte-mejorado.css') }}">
+    <title>Mi Perfil - Liberty Transport S.A.S.</title>
+    <link href="{{ url_for('static', filename='css/transporte-mejorado.css') }}" rel="stylesheet">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/area-usuario.css') }}">
-    <link href="{{ url_for('static', filename='css/chat-conversaciones.css') }}" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/perfil.css') }}">
 </head>
 
 <body>
     <div class="patron-fondo"></div>
-
 
     <div class="area-usuario" id="area-usuario">
         <div class="avatar-usuario" id="avatar-usuario">
@@ -22,7 +21,6 @@
             <span class="nombre-usuario" id="nombre-display">Cargando...</span>
             <span class="saludo-usuario" id="saludo-usuario">¡Bienvenido!</span>
         </div>
-
         <div class="menu-usuario">
             <div class="opcion-menu" onclick="window.location.href='/perfil'">
                 <span class="icono-menu">👤</span>
@@ -38,261 +36,376 @@
             </div>
 
         </div>
-
     </div>
     </div>
-
 
     <nav class="barra-navegacion">
         <div class="contenido-nav">
             <div class="logotipo">
-                <div class="icono-logo">
-                    <img src="{{ url_for('static', filename='images/logo-liberty.png') }}" alt="Liberty Transport Logo"
-                        style="width: 40px; height: 40px; object-fit: contain;">
-                </div>
-                <span>Liberty Transport </span>
+                <div class="icono-logo">🦅</div>
+                <span>Águila</span>
             </div>
-
             <ul class="enlaces-nav" id="enlaces-nav">
-                <li><a href="/dashboard" class="enlace-nav activo">Inicio</a></li>
+                <li><a href="/dashboard" class="enlace-nav">Inicio</a></li>
                 <li><a href="/nosotros" class="enlace-nav">Nosotros</a></li>
                 <li><a href="/servicios" class="enlace-nav">Servicios</a></li>
                 <li><a href="/rutas" class="enlace-nav">Rutas</a></li>
                 <li><a href="/reservar" class="enlace-nav">Reservar</a></li>
             </ul>
-
             <button class="boton-menu" id="boton-menu">☰</button>
         </div>
     </nav>
 
     <main>
+        <section class="seccion-perfil">
+            <div class="contenedor">
+                <div class="titulo-seccion">
+                    <h1>Mi Perfil</h1>
+                    <p>Gestiona tu información personal y configuración de cuenta</p>
+                </div>
 
-        <section id="pagina-inicio" class="pagina">
+                <div class="contenido-perfil">
+                    <div class="tarjeta-perfil">
+                        <div class="encabezado-tarjeta">
+                            <div class="avatar-perfil" id="avatar-perfil">
+                                <span id="iniciales-perfil">US</span>
+                            </div>
+                            <div class="info-encabezado">
+                                <h2 id="nombre-perfil">Cargando...</h2>
+                                <p id="email-perfil">cargando@email.com</p>
+                                <span class="fecha-registro">Miembro desde: <span id="fecha-registro">...</span></span>
+                            </div>
+                            <button class="boton-editar" onclick="activarModoEdicion()">
+                                ✏️ Editar
+                            </button>
+                        </div>
+                    </div>
 
-            <section class="principal">
-                <div class="contenedor">
-                    <div class="contenido-principal aparecer">
-                        <h1>Tu viaje, nuestra misión</h1>
-                        <p>Conectamos rutas seguras y confiables por todo el Chocó con la mejor tecnología y servicio
-                            personalizado.</p>
-                        <div class="botones-principal">
-                            <a href="/servicios" class="boton boton-primario">
-                                🚌 Ver Servicios
-                            </a>
-                            <a href="/rutas" class="boton boton-secundario">
-                                📍 Conocer Rutas
-                            </a>
+                    <div class="tarjeta-perfil">
+                        <div class="encabezado-seccion">
+                            <h3>Información Personal</h3>
+                            <p>Mantén tu información actualizada para un mejor servicio</p>
+                        </div>
+
+                        <form class="formulario-perfil" id="form-perfil">
+                            <div class="grupo-input-doble">
+                                <div class="grupo-input">
+                                    <label for="nombre">Nombre *</label>
+                                    <input type="text" id="nombre" name="nombre" readonly>
+                                </div>
+                                <div class="grupo-input">
+                                    <label for="apellido">Apellido *</label>
+                                    <input type="text" id="apellido" name="apellido" readonly>
+                                </div>
+                            </div>
+
+                            <div class="grupo-input">
+                                <label for="email">Correo electrónico *</label>
+                                <input type="email" id="email" name="email" readonly>
+                            </div>
+
+                            <div class="grupo-input-doble">
+                                <div class="grupo-input">
+                                    <label for="telefono">Teléfono *</label>
+                                    <input type="tel" id="telefono" name="telefono" readonly>
+                                </div>
+                                <div class="grupo-input">
+                                    <label for="cedula">Cédula *</label>
+                                    <input type="text" id="cedula" name="cedula" readonly>
+                                </div>
+                            </div>
+
+                            <div class="botones-formulario oculto" id="botones-edicion">
+                                <button type="button" class="boton boton-secundario" onclick="cancelarEdicion()">
+                                    Cancelar
+                                </button>
+                                <button type="submit" class="boton boton-primario">
+                                    Guardar Cambios
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+
+                    <div class="tarjeta-perfil">
+                        <div class="encabezado-seccion">
+                            <h3>Cambiar Contraseña</h3>
+                            <p>Actualiza tu contraseña para mantener tu cuenta segura</p>
+                        </div>
+
+                        <form class="formulario-perfil" id="form-password">
+                            <div class="grupo-input">
+                                <label for="password-actual">Contraseña actual *</label>
+                                <input type="password" id="password-actual" name="password-actual" required>
+                            </div>
+
+                            <div class="grupo-input">
+                                <label for="password-nueva">Nueva contraseña *</label>
+                                <input type="password" id="password-nueva" name="password-nueva" required>
+                                <small class="ayuda-input">Mínimo 8 caracteres, incluir letras y números</small>
+                            </div>
+
+                            <div class="grupo-input">
+                                <label for="password-confirmar">Confirmar nueva contraseña *</label>
+                                <input type="password" id="password-confirmar" name="password-confirmar" required>
+                            </div>
+
+                            <div class="botones-formulario">
+                                <button type="submit" class="boton boton-primario">
+                                    Actualizar Contraseña
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+
+                    <div class="tarjeta-perfil">
+                        <div class="encabezado-seccion">
+                            <h3>Mis Estadísticas</h3>
+                            <p>Resumen de tu actividad en la plataforma</p>
+                        </div>
+
+                        <div class="estadisticas-usuario">
+                            <div class="stat-item">
+                                <div class="stat-numero" id="total-viajes">0</div>
+                                <div class="stat-etiqueta">Viajes Realizados</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-numero" id="reservas-activas">0</div>
+                                <div class="stat-etiqueta">Reservas Activas</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-numero" id="rutas-favoritas">3</div>
+                                <div class="stat-etiqueta">Rutas Favoritas</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-numero" id="puntos-fidelidad">250</div>
+                                <div class="stat-etiqueta">Puntos Águila</div>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </section>
-
-
-            <section class="seccion">
-                <div class="contenedor">
-                    <div class="titulo-seccion">
-                        <h2>Rutas Populares</h2>
-                        <p>Descubre nuestras conexiones más frecuentes con horarios flexibles y tarifas competitivas</p>
-                    </div>
-
-                    <div class="grilla-rutas">
-                        <div class="tarjeta-ruta aparecer">
-                            <div class="encabezado-ruta">
-                                <div class="icono-ruta">🚌</div>
-                                <div class="informacion-ruta">
-                                    <h3>Quibdó ↔ Tadó</h3>
-                                    <span class="tipo-ruta">Popular</span>
-                                </div>
-                            </div>
-                            <div class="detalles-ruta">
-                                <div class="detalle-ruta">
-                                    <svg viewBox="0 0 24 24" fill="currentColor">
-                                        <path
-                                            d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" />
-                                    </svg>
-                                    <span>Salida diaria 6:00 a.m.</span>
-                                </div>
-                                <div class="detalle-ruta">
-                                    <svg viewBox="0 0 24 24" fill="currentColor">
-                                        <path
-                                            d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
-                                    </svg>
-                                    <span>4.8⭐ Valoración</span>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="tarjeta-ruta aparecer">
-                            <div class="encabezado-ruta">
-                                <div class="icono-ruta">🚍</div>
-                                <div class="informacion-ruta">
-                                    <h3>Quibdó ↔ Pereira</h3>
-                                    <span class="tipo-ruta">Intermunicipal</span>
-                                </div>
-                            </div>
-                            <div class="detalles-ruta">
-                                <div class="detalle-ruta">
-                                    <svg viewBox="0 0 24 24" fill="currentColor">
-                                        <path
-                                            d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" />
-                                    </svg>
-                                    <span>Salida diaria 7:00 a.m.</span>
-                                </div>
-                                <div class="detalle-ruta">
-                                    <svg viewBox="0 0 24 24" fill="currentColor">
-                                        <path
-                                            d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
-                                    </svg>
-                                    <span>4.9⭐ Valoración</span>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="tarjeta-ruta aparecer">
-                            <div class="encabezado-ruta">
-                                <div class="icono-ruta">🚐</div>
-                                <div class="informacion-ruta">
-                                    <h3>Quibdó ↔ Istmina</h3>
-                                    <span class="tipo-ruta">Frecuente</span>
-                                </div>
-                            </div>
-                            <div class="detalles-ruta">
-                                <div class="detalle-ruta">
-                                    <svg viewBox="0 0 24 24" fill="currentColor">
-                                        <path
-                                            d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" />
-                                    </svg>
-                                    <span>4 salidas diarias</span>
-                                </div>
-                                <div class="detalle-ruta">
-                                    <svg viewBox="0 0 24 24" fill="currentColor">
-                                        <path
-                                            d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
-                                    </svg>
-                                    <span>4.7⭐ Valoración</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="titulo-seccion margen-superior-grande">
-                        <h2>Nuestra Flota</h2>
-                        <p>Vehículos modernos y seguros para cada tipo de viaje</p>
-                    </div>
-
-                    <div class="grilla-flota">
-                        <div class="elemento-flota aparecer">
-                            <div class="icono-flota">🚌</div>
-                            <h3>Buses</h3>
-                            <p>Para rutas intermunicipales con máxima comodidad</p>
-                        </div>
-                        <div class="elemento-flota aparecer">
-                            <div class="icono-flota">🚐</div>
-                            <h3>Microbuses</h3>
-                            <p>Ideales para grupos y distancias medias</p>
-                        </div>
-                        <div class="elemento-flota aparecer">
-                            <div class="icono-flota">🚙</div>
-                            <h3>4x4</h3>
-                            <p>Para zonas de difícil acceso y terrenos complicados</p>
-                        </div>
-                        <div class="elemento-flota aparecer">
-                            <div class="icono-flota">🏍️</div>
-                            <h3>Motos</h3>
-                            <p>Rápido y económico para recorridos urbanos</p>
-                        </div>
-                    </div>
-                </div>
-            </section>
+            </div>
         </section>
     </main>
 
     <footer>
         <div class="contenedor">
-            <p>&copy; 2024 Liberty Transport S.A.S. - Conectando el Chocó con seguridad y confianza</p>
+            <p>&copy; 2024 Transporte Águila S.A.S. - Conectando el Chocó con seguridad y confianza</p>
         </div>
     </footer>
 
     <script>
+        let datosOriginales = {};
+        let enModoEdicion = false;
 
-        document.getElementById('boton-menu').addEventListener('click', function () {
-            document.getElementById('enlaces-nav').classList.toggle('activo');
+        document.addEventListener('DOMContentLoaded', function () {
+            configurarAreaUsuario();
+            cargarDatosPerfil();
+            cargarEstadisticas();
         });
 
-
-        const observer = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    entry.target.classList.add('aparecer');
-                }
-            });
-        });
-
-        document.querySelectorAll('.aparecer').forEach(el => {
-            observer.observe(el);
-        });
-
-
-        async function obtenerDatosUsuario() {
+        async function configurarAreaUsuario() {
             try {
                 const response = await fetch('/api/usuario');
                 const data = await response.json();
 
                 if (data.success) {
-                    return data.usuario;
-                } else {
+                    const usuario = data.usuario;
+                    const iniciales = `${usuario.nombre.charAt(0)}${usuario.apellido.charAt(0)}`.toUpperCase();
+                    const color = generarColor(usuario.nombre + usuario.apellido);
 
+                    document.getElementById('iniciales-usuario').textContent = iniciales;
+                    document.getElementById('nombre-display').textContent = `${usuario.nombre} ${usuario.apellido}`;
+                    document.getElementById('avatar-usuario').style.background = `linear-gradient(135deg, ${color}, ${color}dd)`;
+
+                    const hora = new Date().getHours();
+                    let saludo = '¡Bienvenido!';
+                    if (hora < 12) saludo = '¡Buenos días!';
+                    else if (hora < 18) saludo = '¡Buenas tardes!';
+                    else saludo = '¡Buenas noches!';
+                    document.getElementById('saludo-usuario').textContent = saludo;
+                } else {
                     window.location.href = '/login';
-                    return null;
                 }
             } catch (error) {
-                console.error('Error obteniendo datos del usuario:', error);
-                return null;
+                console.error('Error:', error);
+                window.location.href = '/login';
             }
         }
 
-        function generarColorAleatorio() {
-            const colores = [
-                '#6366f1', '#4f46e5', '#8b5cf6', '#06b6d4',
-                '#22c55e', '#f59e0b', '#ef4444', '#8b5cf6'
-            ];
-            return colores[Math.floor(Math.random() * colores.length)];
+        async function cargarDatosPerfil() {
+            try {
+                const response = await fetch('/api/usuario');
+                const data = await response.json();
+
+                if (data.success) {
+                    const usuario = data.usuario;
+                    const iniciales = `${usuario.nombre.charAt(0)}${usuario.apellido.charAt(0)}`.toUpperCase();
+                    const color = generarColor(usuario.nombre + usuario.apellido);
+
+                    document.getElementById('iniciales-perfil').textContent = iniciales;
+                    document.getElementById('avatar-perfil').style.background = `linear-gradient(135deg, ${color}, ${color}dd)`;
+                    document.getElementById('nombre-perfil').textContent = `${usuario.nombre} ${usuario.apellido}`;
+                    document.getElementById('email-perfil').textContent = usuario.email;
+                    document.getElementById('fecha-registro').textContent = 'Enero 2024';
+
+                    document.getElementById('nombre').value = usuario.nombre;
+                    document.getElementById('apellido').value = usuario.apellido;
+                    document.getElementById('email').value = usuario.email;
+                    document.getElementById('telefono').value = '300 123 4567';
+                    document.getElementById('cedula').value = '12345678';
+
+                    datosOriginales = { ...usuario };
+                }
+            } catch (error) {
+                console.error('Error cargando perfil:', error);
+            }
         }
 
-        function obtenerIniciales(nombre, apellido) {
-            const inicial1 = nombre ? nombre.charAt(0).toUpperCase() : 'U';
-            const inicial2 = apellido ? apellido.charAt(0).toUpperCase() : 'S';
-            return inicial1 + inicial2;
+        async function cargarEstadisticas() {
+            try {
+                const response = await fetch('/api/mis-reservas');
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.success) {
+                        const reservas = data.reservas;
+                        document.getElementById('total-viajes').textContent = reservas.filter(r => r.estado === 'confirmada').length;
+                        document.getElementById('reservas-activas').textContent = reservas.filter(r => r.estado === 'pendiente').length;
+                    }
+                }
+            } catch (error) {
+                console.error('Error cargando estadísticas:', error);
+            }
         }
 
-        async function configurarAreaUsuario() {
-            const datos = await obtenerDatosUsuario();
-            if (!datos) return;
+        function activarModoEdicion() {
+            enModoEdicion = true;
 
-            const iniciales = obtenerIniciales(datos.nombre, datos.apellido);
-            const color = generarColorAleatorio();
+            const inputs = document.querySelectorAll('#form-perfil input');
+            inputs.forEach(input => {
+                if (input.name !== 'email') {
+                    input.readOnly = false;
+                    input.classList.add('editable');
+                }
+            });
 
+            document.getElementById('botones-edicion').classList.remove('oculto');
 
-            document.getElementById('iniciales-usuario').textContent = iniciales;
-            document.getElementById('nombre-display').textContent = `${datos.nombre} ${datos.apellido}`;
-            document.getElementById('avatar-usuario').style.background = `linear-gradient(135deg, ${color}, ${color}dd)`;
+            document.querySelector('.boton-editar').innerHTML = '⌐ Cancelar';
+            document.querySelector('.boton-editar').onclick = cancelarEdicion;
+        }
 
+        function cancelarEdicion() {
+            enModoEdicion = false;
 
-            const hora = new Date().getHours();
-            let saludo = '¡Bienvenido!';
-            if (hora < 12) saludo = '¡Buenos días!';
-            else if (hora < 18) saludo = '¡Buenas tardes!';
-            else saludo = '¡Buenas noches!';
+            document.getElementById('nombre').value = datosOriginales.nombre;
+            document.getElementById('apellido').value = datosOriginales.apellido;
 
-            document.getElementById('saludo-usuario').textContent = saludo;
+            const inputs = document.querySelectorAll('#form-perfil input');
+            inputs.forEach(input => {
+                input.readOnly = true;
+                input.classList.remove('editable');
+            });
+
+            document.getElementById('botones-edicion').classList.add('oculto');
+
+            document.querySelector('.boton-editar').innerHTML = '✏️ Editar';
+            document.querySelector('.boton-editar').onclick = activarModoEdicion;
+        }
+
+        document.getElementById('form-perfil').addEventListener('submit', async function (e) {
+            e.preventDefault();
+
+            if (!enModoEdicion) return;
+
+            const formData = new FormData(this);
+            const datos = Object.fromEntries(formData);
+
+            try {
+                const submitBtn = this.querySelector('button[type="submit"]');
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = 'Guardando...';
+
+                await new Promise(resolve => setTimeout(resolve, 1500));
+
+                datosOriginales = { ...datos };
+                cancelarEdicion();
+                mostrarMensaje('Perfil actualizado correctamente', 'exito');
+
+                configurarAreaUsuario();
+
+            } catch (error) {
+                mostrarMensaje('Error actualizando perfil', 'error');
+            } finally {
+                const submitBtn = this.querySelector('button[type="submit"]');
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = 'Guardar Cambios';
+            }
+        });
+
+        document.getElementById('form-password').addEventListener('submit', async function (e) {
+            e.preventDefault();
+
+            const passwordNueva = document.getElementById('password-nueva').value;
+            const passwordConfirmar = document.getElementById('password-confirmar').value;
+
+            if (passwordNueva !== passwordConfirmar) {
+                mostrarMensaje('Las contraseñas no coinciden', 'error');
+                return;
+            }
+
+            if (passwordNueva.length < 8) {
+                mostrarMensaje('La contraseña debe tener al menos 8 caracteres', 'error');
+                return;
+            }
+
+            try {
+                const submitBtn = this.querySelector('button[type="submit"]');
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = 'Actualizando...';
+
+                await new Promise(resolve => setTimeout(resolve, 2000));
+
+                this.reset();
+                mostrarMensaje('Contraseña actualizada correctamente', 'exito');
+
+            } catch (error) {
+                mostrarMensaje('Error actualizando contraseña', 'error');
+            } finally {
+                const submitBtn = this.querySelector('button[type="submit"]');
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = 'Actualizar Contraseña';
+            }
+        });
+
+        function generarColor(texto) {
+            const colores = ['#6366f1', '#4f46e5', '#8b5cf6', '#06b6d4', '#22c55e', '#f59e0b', '#ef4444'];
+            let hash = 0;
+            for (let i = 0; i < texto.length; i++) {
+                hash = texto.charCodeAt(i) + ((hash << 5) - hash);
+            }
+            return colores[Math.abs(hash) % colores.length];
+        }
+
+        function mostrarMensaje(mensaje, tipo) {
+            const div = document.createElement('div');
+            div.className = `mensaje-${tipo}`;
+            div.textContent = mensaje;
+            div.style.cssText = `
+                position: fixed; top: 20px; right: 20px; z-index: 10000;
+                padding: 16px 24px; border-radius: 8px; color: white;
+                background: ${tipo === 'exito' ? '#22c55e' : '#ef4444'};
+                box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            `;
+
+            document.body.appendChild(div);
+
+            setTimeout(() => {
+                div.style.opacity = '0';
+                setTimeout(() => div.remove(), 300);
+            }, 3000);
         }
 
         function verPerfil() {
-            alert('Funcionalidad de perfil - próximamente');
-        }
-
-        function verHistorial() {
-            alert('Funcionalidad de historial - próximamente');
         }
 
         async function cerrarSesion() {
@@ -301,15 +414,13 @@
                     await fetch('/api/logout', { method: 'POST' });
                     window.location.href = '/login';
                 } catch (error) {
-                    console.error('Error cerrando sesión:', error);
                     window.location.href = '/login';
                 }
             }
         }
 
-
-        document.addEventListener('DOMContentLoaded', function () {
-            configurarAreaUsuario();
+        document.getElementById('boton-menu').addEventListener('click', function () {
+            document.getElementById('enlaces-nav').classList.toggle('activo');
         });
     </script>
 
@@ -325,9 +436,9 @@
             <!-- Header -->
             <div class="chat-widget-header">
                 <div class="chat-widget-header-info">
-                    <div class="chat-widget-avatar">💬</div>
+                    <div class="chat-widget-avatar">🦅</div>
                     <div class="chat-widget-title">
-                        <h4 id="chatTitleText">Soporte Liberty Transport </h4>
+                        <h4 id="chatTitleText">Soporte Águila</h4>
                         <span id="chatSubtitle">⚡ En línea</span>
                     </div>
                 </div>
@@ -352,7 +463,7 @@
 
             <!-- Indicador de escritura -->
             <div class="chat-typing-indicator" id="typingIndicator">
-                <div class="chat-message-avatar">💬</div>
+                <div class="chat-message-avatar">🦅</div>
                 <div class="typing-dots">
                     <div class="typing-dot"></div>
                     <div class="typing-dot"></div>
@@ -546,7 +657,7 @@
                     const fecha = new Date(mensaje.fecha_mensaje);
                     const horaFormateada = fecha.toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit' });
                     const claseUsuario = mensaje.es_mio ? 'user' : '';
-                    const avatar = mensaje.es_mio ? '👤' : '💬';
+                    const avatar = mensaje.es_mio ? '👤' : '🦅';
 
                     html += `
                 <div class="chat-message ${claseUsuario}">
@@ -641,7 +752,7 @@
                 vistaConversaciones.style.display = 'block';
                 btnVolverConversaciones.style.display = 'none';
 
-                chatTitleText.textContent = 'Soporte Liberty Transport';
+                chatTitleText.textContent = 'Soporte Águila';
                 chatSubtitle.textContent = '⚡ En línea';
 
                 chatInput.disabled = true;
@@ -727,6 +838,7 @@
             }
         })();
     </script>
+    
 </body>
 
 </html>

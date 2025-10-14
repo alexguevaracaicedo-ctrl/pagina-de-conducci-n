@@ -16,8 +16,7 @@
         <div class="seccion-bienvenida">
             <div class="logo-principal">
                 <div class="icono-logo">
-                    <img src="{{ url_for('static', filename='images/logo-liberty.png') }}" alt="Liberty Transport Logo"
-                        style="width: 40px; height: 40px; object-fit: contain;">
+                    <a href="./ChatGPT Image 14 oct 2025, 12_53_54.png"></a>
                 </div>
                 <div class="texto-logo">
                     <h1>Liberty Transport</h1>
@@ -99,7 +98,7 @@
 
                 <div class="formulario-contenedor oculto" id="tipo-usuario-form">
                     <div class="encabezado-formulario">
-                        <h3>¿Cómo deseas usar Liberty Transport?</h3>
+                        <h3>¿Cómo deseas usar Águila?</h3>
                         <p>Selecciona el tipo de cuenta que necesitas</p>
                     </div>
 
@@ -343,7 +342,7 @@
     <div id="modal-exito" class="modal oculto">
         <div class="modal-contenido">
             <div class="modal-icono">✓</div>
-            <h3 id="modal-titulo">¡Bienvenido a Liberty Transport!</h3>
+            <h3 id="modal-titulo">¡Bienvenido a Transporte Águila!</h3>
             <p id="modal-mensaje">Tu cuenta ha sido creada exitosamente.</p>
             <button class="boton-auth boton-primario" onclick="mostrarLogin()">
                 Iniciar Sesión
@@ -480,7 +479,7 @@
                 const result = await response.json();
 
                 if (result.success) {
-                    document.getElementById('modal-titulo').textContent = '¡Bienvenido a Liberty Transport!';
+                    document.getElementById('modal-titulo').textContent = '¡Bienvenido a Transporte Águila!';
                     document.getElementById('modal-mensaje').textContent = 'Tu cuenta ha sido creada exitosamente. Ahora puedes iniciar sesión.';
                     modalExito.classList.remove('oculto');
                     modalExito.classList.add('visible');

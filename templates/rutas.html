@@ -4,10 +4,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Rutas del Chocó - Transporte Águila S.A.S.</title>
+    <title>Rutas del Chocó - Liberty Transport S.A.S.</title>
     <link href="{{ url_for('static', filename='css/transporte-mejorado.css') }}" rel="stylesheet">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/rutas.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/area-usuario.css') }}">
+    <link href="{{ url_for('static', filename='css/chat-conversaciones.css') }}" rel="stylesheet">
 </head>
 
 <body>
@@ -43,8 +44,11 @@
     <nav class="barra-navegacion">
         <div class="contenido-nav">
             <div class="logotipo">
-                <div class="icono-logo">🦅</div>
-                <span>Águila</span>
+                <div class="icono-logo">
+                    <img src="{{ url_for('static', filename='images/logo-liberty.png') }}" alt="Liberty Transport Logo"
+                        style="width: 40px; height: 40px; object-fit: contain;">
+                </div>
+                <span>Liberty Transport</span>
             </div>
 
             <ul class="enlaces-nav" id="enlaces-nav">
@@ -355,7 +359,7 @@
 
     <footer>
         <div class="contenedor">
-            <p>&copy; 2024 Transporte Águila S.A.S. - Conectando el Chocó con seguridad y confianza</p>
+            <p>&copy; 2024 Liberty Transport S.A.S. - Conectando el Chocó con seguridad y confianza</p>
         </div>
     </footer>
 
@@ -500,9 +504,9 @@
             <!-- Header -->
             <div class="chat-widget-header">
                 <div class="chat-widget-header-info">
-                    <div class="chat-widget-avatar">🦅</div>
+                    <div class="chat-widget-avatar">💬</div>
                     <div class="chat-widget-title">
-                        <h4 id="chatTitleText">Soporte Águila</h4>
+                        <h4 id="chatTitleText">Soporte liberty Transport</h4>
                         <span id="chatSubtitle">⚡ En línea</span>
                     </div>
                 </div>
@@ -527,7 +531,7 @@
 
             <!-- Indicador de escritura -->
             <div class="chat-typing-indicator" id="typingIndicator">
-                <div class="chat-message-avatar">🦅</div>
+                <div class="chat-message-avatar">💬</div>
                 <div class="typing-dots">
                     <div class="typing-dot"></div>
                     <div class="typing-dot"></div>
@@ -721,7 +725,7 @@
                     const fecha = new Date(mensaje.fecha_mensaje);
                     const horaFormateada = fecha.toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit' });
                     const claseUsuario = mensaje.es_mio ? 'user' : '';
-                    const avatar = mensaje.es_mio ? '👤' : '🦅';
+                    const avatar = mensaje.es_mio ? '👤' : '💬';
 
                     html += `
                 <div class="chat-message ${claseUsuario}">
@@ -816,7 +820,7 @@
                 vistaConversaciones.style.display = 'block';
                 btnVolverConversaciones.style.display = 'none';
 
-                chatTitleText.textContent = 'Soporte Águila';
+                chatTitleText.textContent = 'Soporte Liberty Trasnport';
                 chatSubtitle.textContent = '⚡ En línea';
 
                 chatInput.disabled = true;

@@ -8,7 +8,6 @@
     <link href="{{ url_for('static', filename='css/transporte-mejorado.css') }}" rel="stylesheet">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/servicios.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/area-usuario.css') }}">
-    <link href="{{ url_for('static', filename='css/chat-conversaciones.css') }}" rel="stylesheet">
 </head>
 
 <body>
@@ -46,11 +45,8 @@
     <nav class="barra-navegacion">
         <div class="contenido-nav">
             <div class="logotipo">
-                <div class="icono-logo">
-                    <img src="{{ url_for('static', filename='images/logo-liberty.png') }}" alt="Liberty Transport Logo"
-                        style="width: 40px; height: 40px; object-fit: contain;">
-                </div>
-                <span>Liberty Transport</span>
+                <div class="icono-logo"></div>
+                <span>Liberty Transport </span>
             </div>
 
             <ul class="enlaces-nav" id="enlaces-nav">
@@ -826,7 +822,7 @@
             <!-- Header -->
             <div class="chat-widget-header">
                 <div class="chat-widget-header-info">
-                    <div class="chat-widget-avatar">💬</div>
+                    <div class="chat-widget-avatar"></div>
                     <div class="chat-widget-title">
                         <h4 id="chatTitleText">Soporte Liberty Transport </h4>
                         <span id="chatSubtitle">⚡ En línea</span>
@@ -853,7 +849,7 @@
 
             <!-- Indicador de escritura -->
             <div class="chat-typing-indicator" id="typingIndicator">
-                <div class="chat-message-avatar">💬</div>
+                <div class="chat-message-avatar">🦅</div>
                 <div class="typing-dots">
                     <div class="typing-dot"></div>
                     <div class="typing-dot"></div>
@@ -1047,7 +1043,7 @@
                     const fecha = new Date(mensaje.fecha_mensaje);
                     const horaFormateada = fecha.toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit' });
                     const claseUsuario = mensaje.es_mio ? 'user' : '';
-                    const avatar = mensaje.es_mio ? '👤' : '💬';
+                    const avatar = mensaje.es_mio ? '👤' : '🦅';
 
                     html += `
                 <div class="chat-message ${claseUsuario}">
