@@ -1,5 +1,3 @@
-<!-- dashboard-admin.html - SECCIÓN MEJORADA DE MENSAJES -->
-
 <!DOCTYPE html>
 <html lang="es">
 
@@ -53,7 +51,6 @@
                         Conversaciones
                         <span class="badge-notif" id="badge-conversaciones" style="display: none;">0</span>
                     </a></li>
-                <li><a href="#" class="enlace-nav" onclick="mostrarSeccion('usuarios')">Usuarios</a></li>
                 <li><a href="#" class="enlace-nav" onclick="mostrarSeccion('crear-admin')">Nuevo Admin</a></li>
             </ul>
             <button class="boton-menu" id="boton-menu">☰</button>
@@ -72,7 +69,7 @@
                 <!-- Estadísticas -->
                 <div class="grilla-estadisticas-rapidas">
                     <div class="tarjeta-stat aparecer">
-                        <div class="icono-stat"></div>
+                        <div class="icono-stat">💬</div>
                         <div class="info-stat">
                             <span class="numero-stat" id="stat-conversaciones-abiertas">0</span>
                             <span class="etiqueta-stat">Conversaciones Abiertas</span>
@@ -115,7 +112,7 @@
             </div>
         </section>
 
-        <!-- Sección: Conversaciones (NUEVA) -->
+        <!-- Sección: Conversaciones -->
         <section id="seccion-conversaciones" class="seccion-dashboard oculto">
             <div class="contenedor-conversaciones">
                 <!-- Panel izquierdo: Lista de conversaciones -->
@@ -172,7 +169,58 @@
                             </div>
                             <div class="chat-header-actions">
                                 <div class="chat-badges" id="chat-badges"></div>
-                                <button class="boton boton-secundario boton-sm" onclick="cerrarConversacionActual()">
+
+                                <!-- Menú de acciones -->
+                                <div class="dropdown-acciones">
+                                    <button class="boton boton-secundario boton-sm" onclick="toggleMenuAcciones()">
+                                        ⚙️ Acciones ▾
+                                    </button>
+
+                                    <!-- Menú desplegable -->
+                                    <div class="menu-acciones" id="menuAcciones" style="display: none;">
+                                        <!-- Cambiar estado -->
+                                        <div class="menu-grupo">
+                                            <span class="menu-titulo">Estado:</span>
+                                            <button class="menu-item" onclick="cambiarEstadoConversacion('abierta')">
+                                                🔵 Abierta
+                                            </button>
+                                            <button class="menu-item" onclick="cambiarEstadoConversacion('en_proceso')">
+                                                🟡 En Proceso
+                                            </button>
+                                            <button class="menu-item" onclick="cambiarEstadoConversacion('cerrada')">
+                                                ⚫ Cerrada
+                                            </button>
+                                        </div>
+
+                                        <!-- Cambiar prioridad -->
+                                        <div class="menu-grupo">
+                                            <span class="menu-titulo">Prioridad:</span>
+                                            <button class="menu-item" onclick="cambiarPrioridadConversacion('urgente')">
+                                                🔴 Urgente
+                                            </button>
+                                            <button class="menu-item" onclick="cambiarPrioridadConversacion('alta')">
+                                                🟠 Alta
+                                            </button>
+                                            <button class="menu-item" onclick="cambiarPrioridadConversacion('media')">
+                                                🟡 Media
+                                            </button>
+                                            <button class="menu-item" onclick="cambiarPrioridadConversacion('baja')">
+                                                🟢 Baja
+                                            </button>
+                                        </div>
+
+                                        <div class="menu-divider"></div>
+
+                                        <!-- Cerrar conversación -->
+                                        <button class="menu-item menu-item-danger" onclick="cerrarConversacionActual()">
+                                            ❌ Cerrar Conversación
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <!-- Botón simple de cerrar -->
+                                <button class="boton boton-danger boton-sm" onclick="cerrarConversacionActual()"
+                                    style="margin-left: 8px;">
                                     ❌ Cerrar
                                 </button>
                             </div>
@@ -271,6 +319,15 @@
             configurarAreaUsuario();
             cargarEstadisticas();
             iniciarActualizacionAutomatica();
+
+            // DEBUG: Ver si hay conversaciones
+            console.log('🔍 Dashboard Admin cargado');
+            setTimeout(() => {
+                fetch('/api/debug/conversaciones')
+                    .then(r => r.json())
+                    .then(d => console.log('📊 Debug conversaciones:', d))
+                    .catch(e => console.error('❌ Error debug:', e));
+            }, 1000);
         });
 
         document.getElementById('boton-menu').addEventListener('click', function () {
@@ -281,6 +338,8 @@
             try {
                 const response = await fetch('/api/usuario');
                 const data = await response.json();
+
+                console.log('Usuario data:', data);
 
                 if (data.success) {
                     const usuario = data.usuario;
@@ -300,8 +359,11 @@
 
         async function cargarEstadisticas() {
             try {
+                console.log('📊 Cargando estadísticas...');
                 const response = await fetch('/api/mis-conversaciones');
                 const data = await response.json();
+
+                console.log('📊 Respuesta estadísticas:', data);
 
                 if (data.success) {
                     const conversaciones = data.conversaciones;
@@ -321,11 +383,10 @@
                     document.getElementById('stat-usuarios-activos').textContent =
                         new Set(conversaciones.map(c => c.otro_participante)).size;
 
-
                     actualizarBadgeConversaciones(totalNoLeidos);
                 }
             } catch (error) {
-                console.error('Error cargando estadísticas:', error);
+                console.error('❌ Error cargando estadísticas:', error);
             }
         }
 
@@ -344,16 +405,23 @@
             container.innerHTML = '<div class="mensaje-cargando"><div class="spinner"></div><p>Cargando...</p></div>';
 
             try {
+                console.log('💬 Cargando conversaciones...');
                 const response = await fetch('/api/mis-conversaciones');
                 const data = await response.json();
 
+                console.log('💬 Respuesta conversaciones:', data);
+
                 if (data.success) {
                     todasConversaciones = data.conversaciones;
+                    console.log(`✅ ${todasConversaciones.length} conversaciones cargadas`);
                     mostrarListaConversaciones(todasConversaciones);
                     cargarEstadisticas();
+                } else {
+                    console.error('❌ Error en respuesta:', data.message);
+                    container.innerHTML = `<div class="mensaje-error">${data.message || 'Error desconocido'}</div>`;
                 }
             } catch (error) {
-                console.error('Error:', error);
+                console.error('❌ Error:', error);
                 container.innerHTML = '<div class="mensaje-error">Error al cargar conversaciones</div>';
             }
         }
@@ -364,8 +432,9 @@
             if (conversaciones.length === 0) {
                 container.innerHTML = `
                     <div class="mensaje-vacio">
-                        <div class="icono-vacio">📭</div>
+                        <div class="icono-vacio">🔭</div>
                         <p>No hay conversaciones</p>
+                        <small>Las conversaciones de los usuarios aparecerán aquí</small>
                     </div>
                 `;
                 return;
@@ -402,6 +471,21 @@
             container.innerHTML = html;
         }
 
+        function toggleMenuAcciones() {
+            const menu = document.getElementById('menuAcciones');
+            menu.style.display = menu.style.display === 'none' ? 'block' : 'none';
+        }
+
+        // Cerrar menú al hacer click fuera
+        document.addEventListener('click', function (event) {
+            const dropdown = document.querySelector('.dropdown-acciones');
+            const menu = document.getElementById('menuAcciones');
+
+            if (menu && dropdown && !dropdown.contains(event.target)) {
+                menu.style.display = 'none';
+            }
+        });
+
         function filtrarConversaciones() {
             const estado = document.getElementById('filtro-estado-conv').value;
             const prioridad = document.getElementById('filtro-prioridad-conv').value;
@@ -421,10 +505,8 @@
         async function abrirConversacion(conversacionId) {
             conversacionActualId = conversacionId;
 
-
             document.getElementById('vista-seleccionar').style.display = 'none';
             document.getElementById('vista-chat').style.display = 'flex';
-
 
             const conv = todasConversaciones.find(c => c.id === conversacionId);
             if (conv) {
@@ -439,12 +521,10 @@
                 document.getElementById('chat-badges').innerHTML = badgesHTML;
             }
 
-
             document.querySelectorAll('.item-conversacion').forEach(item => {
                 item.classList.remove('activa');
             });
             event.currentTarget.classList.add('activa');
-
 
             await cargarMensajesConversacion(conversacionId);
         }
@@ -532,16 +612,124 @@
             }
         }
 
-        function cerrarConversacionActual() {
-            if (confirm('¿Cerrar esta conversación?')) {
+        async function cerrarConversacionActual() {
+            if (!conversacionActualId) {
+                mostrarNotificacion('No hay conversación seleccionada', 'error');
+                return;
+            }
 
-                conversacionActualId = null;
-                document.getElementById('vista-chat').style.display = 'none';
-                document.getElementById('vista-seleccionar').style.display = 'flex';
-                cargarConversaciones();
+            if (!confirm('¿Deseas cerrar esta conversación? El usuario no podrá enviar más mensajes.')) {
+                return;
+            }
+
+            try {
+                const response = await fetch(`/api/cerrar-conversacion/${conversacionActualId}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    mostrarNotificacion('Conversación cerrada exitosamente', 'exito');
+                    conversacionActualId = null;
+                    document.getElementById('vista-chat').style.display = 'none';
+                    document.getElementById('vista-seleccionar').style.display = 'flex';
+                    await cargarConversaciones();
+                } else {
+                    mostrarNotificacion(data.message || 'Error al cerrar conversación', 'error');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                mostrarNotificacion('Error de conexión al cerrar conversación', 'error');
             }
         }
 
+        async function cambiarEstadoConversacion(nuevoEstado) {
+            if (!conversacionActualId) {
+                mostrarNotificacion('No hay conversación seleccionada', 'error');
+                return;
+            }
+
+            try {
+                const response = await fetch(`/api/cambiar-estado-conversacion/${conversacionActualId}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        estado: nuevoEstado
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    mostrarNotificacion(`Estado cambiado a: ${nuevoEstado}`, 'exito');
+                    await cargarConversaciones();
+
+                    const conv = todasConversaciones.find(c => c.id === conversacionActualId);
+                    if (conv) {
+                        conv.estado = nuevoEstado;
+                        const badgesHTML = `
+                    <span class="badge badge-${conv.tipo}">${conv.tipo}</span>
+                    <span class="badge badge-${conv.prioridad}">${conv.prioridad}</span>
+                    <span class="badge badge-${conv.estado}">${conv.estado.replace('_', ' ')}</span>
+                `;
+                        document.getElementById('chat-badges').innerHTML = badgesHTML;
+                    }
+                } else {
+                    mostrarNotificacion(data.message || 'Error al cambiar estado', 'error');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                mostrarNotificacion('Error de conexión', 'error');
+            }
+        }
+
+        async function cambiarPrioridadConversacion(nuevaPrioridad) {
+            if (!conversacionActualId) {
+                mostrarNotificacion('No hay conversación seleccionada', 'error');
+                return;
+            }
+
+            try {
+                const response = await fetch(`/api/cambiar-prioridad-conversacion/${conversacionActualId}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        prioridad: nuevaPrioridad
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    mostrarNotificacion(`Prioridad cambiada a: ${nuevaPrioridad}`, 'exito');
+                    await cargarConversaciones();
+
+                    const conv = todasConversaciones.find(c => c.id === conversacionActualId);
+                    if (conv) {
+                        conv.prioridad = nuevaPrioridad;
+                        const badgesHTML = `
+                    <span class="badge badge-${conv.tipo}">${conv.tipo}</span>
+                    <span class="badge badge-${conv.prioridad}">${conv.prioridad}</span>
+                    <span class="badge badge-${conv.estado}">${conv.estado.replace('_', ' ')}</span>
+                `;
+                        document.getElementById('chat-badges').innerHTML = badgesHTML;
+                    }
+                } else {
+                    mostrarNotificacion(data.message || 'Error al cambiar prioridad', 'error');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                mostrarNotificacion('Error de conexión', 'error');
+            }
+        }
         function scrollToBottomChat() {
             const container = document.getElementById('chat-mensajes');
             setTimeout(() => {

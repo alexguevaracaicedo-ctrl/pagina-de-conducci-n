@@ -2189,8 +2189,321 @@ def insertar_horarios_prueba():
         conn.rollback()
     finally:
         conn.close()
+# ============================================
+# REEMPLAZAR los endpoints al final de auth_server.py
+# (líneas después de api_notificaciones_chat)
+# ============================================
+
+@app.route('/api/cerrar-conversacion/<int:conversacion_id>', methods=['POST'])
+def cerrar_conversacion(conversacion_id):
+    """Cierra una conversación (solo admin)"""
+    try:
+        if 'usuario_id' not in session:
+            return jsonify({'success': False, 'message': 'No autorizado'}), 401
+        
+        # Verificar que sea admin
+        conn = sqlite3.connect(DATABASE)
+        cursor = conn.cursor()
+        
+        cursor.execute("SELECT tipo_usuario FROM usuarios WHERE id = ?", (session['usuario_id'],))
+        usuario = cursor.fetchone()
+        
+        if not usuario or usuario[0] != 'administrador':
+            conn.close()
+            return jsonify({'success': False, 'message': 'No tienes permisos'}), 403
+        
+        # Actualizar el estado de la conversación a 'cerrada'
+        cursor.execute("""
+            UPDATE conversaciones 
+            SET estado = 'cerrada',
+                fecha_ultima_actividad = CURRENT_TIMESTAMP,
+                fecha_cierre = CURRENT_TIMESTAMP
+            WHERE id = ?
+        """, (conversacion_id,))
+        
+        conn.commit()
+        conn.close()
+        
+        return jsonify({
+            'success': True,
+            'message': 'Conversación cerrada exitosamente'
+        })
+        
+    except Exception as e:
+        print(f"Error cerrando conversación: {e}")
+        return jsonify({
+            'success': False,
+            'message': 'Error al cerrar conversación'
+        }), 500
 
 
+@app.route('/api/cambiar-estado-conversacion/<int:conversacion_id>', methods=['POST'])
+def cambiar_estado_conversacion(conversacion_id):
+    """Cambia el estado de una conversación"""
+    try:
+        if 'usuario_id' not in session:
+            return jsonify({'success': False, 'message': 'No autorizado'}), 401
+        
+        data = request.get_json()
+        nuevo_estado = data.get('estado')
+        
+        # Validar que el estado sea válido
+        estados_validos = ['abierta', 'en_proceso', 'cerrada']
+        if nuevo_estado not in estados_validos:
+            return jsonify({
+                'success': False,
+                'message': 'Estado no válido'
+            }), 400
+        
+        conn = sqlite3.connect(DATABASE)
+        cursor = conn.cursor()
+        
+        # Verificar permisos de admin
+        cursor.execute("SELECT tipo_usuario FROM usuarios WHERE id = ?", (session['usuario_id'],))
+        usuario = cursor.fetchone()
+        
+        if not usuario or usuario[0] != 'administrador':
+            conn.close()
+            return jsonify({'success': False, 'message': 'No tienes permisos'}), 403
+        
+        # Actualizar estado
+        cursor.execute("""
+            UPDATE conversaciones 
+            SET estado = ?,
+                fecha_ultima_actividad = CURRENT_TIMESTAMP
+            WHERE id = ?
+        """, (nuevo_estado, conversacion_id))
+        
+        conn.commit()
+        conn.close()
+        
+        return jsonify({
+            'success': True,
+            'message': f'Estado actualizado a {nuevo_estado}'
+        })
+        
+    except Exception as e:
+        print(f"Error cambiando estado: {e}")
+        return jsonify({
+            'success': False,
+            'message': 'Error al cambiar estado'
+        }), 500
+
+
+@app.route('/api/cambiar-prioridad-conversacion/<int:conversacion_id>', methods=['POST'])
+def cambiar_prioridad_conversacion(conversacion_id):
+    """Cambia la prioridad de una conversación"""
+    try:
+        if 'usuario_id' not in session:
+            return jsonify({'success': False, 'message': 'No autorizado'}), 401
+        
+        data = request.get_json()
+        nueva_prioridad = data.get('prioridad')
+        
+        # Validar que la prioridad sea válida
+        prioridades_validas = ['baja', 'media', 'alta', 'urgente']
+        if nueva_prioridad not in prioridades_validas:
+            return jsonify({
+                'success': False,
+                'message': 'Prioridad no válida'
+            }), 400
+        
+        conn = sqlite3.connect(DATABASE)
+        cursor = conn.cursor()
+        
+        # Verificar permisos de admin
+        cursor.execute("SELECT tipo_usuario FROM usuarios WHERE id = ?", (session['usuario_id'],))
+        usuario = cursor.fetchone()
+        
+        if not usuario or usuario[0] != 'administrador':
+            conn.close()
+            return jsonify({'success': False, 'message': 'No tienes permisos'}), 403
+        
+        # Actualizar prioridad
+        cursor.execute("""
+            UPDATE conversaciones 
+            SET prioridad = ?,
+                fecha_ultima_actividad = CURRENT_TIMESTAMP
+            WHERE id = ?
+        """, (nueva_prioridad, conversacion_id))
+        
+        conn.commit()
+        conn.close()
+        
+        return jsonify({
+            'success': True,
+            'message': f'Prioridad actualizada a {nueva_prioridad}'
+        })
+        
+    except Exception as e:
+        print(f"Error cambiando prioridad: {e}")
+        return jsonify({
+            'success': False,
+            'message': 'Error al cambiar prioridad'
+        }), 500
+
+
+@app.route('/api/reabrir-conversacion/<int:conversacion_id>', methods=['POST'])
+def reabrir_conversacion(conversacion_id):
+    """Reabre una conversación cerrada"""
+    try:
+        if 'usuario_id' not in session:
+            return jsonify({'success': False, 'message': 'No autorizado'}), 401
+        
+        conn = sqlite3.connect(DATABASE)
+        cursor = conn.cursor()
+        
+        # Verificar permisos de admin
+        cursor.execute("SELECT tipo_usuario FROM usuarios WHERE id = ?", (session['usuario_id'],))
+        usuario = cursor.fetchone()
+        
+        if not usuario or usuario[0] != 'administrador':
+            conn.close()
+            return jsonify({'success': False, 'message': 'No tienes permisos'}), 403
+        
+        # Reabrir conversación
+        cursor.execute("""
+            UPDATE conversaciones 
+            SET estado = 'abierta',
+                fecha_ultima_actividad = CURRENT_TIMESTAMP,
+                fecha_cierre = NULL
+            WHERE id = ?
+        """, (conversacion_id,))
+        
+        conn.commit()
+        conn.close()
+        
+        return jsonify({
+            'success': True,
+            'message': 'Conversación reabierta'
+        })
+        
+    except Exception as e:
+        print(f"Error reabriendo conversación: {e}")
+        return jsonify({
+            'success': False,
+            'message': 'Error al reabrir conversación'
+        }), 500
+
+
+@app.route('/api/asignar-conversacion/<int:conversacion_id>', methods=['POST'])
+def asignar_conversacion(conversacion_id):
+    """Asigna una conversación a un administrador específico"""
+    try:
+        if 'usuario_id' not in session:
+            return jsonify({'success': False, 'message': 'No autorizado'}), 401
+        
+        data = request.get_json()
+        admin_asignado_id = data.get('admin_id')
+        
+        conn = sqlite3.connect(DATABASE)
+        cursor = conn.cursor()
+        
+        # Verificar que el admin asignado existe
+        cursor.execute("""
+            SELECT id, nombre, apellido 
+            FROM usuarios 
+            WHERE id = ? AND tipo_usuario = 'administrador'
+        """, (admin_asignado_id,))
+        
+        admin_asignado = cursor.fetchone()
+        
+        if not admin_asignado:
+            conn.close()
+            return jsonify({
+                'success': False,
+                'message': 'Administrador no encontrado'
+            }), 404
+        
+        # Asignar conversación
+        cursor.execute("""
+            UPDATE conversaciones 
+            SET admin_id = ?,
+                fecha_ultima_actividad = CURRENT_TIMESTAMP
+            WHERE id = ?
+        """, (admin_asignado_id, conversacion_id))
+        
+        conn.commit()
+        conn.close()
+        
+        return jsonify({
+            'success': True,
+            'message': f'Conversación asignada a {admin_asignado[1]} {admin_asignado[2]}'
+        })
+        
+    except Exception as e:
+        print(f"Error asignando conversación: {e}")
+        return jsonify({
+            'success': False,
+            'message': 'Error al asignar conversación'
+        }), 500
+
+
+# ============================================
+# ENDPOINT DE DEBUG PARA VER CONVERSACIONES
+# ============================================
+@app.route('/api/debug/conversaciones', methods=['GET'])
+def debug_conversaciones():
+    """Endpoint de debug para ver todas las conversaciones"""
+    if 'usuario_id' not in session:
+        return jsonify({'success': False, 'message': 'No autorizado'}), 401
+    
+    try:
+        conn = sqlite3.connect(DATABASE)
+        cursor = conn.cursor()
+        
+        # Ver todas las conversaciones
+        cursor.execute("""
+            SELECT c.id, c.asunto, c.tipo, c.estado, c.prioridad,
+                   c.usuario_id, u.nombre, u.apellido,
+                   c.admin_id, a.nombre, a.apellido,
+                   c.fecha_creacion, c.fecha_ultima_actividad
+            FROM conversaciones c
+            JOIN usuarios u ON c.usuario_id = u.id
+            LEFT JOIN usuarios a ON c.admin_id = a.id
+            ORDER BY c.fecha_ultima_actividad DESC
+        """)
+        
+        conversaciones = cursor.fetchall()
+        
+        # Contar mensajes por conversación
+        cursor.execute("""
+            SELECT conversacion_id, COUNT(*) as total
+            FROM mensajes_conversacion
+            GROUP BY conversacion_id
+        """)
+        
+        mensajes_count = {row[0]: row[1] for row in cursor.fetchall()}
+        
+        conn.close()
+        
+        result = []
+        for c in conversaciones:
+            result.append({
+                'id': c[0],
+                'asunto': c[1],
+                'tipo': c[2],
+                'estado': c[3],
+                'prioridad': c[4],
+                'usuario': f"{c[6]} {c[7]} (ID: {c[5]})",
+                'admin': f"{c[9]} {c[10]}" if c[8] else 'Sin asignar',
+                'total_mensajes': mensajes_count.get(c[0], 0),
+                'fecha_creacion': c[11],
+                'fecha_ultima_actividad': c[12]
+            })
+        
+        return jsonify({
+            'success': True,
+            'total_conversaciones': len(conversaciones),
+            'conversaciones': result
+        })
+        
+    except Exception as e:
+        print(f"Error en debug: {e}")
+        return jsonify({
+            'success': False,
+            'message': str(e)
+        }), 500
 
 if __name__ == '__main__':
     init_db() 
