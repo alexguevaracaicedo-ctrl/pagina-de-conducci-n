@@ -13,14 +13,22 @@ import os
 app = Flask(__name__)
 app.secret_key = secrets.token_hex(32)
 
-DATABASE = 'transporte_aguila.db'
+DATABASE = 'transporte_aguila.db' 
 
 def init_db():
     """Inicializa la base de datos con las tablas necesarias"""
     conn = sqlite3.connect(DATABASE)
     cursor = conn.cursor()
     
-    # Crear tabla de usuarios con tipo de usuario
+    # Verificar si la tabla usuarios existe y tiene la restricción correcta
+    cursor.execute("SELECT sql FROM sqlite_master WHERE type='table' AND name='usuarios'")
+    result = cursor.fetchone()
+    
+    # Si existe pero no tiene 'administrador' en el CHECK, eliminarla
+    if result and 'administrador' not in result[0]:
+        print("⚠️  Recreando tabla usuarios con restricción correcta...")
+        cursor.execute('DROP TABLE IF EXISTS usuarios')
+    
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS usuarios (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -30,9 +38,40 @@ def init_db():
             telefono TEXT NOT NULL,
             cedula TEXT UNIQUE NOT NULL,
             password_hash TEXT NOT NULL,
-            tipo_usuario TEXT CHECK(tipo_usuario IN ('pasajero', 'conductor')) DEFAULT 'pasajero',
+            tipo_usuario TEXT CHECK(tipo_usuario IN ('pasajero', 'conductor', 'administrador')) DEFAULT 'pasajero',
             fecha_registro TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
             ultimo_acceso TIMESTAMP
+        )
+    ''')
+    
+    # Tabla para mensajes del chat (soporte)
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS mensajes_soporte (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            usuario_id INTEGER NOT NULL,
+            mensaje TEXT NOT NULL,
+            tipo TEXT CHECK(tipo IN ('consulta', 'queja', 'sugerencia', 'otro')) DEFAULT 'consulta',
+            estado TEXT CHECK(estado IN ('pendiente', 'en_proceso', 'resuelto')) DEFAULT 'pendiente',
+            prioridad TEXT CHECK(prioridad IN ('baja', 'media', 'alta', 'urgente')) DEFAULT 'media',
+            respuesta TEXT,
+            admin_id INTEGER,
+            fecha_mensaje TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            fecha_respuesta TIMESTAMP,
+            FOREIGN KEY (usuario_id) REFERENCES usuarios (id),
+            FOREIGN KEY (admin_id) REFERENCES usuarios (id)
+        )
+    ''')
+    
+    # Tabla para notificaciones de administradores
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS notificaciones_admin (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            admin_id INTEGER NOT NULL,
+            mensaje_id INTEGER NOT NULL,
+            leida BOOLEAN DEFAULT FALSE,
+            fecha_notificacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (admin_id) REFERENCES usuarios (id),
+            FOREIGN KEY (mensaje_id) REFERENCES mensajes_soporte (id)
         )
     ''')
     
@@ -412,7 +451,350 @@ def obtener_conductor_por_usuario(usuario_id):
     conn.close()
     return conductor
 
-# ==================== RUTAS ====================
+def crear_administrador(nombre, apellido, email, telefono, cedula, password):
+    """Crea un usuario administrador"""
+    return crear_usuario(nombre, apellido, email, telefono, cedula, password, tipo_usuario='administrador')
+
+@app.route('/api/registro-admin', methods=['POST'])
+def api_registro_admin():
+    """Registra un nuevo administrador - Solo accesible por admin"""
+    if 'usuario_id' not in session or session.get('tipo_usuario') != 'administrador':
+        return jsonify({
+            'success': False,
+            'message': 'Solo administradores pueden crear nuevos administradores'
+        }), 403
+    
+    try:
+        data = request.get_json()
+        
+        campos_requeridos = ['nombre', 'apellido', 'email', 'telefono', 'cedula', 'password', 'confirm_password']
+        for campo in campos_requeridos:
+            if not data.get(campo):
+                return jsonify({
+                    'success': False,
+                    'message': f'El campo {campo} es obligatorio'
+                }), 400
+        
+        if data['password'] != data['confirm_password']:
+            return jsonify({
+                'success': False,
+                'message': 'Las contraseñas no coinciden'
+            }), 400
+        
+        if not validar_email(data['email']):
+            return jsonify({
+                'success': False,
+                'message': 'El formato del email no es válido'
+            }), 400
+        
+        es_valida, mensaje = validar_password(data['password'])
+        if not es_valida:
+            return jsonify({
+                'success': False,
+                'message': mensaje
+            }), 400
+        
+        exito, resultado = crear_administrador(
+            data['nombre'].strip(),
+            data['apellido'].strip(),
+            data['email'].lower().strip(),
+            data['telefono'].strip(),
+            data['cedula'].strip(),
+            data['password']
+        )
+        
+        if not exito:
+            return jsonify({
+                'success': False,
+                'message': resultado
+            }), 400
+        
+        return jsonify({
+            'success': True,
+            'message': 'Administrador registrado exitosamente',
+            'usuario_id': resultado
+        })
+        
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'message': 'Error interno del servidor'
+        }), 500
+
+@app.route('/api/guardar-mensaje-chat', methods=['POST'])
+def api_guardar_mensaje_chat():
+    """Guarda un mensaje del chat como ticket de soporte"""
+    if 'usuario_id' not in session:
+        return jsonify({'success': False, 'message': 'No autorizado'}), 401
+    
+    try:
+        data = request.get_json()
+        
+        if not data.get('mensaje'):
+            return jsonify({
+                'success': False,
+                'message': 'El mensaje es obligatorio'
+            }), 400
+        
+        mensaje_lower = data['mensaje'].lower()
+        tipo = 'consulta'
+        prioridad = 'media'
+        
+        if any(palabra in mensaje_lower for palabra in ['queja', 'reclamo', 'problema', 'mal', 'pésimo', 'molesto', 'terrible']):
+            tipo = 'queja'
+            prioridad = 'alta'
+        elif any(palabra in mensaje_lower for palabra in ['sugerencia', 'mejorar', 'propuesta', 'recomiendo']):
+            tipo = 'sugerencia'
+            prioridad = 'baja'
+        elif any(palabra in mensaje_lower for palabra in ['urgente', 'emergencia', 'ayuda', 'importante']):
+            prioridad = 'urgente'
+        
+        conn = sqlite3.connect(DATABASE)
+        cursor = conn.cursor()
+        
+        cursor.execute('''
+            INSERT INTO mensajes_soporte (usuario_id, mensaje, tipo, prioridad)
+            VALUES (?, ?, ?, ?)
+        ''', (session['usuario_id'], data['mensaje'], tipo, prioridad))
+        
+        mensaje_id = cursor.lastrowid
+        
+        cursor.execute('SELECT id FROM usuarios WHERE tipo_usuario = "administrador"')
+        admins = cursor.fetchall()
+        
+        for admin in admins:
+            cursor.execute('''
+                INSERT INTO notificaciones_admin (admin_id, mensaje_id)
+                VALUES (?, ?)
+            ''', (admin[0], mensaje_id))
+        
+        conn.commit()
+        conn.close()
+        
+        return jsonify({
+            'success': True,
+            'message_id': mensaje_id,
+            'tipo': tipo,
+            'prioridad': prioridad,
+            'respuesta': '✅ Tu mensaje ha sido recibido. Un agente te responderá pronto.'
+        })
+        
+    except Exception as e:
+        print(f"Error guardando mensaje: {e}")
+        return jsonify({
+            'success': False,
+            'message': 'Error guardando mensaje'
+        }), 500
+
+@app.route('/api/mensajes-soporte', methods=['GET'])
+def api_mensajes_soporte():
+    """Obtiene todos los mensajes de soporte - Solo para administradores"""
+    if 'usuario_id' not in session or session.get('tipo_usuario') != 'administrador':
+        return jsonify({'success': False, 'message': 'No autorizado'}), 403
+    
+    try:
+        estado = request.args.get('estado', 'todos')
+        
+        conn = sqlite3.connect(DATABASE)
+        cursor = conn.cursor()
+        
+        if estado == 'todos':
+            cursor.execute('''
+                SELECT m.id, m.mensaje, m.tipo, m.estado, m.prioridad, 
+                       m.fecha_mensaje, m.respuesta, m.fecha_respuesta,
+                       u.nombre, u.apellido, u.email, u.telefono
+                FROM mensajes_soporte m
+                JOIN usuarios u ON m.usuario_id = u.id
+                ORDER BY 
+                    CASE m.prioridad
+                        WHEN 'urgente' THEN 1
+                        WHEN 'alta' THEN 2
+                        WHEN 'media' THEN 3
+                        WHEN 'baja' THEN 4
+                    END,
+                    m.fecha_mensaje DESC
+            ''')
+        else:
+            cursor.execute('''
+                SELECT m.id, m.mensaje, m.tipo, m.estado, m.prioridad, 
+                       m.fecha_mensaje, m.respuesta, m.fecha_respuesta,
+                       u.nombre, u.apellido, u.email, u.telefono
+                FROM mensajes_soporte m
+                JOIN usuarios u ON m.usuario_id = u.id
+                WHERE m.estado = ?
+                ORDER BY 
+                    CASE m.prioridad
+                        WHEN 'urgente' THEN 1
+                        WHEN 'alta' THEN 2
+                        WHEN 'media' THEN 3
+                        WHEN 'baja' THEN 4
+                    END,
+                    m.fecha_mensaje DESC
+            ''', (estado,))
+        
+        mensajes = cursor.fetchall()
+        conn.close()
+        
+        mensajes_list = []
+        for m in mensajes:
+            mensajes_list.append({
+                'id': m[0],
+                'mensaje': m[1],
+                'tipo': m[2],
+                'estado': m[3],
+                'prioridad': m[4],
+                'fecha_mensaje': m[5],
+                'respuesta': m[6],
+                'fecha_respuesta': m[7],
+                'usuario': {
+                    'nombre': f"{m[8]} {m[9]}",
+                    'email': m[10],
+                    'telefono': m[11]
+                }
+            })
+        
+        return jsonify({
+            'success': True,
+            'mensajes': mensajes_list
+        })
+        
+    except Exception as e:
+        print(f"Error obteniendo mensajes: {e}")
+        return jsonify({
+            'success': False,
+            'message': 'Error obteniendo mensajes'
+        }), 500
+
+@app.route('/api/responder-mensaje', methods=['POST'])
+def api_responder_mensaje():
+    """Responde a un mensaje de soporte - Solo para administradores"""
+    if 'usuario_id' not in session or session.get('tipo_usuario') != 'administrador':
+        return jsonify({'success': False, 'message': 'No autorizado'}), 403
+    
+    try:
+        data = request.get_json()
+        
+        if not data.get('mensaje_id') or not data.get('respuesta'):
+            return jsonify({
+                'success': False,
+                'message': 'Mensaje ID y respuesta son obligatorios'
+            }), 400
+        
+        conn = sqlite3.connect(DATABASE)
+        cursor = conn.cursor()
+        
+        cursor.execute('''
+            UPDATE mensajes_soporte
+            SET respuesta = ?, admin_id = ?, fecha_respuesta = CURRENT_TIMESTAMP, estado = 'resuelto'
+            WHERE id = ?
+        ''', (data['respuesta'], session['usuario_id'], data['mensaje_id']))
+        
+        conn.commit()
+        conn.close()
+        
+        return jsonify({
+            'success': True,
+            'message': 'Respuesta enviada exitosamente'
+        })
+        
+    except Exception as e:
+        print(f"Error respondiendo mensaje: {e}")
+        return jsonify({
+            'success': False,
+            'message': 'Error enviando respuesta'
+        }), 500
+
+@app.route('/api/notificaciones-admin', methods=['GET'])
+def api_notificaciones_admin():
+    """Obtiene notificaciones pendientes del administrador"""
+    if 'usuario_id' not in session or session.get('tipo_usuario') != 'administrador':
+        return jsonify({'success': False, 'message': 'No autorizado'}), 403
+    
+    try:
+        conn = sqlite3.connect(DATABASE)
+        cursor = conn.cursor()
+        
+        cursor.execute('''
+            SELECT COUNT(*) 
+            FROM notificaciones_admin 
+            WHERE admin_id = ? AND leida = 0
+        ''', (session['usuario_id'],))
+        
+        no_leidas = cursor.fetchone()[0]
+        conn.close()
+        
+        return jsonify({
+            'success': True,
+            'notificaciones_pendientes': no_leidas
+        })
+        
+    except Exception as e:
+        print(f"Error obteniendo notificaciones: {e}")
+        return jsonify({
+            'success': False,
+            'message': 'Error obteniendo notificaciones'
+        }), 500
+
+@app.route('/api/marcar-notificaciones-leidas', methods=['POST'])
+def api_marcar_notificaciones_leidas():
+    """Marca todas las notificaciones como leídas"""
+    if 'usuario_id' not in session or session.get('tipo_usuario') != 'administrador':
+        return jsonify({'success': False, 'message': 'No autorizado'}), 403
+    
+    try:
+        conn = sqlite3.connect(DATABASE)
+        cursor = conn.cursor()
+        
+        cursor.execute('''
+            UPDATE notificaciones_admin
+            SET leida = 1
+            WHERE admin_id = ?
+        ''', (session['usuario_id'],))
+        
+        conn.commit()
+        conn.close()
+        
+        return jsonify({
+            'success': True,
+            'message': 'Notificaciones marcadas como leídas'
+        })
+        
+    except Exception as e:
+        print(f"Error marcando notificaciones: {e}")
+        return jsonify({
+            'success': False,
+            'message': 'Error marcando notificaciones'
+        }), 500
+
+def crear_primer_admin():
+    """Crea el primer administrador del sistema"""
+    conn = sqlite3.connect(DATABASE)
+    cursor = conn.cursor()
+    
+    cursor.execute('SELECT COUNT(*) FROM usuarios WHERE tipo_usuario = "administrador"')
+    if cursor.fetchone()[0] > 0:
+        conn.close()
+        return
+    
+    password_hash = generate_password_hash('Admin123!')
+    
+    cursor.execute('''
+        INSERT INTO usuarios (nombre, apellido, email, telefono, cedula, password_hash, tipo_usuario)
+        VALUES (?, ?, ?, ?, ?, ?, ?)
+    ''', ('Admin', 'Sistema', 'admin@transporteaguila.com', '3001234567', '00000000', password_hash, 'administrador'))
+    
+    conn.commit()
+    conn.close()
+    
+    print("✓ Administrador creado:")
+    print("  Email: admin@transporteaguila.com")
+    print("  Contraseña: Admin123!")
+
+@app.route('/dashboard-admin')
+def dashboard_admin():
+    if 'usuario_id' not in session or session.get('tipo_usuario') != 'administrador':
+        return redirect(url_for('login'))
+    return render_template('dashboard-admin.html')
 
 @app.route('/')
 def inicio():
@@ -430,11 +812,15 @@ def dashboard():
     if 'usuario_id' not in session:
         return redirect(url_for('login'))
     
-    # Verificar tipo de usuario y redirigir al dashboard correspondiente
-    if session.get('tipo_usuario') == 'conductor':
+    tipo = session.get('tipo_usuario')
+
+    if tipo == 'conductor':
         return redirect(url_for('dashboard_conductor'))
-    
+    elif tipo == 'administrador':
+        return redirect(url_for('dashboard_admin'))
+
     return render_template('transporte-mejorado.html')
+
 
 @app.route('/dashboard-conductor')
 def dashboard_conductor():
@@ -481,7 +867,6 @@ def api_registro():
                 'message': 'Tipo de usuario inválido'
             }), 400
         
-        # Crear usuario
         exito, resultado = crear_usuario(
             data['nombre'].strip(),
             data['apellido'].strip(),
@@ -500,7 +885,6 @@ def api_registro():
         
         usuario_id = resultado
         
-        # Si es conductor, crear registro adicional
         if tipo_usuario == 'conductor':
             campos_conductor = ['numero_licencia', 'categoria_licencia', 'fecha_vencimiento_licencia', 'años_experiencia']
             for campo in campos_conductor:
@@ -566,12 +950,11 @@ def api_login():
                 'message': 'Credenciales incorrectas'
             }), 401
         
-        # Crear sesión
         session['usuario_id'] = usuario[0]
         session['nombre'] = usuario[1]
         session['apellido'] = usuario[2]
         session['email'] = usuario[3]
-        session['tipo_usuario'] = usuario[7]  # tipo_usuario está en la posición 7
+        session['tipo_usuario'] = usuario[7]
         
         return jsonify({
             'success': True,
@@ -788,7 +1171,6 @@ def crear_solicitud_prueba():
         conn = sqlite3.connect(DATABASE)
         cursor = conn.cursor()
         
-        # Obtener un usuario pasajero para las solicitudes
         cursor.execute("SELECT id FROM usuarios WHERE tipo_usuario = 'pasajero' LIMIT 1")
         pasajero = cursor.fetchone()
         
@@ -798,7 +1180,6 @@ def crear_solicitud_prueba():
         
         pasajero_id = pasajero[0]
         
-        # Crear 3 solicitudes de prueba
         solicitudes_prueba = [
             ('PRUEBA01', pasajero_id, 'carro', 'Quibdó', 'Tadó', '2025-10-15', '08:00', 3, '3001234567', 'Solicitud de prueba 1', 18000),
             ('PRUEBA02', pasajero_id, 'moto', 'Centro', 'Kennedy', '2025-10-15', '10:00', 1, '3001234568', 'Solicitud de prueba 2', 5000),
@@ -815,7 +1196,6 @@ def crear_solicitud_prueba():
                     ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'pendiente')
                 ''', sol)
             except sqlite3.IntegrityError:
-                # Si ya existe, continuar con la siguiente
                 continue
         
         conn.commit()
@@ -842,7 +1222,6 @@ def debug_solicitudes():
         conn = sqlite3.connect(DATABASE)
         cursor = conn.cursor()
         
-        # Ver TODAS las solicitudes
         cursor.execute('''
             SELECT s.id, s.codigo_solicitud, s.tipo_vehiculo, s.origen, s.destino,
                    s.estado, s.conductor_id, s.usuario_id,
@@ -853,7 +1232,6 @@ def debug_solicitudes():
         ''')
         todas = cursor.fetchall()
         
-        # Ver solicitudes pendientes sin conductor
         cursor.execute('''
             SELECT s.id, s.codigo_solicitud, s.tipo_vehiculo, s.origen, s.destino,
                    s.estado, s.conductor_id
@@ -881,23 +1259,17 @@ def debug_solicitudes():
             'message': str(e)
         }), 500
 
-
-
 @app.route('/perfil')
 def perfil():
     if 'usuario_id' not in session:
         return redirect(url_for('login'))
     return render_template('perfil.html')
 
-
 @app.route('/rutas')
 def rutas():
     if 'usuario_id' not in session:
         return redirect(url_for('login'))
     return render_template('rutas.html')
-
-# Agregar estas rutas al archivo auth_server.py (antes de if __name__ == '__main__':)
-
 
 @app.route('/api/horarios/<int:ruta_id>', methods=['GET'])
 def api_horarios(ruta_id):
@@ -916,7 +1288,6 @@ def api_horarios(ruta_id):
         conn = sqlite3.connect(DATABASE)
         cursor = conn.cursor()
         
-        # Obtener información de la ruta
         cursor.execute('SELECT origen, destino, duracion_horas FROM rutas WHERE id = ?', (ruta_id,))
         ruta = cursor.fetchone()
         
@@ -927,7 +1298,6 @@ def api_horarios(ruta_id):
                 'message': 'Ruta no encontrada'
             }), 404
         
-        # Obtener horarios disponibles
         cursor.execute('''
             SELECT h.id, h.fecha_salida, h.fecha_llegada, h.precio, 
                    h.asientos_disponibles, h.estado,
@@ -991,10 +1361,6 @@ def reservar():
         return redirect(url_for('login'))
     return render_template('reservas.html')
 
-
-
-# Agregar esta función al archivo auth_server.py
-
 def obtener_solicitudes_usuario(usuario_id):
     """Obtiene todas las solicitudes de un usuario pasajero"""
     conn = sqlite3.connect(DATABASE)
@@ -1017,7 +1383,6 @@ def obtener_solicitudes_usuario(usuario_id):
     conn.close()
     return solicitudes
 
-# Agregar esta ruta al archivo auth_server.py
 @app.route('/api/mis-solicitudes', methods=['GET'])
 def api_mis_solicitudes():
     """Obtiene las solicitudes del pasajero autenticado"""
@@ -1045,7 +1410,6 @@ def api_mis_solicitudes():
                 'observaciones': s[12],
                 'telefono_contacto': s[13]
             }
-            
             
             if s[14]: 
                 solicitud_data['conductor'] = {
@@ -1100,9 +1464,6 @@ def mis_viajes():
 
     return render_template('mis-viajes.html', viajes=viajes)
 
-# Agregar estas rutas al archivo auth_server.py
-
-# Función para generar código de reserva único
 def generar_codigo_reserva():
     import string
     import random
@@ -1116,7 +1477,6 @@ def generar_codigo_reserva():
     conn.close()
     return codigo
 
-# Ruta para obtener todas las rutas disponibles
 @app.route('/api/rutas', methods=['GET'])
 def api_rutas():
     """Obtiene todas las rutas disponibles"""
@@ -1158,8 +1518,6 @@ def api_rutas():
             'message': 'Error obteniendo rutas'
         }), 500
 
-
-# Ruta para crear una reserva
 @app.route('/api/reservar', methods=['POST'])
 def api_reservar():
     """Crea una nueva reserva"""
@@ -1169,7 +1527,6 @@ def api_reservar():
     try:
         data = request.get_json()
         
-        # Validar campos requeridos
         campos_requeridos = ['horario_id', 'nombre', 'cedula', 'telefono', 'email']
         for campo in campos_requeridos:
             if not data.get(campo):
@@ -1181,7 +1538,6 @@ def api_reservar():
         conn = sqlite3.connect(DATABASE)
         cursor = conn.cursor()
         
-        # Verificar disponibilidad
         cursor.execute('''
             SELECT asientos_disponibles, precio 
             FROM horarios 
@@ -1204,14 +1560,11 @@ def api_reservar():
                 'message': 'No hay asientos disponibles'
             }), 400
         
-        # Generar código de reserva
         codigo_reserva = generar_codigo_reserva()
         
-        # Calcular fecha de vencimiento (2 horas después)
         from datetime import datetime, timedelta
         fecha_vencimiento = datetime.now() + timedelta(hours=2)
         
-        # Crear reserva
         cursor.execute('''
             INSERT INTO reservas (
                 codigo_reserva, usuario_id, horario_id, nombre_pasajero,
@@ -1226,12 +1579,11 @@ def api_reservar():
             data['cedula'],
             data['telefono'],
             data['email'],
-            horario[1],  # precio del horario
+            horario[1],
             fecha_vencimiento.strftime('%Y-%m-%d %H:%M:%S'),
             data.get('notas', '')
         ))
         
-        # Reducir asientos disponibles
         cursor.execute('''
             UPDATE horarios 
             SET asientos_disponibles = asientos_disponibles - 1
@@ -1411,11 +1763,9 @@ def insertar_horarios_prueba():
 if __name__ == '__main__':
     init_db() 
     insertar_horarios_prueba()
-
-
+    crear_primer_admin() 
     
     if not os.path.exists('templates'):
         os.makedirs('templates')
     
-    print("✓ Servidor iniciado en http://localhost:5000")
     app.run(debug=True, host='0.0.0.0', port=5000)

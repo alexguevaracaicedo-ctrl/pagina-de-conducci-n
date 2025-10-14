@@ -1,0 +1,131 @@
+.tarjeta-mensaje {
+    background: var(--fondo-tarjeta);
+    border: 1px solid var(--borde);
+    border-radius: 16px;
+    padding: 24px;
+    transition: all 0.3s ease;
+}
+
+.tarjeta-mensaje.prioridad-urgente {
+    border-left: 4px solid #ef4444;
+    background: rgba(239, 68, 68, 0.05);
+}
+
+.tarjeta-mensaje.prioridad-alta {
+    border-left: 4px solid #f59e0b;
+}
+
+.encabezado-mensaje {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+}
+
+.codigo-mensaje {
+    font-weight: 700;
+    font-family: 'Courier New', monospace;
+}
+
+.badges-mensaje {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.badge-tipo,
+.badge-prioridad,
+.badge-estado {
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+}
+
+.tipo-queja {
+    background: rgba(239, 68, 68, 0.2);
+    color: #ef4444;
+}
+
+.tipo-sugerencia {
+    background: rgba(34, 197, 94, 0.2);
+    color: #22c55e;
+}
+
+.tipo-consulta {
+    background: rgba(59, 130, 246, 0.2);
+    color: #3b82f6;
+}
+
+.prioridad-urgente {
+    background: rgba(239, 68, 68, 0.2);
+    color: #ef4444;
+}
+
+.prioridad-alta {
+    background: rgba(245, 158, 11, 0.2);
+    color: #f59e0b;
+}
+
+.estado-pendiente {
+    background: rgba(245, 158, 11, 0.2);
+    color: #f59e0b;
+}
+
+.estado-resuelto {
+    background: rgba(34, 197, 94, 0.2);
+    color: #22c55e;
+}
+
+.mensaje-texto {
+    margin: 12px 0;
+    padding: 12px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 8px;
+}
+
+.respuesta-admin {
+    margin-top: 12px;
+    padding: 12px;
+    background: rgba(34, 197, 94, 0.1);
+    border-left: 3px solid #22c55e;
+    border-radius: 8px;
+}
+
+.acciones-mensaje {
+    margin-top: 16px;
+    display: flex;
+    gap: 12px;
+}
+
+.detalle-mensaje-info {
+    background: var(--fondo-cristal);
+    padding: 16px;
+    border-radius: 12px;
+    margin-bottom: 20px;
+}
+
+.mensaje-original {
+    margin-top: 12px;
+    padding: 12px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 8px;
+}
+
+.grupo-input-doble {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+}
+
+@media (max-width: 768px) {
+    .grupo-input-doble {
+        grid-template-columns: 1fr;
+    }
+
+    .badges-mensaje {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+}

@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel de Administrador - Transporte Águila</title>
+    <link href="{{ url_for('static', filename='css/transporte-mejorado.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/area-usuario.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/dashboard-conductor.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/dashboard-admin.css') }}" rel="stylesheet">
+</head>
+
+<body>
+    <div class="patron-fondo"></div>
+
+    <!-- Área de usuario -->
+    <div class="area-usuario" id="area-usuario">
+        <div class="avatar-usuario" id="avatar-usuario">
+            <span id="iniciales-usuario">AD</span>
+        </div>
+        <div class="info-usuario">
+            <span class="nombre-usuario" id="nombre-display">Administrador</span>
+            <span class="saludo-usuario">👨‍💼 Admin</span>
+        </div>
+        <div class="menu-usuario">
+            <div class="opcion-menu" onclick="window.location.href='/perfil'">
+                <span class="icono-menu">👤</span>
+                <span>Mi Perfil</span>
+            </div>
+            <div class="opcion-menu" onclick="cerrarSesion()">
+                <span class="icono-menu">🚪</span>
+                <span>Cerrar Sesión</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Navegación -->
+    <nav class="barra-navegacion">
+        <div class="contenido-nav">
+            <div class="logotipo">
+                <div class="icono-logo">🦅</div>
+                <span>Águila Admin</span>
+            </div>
+            <ul class="enlaces-nav" id="enlaces-nav">
+                <li><a href="/dashboard-admin" class="enlace-nav activo">Panel</a></li>
+                <li><a href="#" class="enlace-nav" onclick="mostrarSeccion('mensajes')">Mensajes</a></li>
+                <li><a href="#" class="enlace-nav" onclick="mostrarSeccion('usuarios')">Usuarios</a></li>
+                <li><a href="#" class="enlace-nav" onclick="mostrarSeccion('crear-admin')">Nuevo Admin</a></li>
+            </ul>
+            <button class="boton-menu" id="boton-menu">☰</button>
+        </div>
+    </nav>
+
+    <main>
+        <!-- Sección: Resumen -->
+        <section id="seccion-resumen" class="seccion-dashboard">
+            <div class="contenedor">
+                <div class="titulo-seccion">
+                    <h1>Panel de Administración</h1>
+                    <p>Gestión de mensajes, quejas y usuarios</p>
+                </div>
+
+                <!-- Estadísticas -->
+                <div class="grilla-estadisticas-rapidas">
+                    <div class="tarjeta-stat aparecer">
+                        <div class="icono-stat">📨</div>
+                        <div class="info-stat">
+                            <span class="numero-stat" id="stat-pendientes">0</span>
+                            <span class="etiqueta-stat">Mensajes Pendientes</span>
+                        </div>
+                    </div>
+
+                    <div class="tarjeta-stat aparecer">
+                        <div class="icono-stat">🚨</div>
+                        <div class="info-stat">
+                            <span class="numero-stat" id="stat-quejas">0</span>
+                            <span class="etiqueta-stat">Quejas Activas</span>
+                        </div>
+                    </div>
+
+                    <div class="tarjeta-stat aparecer">
+                        <div class="icono-stat">✅</div>
+                        <div class="info-stat">
+                            <span class="numero-stat" id="stat-resueltos">0</span>
+                            <span class="etiqueta-stat">Resueltos Hoy</span>
+                        </div>
+                    </div>
+
+                    <div class="tarjeta-stat aparecer">
+                        <div class="icono-stat">⚡</div>
+                        <div class="info-stat">
+                            <span class="numero-stat" id="stat-urgentes">0</span>
+                            <span class="etiqueta-stat">Urgentes</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="acciones-rapidas">
+                    <button class="boton boton-primario" onclick="mostrarSeccion('mensajes')">
+                        📨 Ver Mensajes
+                    </button>
+                    <button class="boton boton-secundario" onclick="cargarMensajes()">
+                        🔄 Actualizar
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Sección: Mensajes de Soporte -->
+        <section id="seccion-mensajes" class="seccion-dashboard oculto">
+            <div class="contenedor">
+                <div class="titulo-seccion">
+                    <h1>Mensajes de Soporte</h1>
+                    <p>Quejas, sugerencias y consultas de usuarios</p>
+                </div>
+
+                <div class="filtros-solicitudes">
+                    <select id="filtro-estado" onchange="filtrarMensajes()">
+                        <option value="todos">Todos los estados</option>
+                        <option value="pendiente">Pendientes</option>
+                        <option value="en_proceso">En Proceso</option>
+                        <option value="resuelto">Resueltos</option>
+                    </select>
+
+                    <select id="filtro-tipo" onchange="filtrarMensajes()">
+                        <option value="todos">Todos los tipos</option>
+                        <option value="queja">Quejas</option>
+                        <option value="sugerencia">Sugerencias</option>
+                        <option value="consulta">Consultas</option>
+                        <option value="otro">Otros</option>
+                    </select>
+
+                    <select id="filtro-prioridad" onchange="filtrarMensajes()">
+                        <option value="todos">Todas las prioridades</option>
+                        <option value="urgente">Urgente</option>
+                        <option value="alta">Alta</option>
+                        <option value="media">Media</option>
+                        <option value="baja">Baja</option>
+                    </select>
+                </div>
+
+                <div id="lista-mensajes" class="grilla-solicitudes">
+                    <div class="mensaje-cargando">
+                        <div class="spinner"></div>
+                        <p>Cargando mensajes...</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Sección: Crear Administrador -->
+        <section id="seccion-crear-admin" class="seccion-dashboard oculto">
+            <div class="contenedor">
+                <div class="titulo-seccion">
+                    <h1>Crear Nuevo Administrador</h1>
+                    <p>Registrar un nuevo usuario con permisos de administrador</p>
+                </div>
+
+                <div class="contenedor-formulario">
+                    <form id="form-crear-admin" class="formulario-auth">
+                        <div class="grupo-input-doble">
+                            <div class="grupo-formulario">
+                                <label>Nombre *</label>
+                                <input type="text" name="nombre" required>
+                            </div>
+                            <div class="grupo-formulario">
+                                <label>Apellido *</label>
+                                <input type="text" name="apellido" required>
+                            </div>
+                        </div>
+
+                        <div class="grupo-formulario">
+                            <label>Email *</label>
+                            <input type="email" name="email" required>
+                        </div>
+
+                        <div class="grupo-input-doble">
+                            <div class="grupo-formulario">
+                                <label>Teléfono *</label>
+                                <input type="tel" name="telefono" required>
+                            </div>
+                            <div class="grupo-formulario">
+                                <label>Cédula *</label>
+                                <input type="text" name="cedula" required>
+                            </div>
+                        </div>
+
+                        <div class="grupo-formulario">
+                            <label>Contraseña *</label>
+                            <input type="password" name="password" required>
+                            <small>Mínimo 8 caracteres, incluir letras y números</small>
+                        </div>
+
+                        <div class="grupo-formulario">
+                            <label>Confirmar Contraseña *</label>
+                            <input type="password" name="confirm_password" required>
+                        </div>
+
+                        <button type="submit" class="boton boton-primario">
+                            Crear Administrador
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Modal para responder mensaje -->
+    <div id="modal-responder" class="modal oculto">
+        <div class="modal-contenido">
+            <div class="modal-header">
+                <h3>Responder Mensaje</h3>
+                <button class="btn-cerrar-modal" onclick="cerrarModal()">×</button>
+            </div>
+
+            <div class="modal-body">
+                <div id="detalle-mensaje-modal"></div>
+
+                <div class="grupo-formulario">
+                    <label>Respuesta *</label>
+                    <textarea id="respuesta-admin" rows="5" placeholder="Escribe tu respuesta..." required></textarea>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button class="boton boton-secundario" onclick="cerrarModal()">Cancelar</button>
+                <button class="boton boton-primario" onclick="enviarRespuesta()">Enviar Respuesta</button>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <div class="contenedor">
+            <p>&copy; 2024 Transporte Águila S.A.S. - Panel de Administración</p>
+        </div>
+    </footer>
+
+    <script>
+        let todosMensajes = [];
+        let mensajeSeleccionado = null;
+
+        document.addEventListener('DOMContentLoaded', function () {
+            configurarAreaUsuario();
+            cargarEstadisticas();
+            cargarMensajes();
+            iniciarActualizacionAutomatica();
+        });
+
+        document.getElementById('boton-menu').addEventListener('click', function () {
+            document.getElementById('enlaces-nav').classList.toggle('activo');
+        });
+
+        async function configurarAreaUsuario() {
+            try {
+                const response = await fetch('/api/usuario');
+                const data = await response.json();
+
+                if (data.success) {
+                    const usuario = data.usuario;
+                    if (usuario.tipo_usuario !== 'administrador') {
+                        window.location.href = '/dashboard';
+                        return;
+                    }
+                    document.getElementById('nombre-display').textContent = `${usuario.nombre} ${usuario.apellido}`;
+                    document.getElementById('iniciales-usuario').textContent = `${usuario.nombre.charAt(0)}${usuario.apellido.charAt(0)}`.toUpperCase();
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                window.location.href = '/login';
+            }
+        }
+
+        async function cargarEstadisticas() {
+            try {
+                const response = await fetch('/api/mensajes-soporte?estado=todos');
+                const data = await response.json();
+
+                if (data.success) {
+                    const mensajes = data.mensajes;
+
+                    document.getElementById('stat-pendientes').textContent =
+                        mensajes.filter(m => m.estado === 'pendiente').length;
+
+                    document.getElementById('stat-quejas').textContent =
+                        mensajes.filter(m => m.tipo === 'queja' && m.estado !== 'resuelto').length;
+
+                    const hoy = new Date().toDateString();
+                    document.getElementById('stat-resueltos').textContent =
+                        mensajes.filter(m => m.estado === 'resuelto' && new Date(m.fecha_respuesta).toDateString() === hoy).length;
+
+                    document.getElementById('stat-urgentes').textContent =
+                        mensajes.filter(m => m.prioridad === 'urgente' && m.estado !== 'resuelto').length;
+                }
+            } catch (error) {
+                console.error('Error cargando estadísticas:', error);
+            }
+        }
+
+        async function cargarMensajes() {
+            const container = document.getElementById('lista-mensajes');
+            container.innerHTML = '<div class="mensaje-cargando"><div class="spinner"></div><p>Cargando mensajes...</p></div>';
+
+            try {
+                const response = await fetch('/api/mensajes-soporte?estado=todos');
+                const data = await response.json();
+
+                if (data.success) {
+                    todosMensajes = data.mensajes;
+                    mostrarMensajes(todosMensajes);
+                    await marcarNotificacionesLeidas();
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                container.innerHTML = '<div class="mensaje-error">Error al cargar mensajes</div>';
+            }
+        }
+
+        function mostrarMensajes(mensajes) {
+            const container = document.getElementById('lista-mensajes');
+
+            if (mensajes.length === 0) {
+                container.innerHTML = `
+                    <div class="mensaje-vacio">
+                        <div class="icono-vacio">📭</div>
+                        <h3>No hay mensajes</h3>
+                        <p>Los mensajes de los usuarios aparecerán aquí</p>
+                    </div>
+                `;
+                return;
+            }
+
+            let html = '';
+            mensajes.forEach(mensaje => {
+                const fecha = new Date(mensaje.fecha_mensaje);
+                const estadoClass = `estado-${mensaje.estado}`;
+                const prioridadClass = `prioridad-${mensaje.prioridad}`;
+
+                html += `
+                    <div class="tarjeta-mensaje aparecer ${prioridadClass}">
+                        <div class="encabezado-mensaje">
+                            <div class="codigo-mensaje">#${mensaje.id}</div>
+                            <div class="badges-mensaje">
+                                <span class="badge-tipo tipo-${mensaje.tipo}">${mensaje.tipo.toUpperCase()}</span>
+                                <span class="badge-prioridad ${prioridadClass}">${mensaje.prioridad.toUpperCase()}</span>
+                                <span class="badge-estado ${estadoClass}">${mensaje.estado.replace('_', ' ').toUpperCase()}</span>
+                            </div>
+                        </div>
+
+                        <div class="contenido-mensaje">
+                            <p><strong>Usuario:</strong> ${mensaje.usuario.nombre}</p>
+                            <p><strong>Contacto:</strong> ${mensaje.usuario.telefono} / ${mensaje.usuario.email}</p>
+                            <p><strong>Fecha:</strong> ${fecha.toLocaleString('es-CO')}</p>
+                            <div class="mensaje-texto">
+                                <strong>Mensaje:</strong><br>
+                                ${mensaje.mensaje}
+                            </div>
+                            ${mensaje.respuesta ? `
+                                <div class="respuesta-admin">
+                                    <strong>✅ Respuesta enviada:</strong><br>
+                                    ${mensaje.respuesta}
+                                </div>
+                            ` : ''}
+                        </div>
+
+                        ${!mensaje.respuesta ? `
+                            <div class="acciones-mensaje">
+                                <button class="boton boton-primario" onclick='abrirModalRespuesta(${JSON.stringify(mensaje)})'>
+                                    📝 Responder
+                                </button>
+                            </div>
+                        ` : ''}
+                    </div>
+                `;
+            });
+
+            container.innerHTML = html;
+        }
+
+        function filtrarMensajes() {
+            const estado = document.getElementById('filtro-estado').value;
+            const tipo = document.getElementById('filtro-tipo').value;
+            const prioridad = document.getElementById('filtro-prioridad').value;
+
+            let filtrados = todosMensajes;
+
+            if (estado !== 'todos') {
+                filtrados = filtrados.filter(m => m.estado === estado);
+            }
+            if (tipo !== 'todos') {
+                filtrados = filtrados.filter(m => m.tipo === tipo);
+            }
+            if (prioridad !== 'todos') {
+                filtrados = filtrados.filter(m => m.prioridad === prioridad);
+            }
+
+            mostrarMensajes(filtrados);
+        }
+
+        function abrirModalRespuesta(mensaje) {
+            mensajeSeleccionado = mensaje;
+
+            document.getElementById('detalle-mensaje-modal').innerHTML = `
+                <div class="detalle-mensaje-info">
+                    <p><strong>De:</strong> ${mensaje.usuario.nombre}</p>
+                    <p><strong>Tipo:</strong> ${mensaje.tipo.toUpperCase()}</p>
+                    <p><strong>Prioridad:</strong> ${mensaje.prioridad.toUpperCase()}</p>
+                    <div class="mensaje-original">
+                        <strong>Mensaje:</strong><br>
+                        ${mensaje.mensaje}
+                    </div>
+                </div>
+            `;
+
+            document.getElementById('modal-responder').classList.remove('oculto');
+            document.getElementById('modal-responder').classList.add('visible');
+        }
+
+        function cerrarModal() {
+            document.getElementById('modal-responder').classList.remove('visible');
+            setTimeout(() => {
+                document.getElementById('modal-responder').classList.add('oculto');
+                mensajeSeleccionado = null;
+                document.getElementById('respuesta-admin').value = '';
+            }, 300);
+        }
+
+        async function enviarRespuesta() {
+            const respuesta = document.getElementById('respuesta-admin').value.trim();
+
+            if (!respuesta) {
+                alert('Por favor escribe una respuesta');
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/responder-mensaje', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        mensaje_id: mensajeSeleccionado.id,
+                        respuesta: respuesta
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    mostrarNotificacion('Respuesta enviada exitosamente', 'exito');
+                    cerrarModal();
+                    cargarMensajes();
+                    cargarEstadisticas();
+                } else {
+                    mostrarNotificacion(data.message, 'error');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                mostrarNotificacion('Error enviando respuesta', 'error');
+            }
+        }
+
+        async function marcarNotificacionesLeidas() {
+            try {
+                await fetch('/api/marcar-notificaciones-leidas', {
+                    method: 'POST'
+                });
+            } catch (error) {
+                console.error('Error marcando notificaciones:', error);
+            }
+        }
+
+        // Formulario crear admin
+        document.getElementById('form-crear-admin').addEventListener('submit', async function (e) {
+            e.preventDefault();
+
+            const formData = new FormData(this);
+            const data = Object.fromEntries(formData);
+
+            if (data.password !== data.confirm_password) {
+                mostrarNotificacion('Las contraseñas no coinciden', 'error');
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/registro-admin', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(data)
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    mostrarNotificacion('Administrador creado exitosamente', 'exito');
+                    this.reset();
+                } else {
+                    mostrarNotificacion(result.message, 'error');
+                }
+            } catch (error) {
+                mostrarNotificacion('Error creando administrador', 'error');
+            }
+        });
+
+        function mostrarSeccion(seccion) {
+            document.querySelectorAll('.seccion-dashboard').forEach(s => {
+                s.classList.add('oculto');
+            });
+
+            document.querySelectorAll('.enlace-nav').forEach(link => {
+                link.classList.remove('activo');
+            });
+
+            document.getElementById(`seccion-${seccion}`).classList.remove('oculto');
+
+            if (seccion === 'mensajes') {
+                cargarMensajes();
+            }
+        }
+
+        function iniciarActualizacionAutomatica() {
+            // Actualizar cada 30 segundos
+            setInterval(() => {
+                cargarEstadisticas();
+                if (!document.getElementById('seccion-mensajes').classList.contains('oculto')) {
+                    cargarMensajes();
+                }
+            }, 30000);
+        }
+
+        function mostrarNotificacion(mensaje, tipo) {
+            const notif = document.createElement('div');
+            notif.className = `notificacion notif-${tipo}`;
+            notif.textContent = mensaje;
+            notif.style.cssText = `
+                position: fixed;
+                top: 100px;
+                right: 20px;
+                z-index: 10000;
+                padding: 16px 24px;
+                border-radius: 12px;
+                color: white;
+                background: ${tipo === 'exito' ? '#22c55e' : '#ef4444'};
+                box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+                animation: slideIn 0.3s ease;
+            `;
+
+            document.body.appendChild(notif);
+
+            setTimeout(() => {
+                notif.style.opacity = '0';
+                setTimeout(() => notif.remove(), 300);
+            }, 3000);
+        }
+
+        async function cerrarSesion() {
+            if (confirm('¿Estás seguro de que deseas cerrar sesión?')) {
+                try {
+                    await fetch('/api/logout', { method: 'POST' });
+                    window.location.href = '/login';
+                } catch (error) {
+                    window.location.href = '/login';
+                }
+            }
+        }
+    </script>
+
+
+</body>
+
+</html>

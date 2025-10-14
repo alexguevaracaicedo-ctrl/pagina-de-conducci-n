@@ -783,7 +783,6 @@
     </script>
     <!-- Widget de Chat Flotante - Agregar antes del cierre de </body> en todas las páginas -->
     <style>
-        /* Estilos del Chat Widget */
         .chat-widget-container {
             position: fixed;
             bottom: 24px;
@@ -1251,7 +1250,7 @@
     </div>
 
     <script>
-        // JavaScript del Chat Widget
+
         (function () {
             const chatWidget = document.getElementById('chatWidget');
             const chatToggleBtn = document.getElementById('chatToggleBtn');
@@ -1266,10 +1265,10 @@
             let isOpen = false;
             let mensajesPendientes = 0;
 
-            // Inicializar hora del mensaje inicial
+
             document.getElementById('initialTime').textContent = obtenerHoraActual();
 
-            // Toggle chat
+
             chatToggleBtn.addEventListener('click', toggleChat);
             chatCloseBtn.addEventListener('click', toggleChat);
 
@@ -1284,7 +1283,7 @@
                 }
             }
 
-            // Enviar mensaje
+
             chatSendBtn.addEventListener('click', enviarMensaje);
             chatInput.addEventListener('keypress', function (e) {
                 if (e.key === 'Enter') {
@@ -1299,7 +1298,7 @@
                 agregarMensajeUsuario(mensaje);
                 chatInput.value = '';
 
-                // Simular respuesta del bot
+
                 mostrarIndicadorEscritura();
                 setTimeout(() => {
                     responderBot(mensaje);
@@ -1355,7 +1354,7 @@
                 const mensajeLower = mensaje.toLowerCase();
                 let respuesta = '';
 
-                // Lógica de respuestas
+
                 if (mensajeLower.includes('horario') || mensajeLower.includes('hora')) {
                     respuesta = 'Puedes consultar todos nuestros horarios en la sección de <a href="/rutas" style="color: #06b6d4; text-decoration: underline;">Rutas</a>. Tenemos salidas diarias a diferentes destinos. ¿Te gustaría información sobre alguna ruta específica?';
                 } else if (mensajeLower.includes('reserva') || mensajeLower.includes('reservar')) {
@@ -1404,7 +1403,7 @@
                 }, 100);
             }
 
-            // Simular mensaje de bienvenida después de 3 segundos si no está abierto
+
             setTimeout(() => {
                 if (!isOpen) {
                     mensajesPendientes = 1;

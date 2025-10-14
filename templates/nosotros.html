@@ -13,7 +13,7 @@
 <body>
     <div class="patron-fondo"></div>
 
-    <!-- Área de usuario -->
+
     <div class="area-usuario" id="area-usuario">
         <div class="avatar-usuario" id="avatar-usuario">
             <span id="iniciales-usuario">US</span>
@@ -42,14 +42,14 @@
     </div>
 
     <main>
-        <!-- pagina de nosotros -->
+
         <section class="seccion">
             <div class="contenedor">
                 <div class="titulo-seccion">
                     <h1>Sobre Nosotros</h1>
                     <p>Conectando el Chocó con excelencia y confiabilidad</p>
                 </div>
-                <!-- navegacion -->
+
                 <nav class="barra-navegacion">
                     <div class="contenido-nav">
                         <div class="logotipo">
@@ -91,7 +91,7 @@
                     </div>
                 </div>
 
-                <!-- caracteristicas principales -->
+
                 <div class="titulo-seccion">
                     <h2>Nuestras Fortalezas</h2>
                     <p>Lo que nos diferencia en el mercado del transporte</p>
@@ -123,7 +123,7 @@
                     </div>
                 </div>
 
-                <!-- valores corporativos -->
+
                 <div class="titulo-seccion margen-superior-grande">
                     <h2>Nuestros Valores</h2>
                     <p>Los principios que guían cada una de nuestras acciones</p>
@@ -269,9 +269,8 @@
             configurarAreaUsuario();
         });
     </script>
-    <!-- Widget de Chat Flotante - Agregar antes del cierre de </body> en todas las páginas -->
+
     <style>
-        /* Estilos del Chat Widget */
         .chat-widget-container {
             position: fixed;
             bottom: 24px;
@@ -664,17 +663,17 @@
         }
     </style>
 
-    <!-- HTML del Chat Widget -->
+
     <div class="chat-widget-container" id="chatWidget">
-        <!-- Botón flotante -->
+
         <button class="chat-widget-button" id="chatToggleBtn">
             <span class="icono-chat">💬</span>
             <span class="chat-widget-badge" id="chatBadge" style="display: none;">1</span>
         </button>
 
-        <!-- Ventana del chat -->
+
         <div class="chat-widget-window" id="chatWindow">
-            <!-- Header -->
+
             <div class="chat-widget-header">
                 <div class="chat-widget-header-info">
                     <div class="chat-widget-avatar">🦅</div>
@@ -686,7 +685,7 @@
                 <button class="chat-widget-close" id="chatCloseBtn">×</button>
             </div>
 
-            <!-- Mensajes -->
+
             <div class="chat-widget-messages" id="chatMessages">
                 <div class="chat-message">
                     <div class="chat-message-avatar">🦅</div>
@@ -698,7 +697,7 @@
                     </div>
                 </div>
 
-                <!-- Respuestas rápidas iniciales -->
+
                 <div class="chat-quick-replies" id="quickReplies">
                     <button class="quick-reply-btn" onclick="enviarRespuestaRapida('Consultar horarios')">
                         📅 Consultar horarios
@@ -715,7 +714,7 @@
                 </div>
             </div>
 
-            <!-- Indicador de escritura -->
+
             <div class="chat-typing-indicator" id="typingIndicator">
                 <div class="chat-message-avatar">🦅</div>
                 <div class="typing-dots">
@@ -725,7 +724,7 @@
                 </div>
             </div>
 
-            <!-- Input -->
+
             <div class="chat-widget-input-container">
                 <div class="chat-widget-input-wrapper">
                     <input type="text" class="chat-widget-input" id="chatInput" placeholder="Escribe tu mensaje..."
@@ -739,7 +738,9 @@
     </div>
 
     <script>
-        // JavaScript del Chat Widget
+
+        // REEMPLAZAR el script del chat en TODOS los HTMLs con este código actualizado:
+
         (function () {
             const chatWidget = document.getElementById('chatWidget');
             const chatToggleBtn = document.getElementById('chatToggleBtn');
@@ -754,10 +755,8 @@
             let isOpen = false;
             let mensajesPendientes = 0;
 
-            // Inicializar hora del mensaje inicial
             document.getElementById('initialTime').textContent = obtenerHoraActual();
 
-            // Toggle chat
             chatToggleBtn.addEventListener('click', toggleChat);
             chatCloseBtn.addEventListener('click', toggleChat);
 
@@ -772,7 +771,6 @@
                 }
             }
 
-            // Enviar mensaje
             chatSendBtn.addEventListener('click', enviarMensaje);
             chatInput.addEventListener('keypress', function (e) {
                 if (e.key === 'Enter') {
@@ -780,14 +778,51 @@
                 }
             });
 
-            function enviarMensaje() {
+            async function enviarMensaje() {
                 const mensaje = chatInput.value.trim();
                 if (!mensaje) return;
 
                 agregarMensajeUsuario(mensaje);
                 chatInput.value = '';
 
-                // Simular respuesta del bot
+                // Si el mensaje contiene palabras clave de agente, guardarlo en BD
+                const mensajeLower = mensaje.toLowerCase();
+                const esContactoAgente = mensajeLower.includes('agente') ||
+                    mensajeLower.includes('operador') ||
+                    mensajeLower.includes('humano') ||
+                    mensajeLower.includes('queja') ||
+                    mensajeLower.includes('reclamo') ||
+                    mensajeLower.includes('problema');
+
+                if (esContactoAgente) {
+                    // Guardar en base de datos
+                    try {
+                        const response = await fetch('/api/guardar-mensaje-chat', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify({
+                                mensaje: mensaje
+                            })
+                        });
+
+                        const data = await response.json();
+
+                        if (data.success) {
+                            mostrarIndicadorEscritura();
+                            setTimeout(() => {
+                                ocultarIndicadorEscritura();
+                                agregarMensajeBot(data.respuesta || '✅ Tu mensaje ha sido recibido. Un agente te responderá pronto.');
+                            }, 1500);
+                            return;
+                        }
+                    } catch (error) {
+                        console.error('Error guardando mensaje:', error);
+                    }
+                }
+
+                // Respuesta automática normal
                 mostrarIndicadorEscritura();
                 setTimeout(() => {
                     responderBot(mensaje);
@@ -843,37 +878,60 @@
                 const mensajeLower = mensaje.toLowerCase();
                 let respuesta = '';
 
-                // Lógica de respuestas
                 if (mensajeLower.includes('horario') || mensajeLower.includes('hora')) {
                     respuesta = 'Puedes consultar todos nuestros horarios en la sección de <a href="/rutas" style="color: #06b6d4; text-decoration: underline;">Rutas</a>. Tenemos salidas diarias a diferentes destinos. ¿Te gustaría información sobre alguna ruta específica?';
                 } else if (mensajeLower.includes('reserva') || mensajeLower.includes('reservar')) {
-                    respuesta = 'Para hacer una reserva, ve a nuestra sección de <a href="/reservar" style="color: #06b6d4; text-decoration: underline;">Reservar</a>. El proceso es muy sencillo:\n1️⃣ Selecciona origen y destino\n2️⃣ Elige fecha y horario\n3️⃣ Completa tus datos\n¿Necesitas ayuda con algo específico?';
+                    respuesta = 'Para hacer una reserva, ve a nuestra sección de <a href="/reservar" style="color: #06b6d4; text-decoration: underline;">Reservar</a>. El proceso es muy sencillo:<br>1️⃣ Selecciona origen y destino<br>2️⃣ Elige fecha y horario<br>3️⃣ Completa tus datos<br><br>¿Necesitas ayuda con algo específico?';
                 } else if (mensajeLower.includes('precio') || mensajeLower.includes('costo') || mensajeLower.includes('tarifa')) {
-                    respuesta = '💰 Nuestras tarifas varían según la ruta:\n\n• Quibdó - Tadó: $18,000\n• Quibdó - Pereira: $45,000\n• Quibdó - Istmina: $12,000\n\nPuedes ver todas las tarifas en <a href="/rutas" style="color: #06b6d4; text-decoration: underline;">Rutas</a>';
+                    respuesta = '💰 Nuestras tarifas varían según la ruta:<br><br>• Quibdó - Tadó: $18,000<br>• Quibdó - Pereira: $45,000<br>• Quibdó - Istmina: $12,000<br><br>Puedes ver todas las tarifas en <a href="/rutas" style="color: #06b6d4; text-decoration: underline;">Rutas</a>';
                 } else if (mensajeLower.includes('servicio') || mensajeLower.includes('solicitar')) {
-                    respuesta = '🚗 Ofrecemos diferentes tipos de servicio:\n\n🏍️ Moto - Urbano desde $5,000\n🚗 Carro - Familiar desde $15,000\n🚌 Bus - Intermunicipal desde $25,000\n🚙 4x4 - Rural desde $40,000\n\n¿Qué tipo de servicio necesitas?';
+                    respuesta = '🚗 Ofrecemos diferentes tipos de servicio:<br><br>🏍️ Moto - Urbano desde $5,000<br>🚗 Carro - Familiar desde $15,000<br>🚌 Bus - Intermunicipal desde $25,000<br>🚙 4x4 - Rural desde $40,000<br><br>¿Qué tipo de servicio necesitas?';
                 } else if (mensajeLower.includes('contacto') || mensajeLower.includes('teléfono') || mensajeLower.includes('llamar')) {
-                    respuesta = '📞 Puedes contactarnos por:\n\n• Teléfono: (4) 671-2345\n• WhatsApp: +57 300 123 4567\n• Email: info@transporteaguila.com\n\nEstamos disponibles de lunes a domingo de 5:00 AM a 10:00 PM';
-                } else if (mensajeLower.includes('ubicación') || mensajeLower.includes('dirección') || mensajeLower.includes('donde')) {
-                    respuesta = '📍 Nos encontramos en:\n\nTerminal de Transporte de Quibdó\nQuibdó, Chocó, Colombia\n\n¿Te gustaría saber cómo llegar?';
-                } else if (mensajeLower.includes('cancelar') || mensajeLower.includes('cancelación')) {
-                    respuesta = '❌ Para cancelar una reserva:\n\n1. Ve a <a href="/mis-reservas" style="color: #06b6d4; text-decoration: underline;">Mis Reservas</a>\n2. Busca tu reserva\n3. Haz clic en "Cancelar"\n\nRecuerda: Las cancelaciones deben hacerse con al menos 2 horas de anticipación para obtener reembolso completo.';
-                } else if (mensajeLower.includes('agente') || mensajeLower.includes('operador') || mensajeLower.includes('humano')) {
-                    respuesta = '👤 Perfecto, te estoy conectando con un agente humano. Uno de nuestros operadores te atenderá en breve.\n\nMientras tanto, ¿podrías contarme brevemente en qué necesitas ayuda?';
+                    respuesta = '📞 Puedes contactarnos por:<br><br>• Teléfono: (4) 671-2345<br>• WhatsApp: +57 300 123 4567<br>• Email: info@transporteaguila.com<br><br>Estamos disponibles de lunes a domingo de 5:00 AM a 10:00 PM';
+                } else if (mensajeLower.includes('agente') || mensajeLower.includes('operador') || mensajeLower.includes('humano') || mensajeLower.includes('queja') || mensajeLower.includes('reclamo')) {
+                    respuesta = '👤 Perfecto, tu mensaje ha sido enviado a nuestros agentes. Un operador humano te contactará pronto para atender tu caso.<br><br>Mientras tanto, ¿hay algo más en lo que pueda ayudarte?';
                 } else if (mensajeLower.includes('gracias') || mensajeLower.includes('excelente') || mensajeLower.includes('perfecto')) {
                     respuesta = '😊 ¡De nada! Es un placer ayudarte. Si necesitas algo más, no dudes en escribirme. ¡Buen viaje con Transporte Águila! 🦅';
                 } else if (mensajeLower.includes('hola') || mensajeLower.includes('buenos') || mensajeLower.includes('buenas')) {
-                    respuesta = '¡Hola! 👋 ¿En qué puedo ayudarte hoy? Puedo ayudarte con:\n\n📅 Horarios y rutas\n🎫 Reservas\n🚗 Solicitud de servicios\n💰 Información de precios\n📞 Contacto';
+                    respuesta = '¡Hola! 👋 ¿En qué puedo ayudarte hoy? Puedo ayudarte con:<br><br>📅 Horarios y rutas<br>🎫 Reservas<br>🚗 Solicitud de servicios<br>💰 Información de precios<br>📞 Contacto';
                 } else {
-                    respuesta = 'Entiendo. ¿Podrías darme más detalles sobre lo que necesitas? También puedes:\n\n• Consultar <a href="/rutas" style="color: #06b6d4; text-decoration: underline;">nuestras rutas</a>\n• Ver <a href="/servicios" style="color: #06b6d4; text-decoration: underline;">nuestros servicios</a>\n• O escribir "hablar con agente" para conectarte con un operador';
+                    respuesta = 'Entiendo. ¿Podrías darme más detalles sobre lo que necesitas? También puedes:<br><br>• Consultar <a href="/rutas" style="color: #06b6d4; text-decoration: underline;">nuestras rutas</a><br>• Ver <a href="/servicios" style="color: #06b6d4; text-decoration: underline;">nuestros servicios</a><br>• O escribir "hablar con agente" para conectarte con un operador';
                 }
 
                 agregarMensajeBot(respuesta);
             }
 
-            window.enviarRespuestaRapida = function (texto) {
+            window.enviarRespuestaRapida = async function (texto) {
                 agregarMensajeUsuario(texto);
                 document.getElementById('quickReplies').style.display = 'none';
+
+                // Si es "Hablar con agente", guardar en BD
+                if (texto.toLowerCase().includes('agente')) {
+                    try {
+                        const response = await fetch('/api/guardar-mensaje-chat', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify({
+                                mensaje: texto
+                            })
+                        });
+
+                        const data = await response.json();
+
+                        if (data.success) {
+                            mostrarIndicadorEscritura();
+                            setTimeout(() => {
+                                ocultarIndicadorEscritura();
+                                agregarMensajeBot('✅ Tu solicitud ha sido recibida. Un agente te responderá pronto.');
+                            }, 1500);
+                            return;
+                        }
+                    } catch (error) {
+                        console.error('Error:', error);
+                    }
+                }
 
                 mostrarIndicadorEscritura();
                 setTimeout(() => {
@@ -892,7 +950,6 @@
                 }, 100);
             }
 
-            // Simular mensaje de bienvenida después de 3 segundos si no está abierto
             setTimeout(() => {
                 if (!isOpen) {
                     mensajesPendientes = 1;
@@ -900,7 +957,6 @@
                     chatBadge.style.display = 'flex';
                 }
             }, 3000);
-
         })();
     </script>
 </body>
