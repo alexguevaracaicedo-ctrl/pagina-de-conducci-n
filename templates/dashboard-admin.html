@@ -1,3 +1,5 @@
+<!-- dashboard-admin.html - SECCIÓN MEJORADA DE MENSAJES -->
+
 <!DOCTYPE html>
 <html lang="es">
 
@@ -8,7 +10,7 @@
     <link href="{{ url_for('static', filename='css/transporte-mejorado.css') }}" rel="stylesheet">
     <link href="{{ url_for('static', filename='css/area-usuario.css') }}" rel="stylesheet">
     <link href="{{ url_for('static', filename='css/dashboard-conductor.css') }}" rel="stylesheet">
-    <link href="{{ url_for('static', filename='css/dashboard-admin.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/admin-conversaciones.css') }}" rel="stylesheet">
 </head>
 
 <body>
@@ -44,7 +46,10 @@
             </div>
             <ul class="enlaces-nav" id="enlaces-nav">
                 <li><a href="/dashboard-admin" class="enlace-nav activo">Panel</a></li>
-                <li><a href="#" class="enlace-nav" onclick="mostrarSeccion('mensajes')">Mensajes</a></li>
+                <li><a href="#" class="enlace-nav" onclick="mostrarSeccion('conversaciones')">
+                        Conversaciones
+                        <span class="badge-notif" id="badge-conversaciones" style="display: none;">0</span>
+                    </a></li>
                 <li><a href="#" class="enlace-nav" onclick="mostrarSeccion('usuarios')">Usuarios</a></li>
                 <li><a href="#" class="enlace-nav" onclick="mostrarSeccion('crear-admin')">Nuevo Admin</a></li>
             </ul>
@@ -58,92 +63,134 @@
             <div class="contenedor">
                 <div class="titulo-seccion">
                     <h1>Panel de Administración</h1>
-                    <p>Gestión de mensajes, quejas y usuarios</p>
+                    <p>Gestión de conversaciones y usuarios</p>
                 </div>
 
                 <!-- Estadísticas -->
                 <div class="grilla-estadisticas-rapidas">
                     <div class="tarjeta-stat aparecer">
-                        <div class="icono-stat">📨</div>
+                        <div class="icono-stat"></div>
                         <div class="info-stat">
-                            <span class="numero-stat" id="stat-pendientes">0</span>
-                            <span class="etiqueta-stat">Mensajes Pendientes</span>
+                            <span class="numero-stat" id="stat-conversaciones-abiertas">0</span>
+                            <span class="etiqueta-stat">Conversaciones Abiertas</span>
                         </div>
                     </div>
 
                     <div class="tarjeta-stat aparecer">
                         <div class="icono-stat">🚨</div>
                         <div class="info-stat">
-                            <span class="numero-stat" id="stat-quejas">0</span>
-                            <span class="etiqueta-stat">Quejas Activas</span>
+                            <span class="numero-stat" id="stat-urgentes">0</span>
+                            <span class="etiqueta-stat">Urgentes</span>
                         </div>
                     </div>
 
                     <div class="tarjeta-stat aparecer">
                         <div class="icono-stat">✅</div>
                         <div class="info-stat">
-                            <span class="numero-stat" id="stat-resueltos">0</span>
+                            <span class="numero-stat" id="stat-resueltos-hoy">0</span>
                             <span class="etiqueta-stat">Resueltos Hoy</span>
                         </div>
                     </div>
 
                     <div class="tarjeta-stat aparecer">
-                        <div class="icono-stat">⚡</div>
+                        <div class="icono-stat">👥</div>
                         <div class="info-stat">
-                            <span class="numero-stat" id="stat-urgentes">0</span>
-                            <span class="etiqueta-stat">Urgentes</span>
+                            <span class="numero-stat" id="stat-usuarios-activos">0</span>
+                            <span class="etiqueta-stat">Usuarios Activos</span>
                         </div>
                     </div>
                 </div>
 
                 <div class="acciones-rapidas">
-                    <button class="boton boton-primario" onclick="mostrarSeccion('mensajes')">
-                        📨 Ver Mensajes
+                    <button class="boton boton-primario" onclick="mostrarSeccion('conversaciones')">
+                        💬 Ver Conversaciones
                     </button>
-                    <button class="boton boton-secundario" onclick="cargarMensajes()">
+                    <button class="boton boton-secundario" onclick="cargarEstadisticas()">
                         🔄 Actualizar
                     </button>
                 </div>
             </div>
         </section>
 
-        <!-- Sección: Mensajes de Soporte -->
-        <section id="seccion-mensajes" class="seccion-dashboard oculto">
-            <div class="contenedor">
-                <div class="titulo-seccion">
-                    <h1>Mensajes de Soporte</h1>
-                    <p>Quejas, sugerencias y consultas de usuarios</p>
+        <!-- Sección: Conversaciones (NUEVA) -->
+        <section id="seccion-conversaciones" class="seccion-dashboard oculto">
+            <div class="contenedor-conversaciones">
+                <!-- Panel izquierdo: Lista de conversaciones -->
+                <div class="panel-lista-conversaciones">
+                    <div class="header-lista">
+                        <h2>💬 Conversaciones</h2>
+                        <button class="boton boton-secundario boton-sm" onclick="cargarConversaciones()">
+                            🔄
+                        </button>
+                    </div>
+
+                    <div class="filtros-conversaciones">
+                        <select id="filtro-estado-conv" onchange="filtrarConversaciones()">
+                            <option value="todos">Todos</option>
+                            <option value="abierta">Abiertas</option>
+                            <option value="en_proceso">En Proceso</option>
+                            <option value="cerrada">Cerradas</option>
+                        </select>
+
+                        <select id="filtro-prioridad-conv" onchange="filtrarConversaciones()">
+                            <option value="todos">Todas</option>
+                            <option value="urgente">Urgente</option>
+                            <option value="alta">Alta</option>
+                            <option value="media">Media</option>
+                            <option value="baja">Baja</option>
+                        </select>
+                    </div>
+
+                    <div id="lista-conversaciones-admin" class="lista-conversaciones-scroll">
+                        <div class="mensaje-cargando">
+                            <div class="spinner"></div>
+                            <p>Cargando conversaciones...</p>
+                        </div>
+                    </div>
                 </div>
 
-                <div class="filtros-solicitudes">
-                    <select id="filtro-estado" onchange="filtrarMensajes()">
-                        <option value="todos">Todos los estados</option>
-                        <option value="pendiente">Pendientes</option>
-                        <option value="en_proceso">En Proceso</option>
-                        <option value="resuelto">Resueltos</option>
-                    </select>
+                <!-- Panel derecho: Chat activo -->
+                <div class="panel-chat-activo">
+                    <div id="vista-seleccionar" class="vista-placeholder">
+                        <div class="icono-placeholder">💬</div>
+                        <h3>Selecciona una conversación</h3>
+                        <p>Elige una conversación de la lista para comenzar a chatear</p>
+                    </div>
 
-                    <select id="filtro-tipo" onchange="filtrarMensajes()">
-                        <option value="todos">Todos los tipos</option>
-                        <option value="queja">Quejas</option>
-                        <option value="sugerencia">Sugerencias</option>
-                        <option value="consulta">Consultas</option>
-                        <option value="otro">Otros</option>
-                    </select>
+                    <div id="vista-chat" class="vista-chat" style="display: none;">
+                        <!-- Header del chat -->
+                        <div class="chat-header-admin">
+                            <div class="chat-header-info">
+                                <div class="chat-avatar" id="chat-avatar-usuario">👤</div>
+                                <div class="chat-usuario-info">
+                                    <h3 id="chat-nombre-usuario">Usuario</h3>
+                                    <p id="chat-asunto-conversacion">Asunto</p>
+                                </div>
+                            </div>
+                            <div class="chat-header-actions">
+                                <div class="chat-badges" id="chat-badges"></div>
+                                <button class="boton boton-secundario boton-sm" onclick="cerrarConversacionActual()">
+                                    ❌ Cerrar
+                                </button>
+                            </div>
+                        </div>
 
-                    <select id="filtro-prioridad" onchange="filtrarMensajes()">
-                        <option value="todos">Todas las prioridades</option>
-                        <option value="urgente">Urgente</option>
-                        <option value="alta">Alta</option>
-                        <option value="media">Media</option>
-                        <option value="baja">Baja</option>
-                    </select>
-                </div>
+                        <!-- Mensajes -->
+                        <div class="chat-mensajes-container" id="chat-mensajes">
+                            <div class="mensaje-cargando">
+                                <div class="spinner"></div>
+                                <p>Cargando mensajes...</p>
+                            </div>
+                        </div>
 
-                <div id="lista-mensajes" class="grilla-solicitudes">
-                    <div class="mensaje-cargando">
-                        <div class="spinner"></div>
-                        <p>Cargando mensajes...</p>
+                        <!-- Input de respuesta -->
+                        <div class="chat-input-admin">
+                            <textarea id="input-respuesta-admin" placeholder="Escribe tu respuesta..."
+                                rows="3"></textarea>
+                            <button class="boton boton-primario" onclick="enviarRespuestaConversacion()">
+                                ➤ Enviar
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -206,30 +253,6 @@
         </section>
     </main>
 
-    <!-- Modal para responder mensaje -->
-    <div id="modal-responder" class="modal oculto">
-        <div class="modal-contenido">
-            <div class="modal-header">
-                <h3>Responder Mensaje</h3>
-                <button class="btn-cerrar-modal" onclick="cerrarModal()">×</button>
-            </div>
-
-            <div class="modal-body">
-                <div id="detalle-mensaje-modal"></div>
-
-                <div class="grupo-formulario">
-                    <label>Respuesta *</label>
-                    <textarea id="respuesta-admin" rows="5" placeholder="Escribe tu respuesta..." required></textarea>
-                </div>
-            </div>
-
-            <div class="modal-footer">
-                <button class="boton boton-secundario" onclick="cerrarModal()">Cancelar</button>
-                <button class="boton boton-primario" onclick="enviarRespuesta()">Enviar Respuesta</button>
-            </div>
-        </div>
-    </div>
-
     <footer>
         <div class="contenedor">
             <p>&copy; 2024 Transporte Águila S.A.S. - Panel de Administración</p>
@@ -237,13 +260,13 @@
     </footer>
 
     <script>
-        let todosMensajes = [];
-        let mensajeSeleccionado = null;
+        let todasConversaciones = [];
+        let conversacionActualId = null;
+        let intervaloActualizacion = null;
 
         document.addEventListener('DOMContentLoaded', function () {
             configurarAreaUsuario();
             cargarEstadisticas();
-            cargarMensajes();
             iniciarActualizacionAutomatica();
         });
 
@@ -263,7 +286,8 @@
                         return;
                     }
                     document.getElementById('nombre-display').textContent = `${usuario.nombre} ${usuario.apellido}`;
-                    document.getElementById('iniciales-usuario').textContent = `${usuario.nombre.charAt(0)}${usuario.apellido.charAt(0)}`.toUpperCase();
+                    document.getElementById('iniciales-usuario').textContent =
+                        `${usuario.nombre.charAt(0)}${usuario.apellido.charAt(0)}`.toUpperCase();
                 }
             } catch (error) {
                 console.error('Error:', error);
@@ -273,103 +297,101 @@
 
         async function cargarEstadisticas() {
             try {
-                const response = await fetch('/api/mensajes-soporte?estado=todos');
+                const response = await fetch('/api/mis-conversaciones');
                 const data = await response.json();
 
                 if (data.success) {
-                    const mensajes = data.mensajes;
+                    const conversaciones = data.conversaciones;
 
-                    document.getElementById('stat-pendientes').textContent =
-                        mensajes.filter(m => m.estado === 'pendiente').length;
-
-                    document.getElementById('stat-quejas').textContent =
-                        mensajes.filter(m => m.tipo === 'queja' && m.estado !== 'resuelto').length;
-
-                    const hoy = new Date().toDateString();
-                    document.getElementById('stat-resueltos').textContent =
-                        mensajes.filter(m => m.estado === 'resuelto' && new Date(m.fecha_respuesta).toDateString() === hoy).length;
+                    document.getElementById('stat-conversaciones-abiertas').textContent =
+                        conversaciones.filter(c => c.estado === 'abierta' || c.estado === 'en_proceso').length;
 
                     document.getElementById('stat-urgentes').textContent =
-                        mensajes.filter(m => m.prioridad === 'urgente' && m.estado !== 'resuelto').length;
+                        conversaciones.filter(c => c.prioridad === 'urgente' && c.estado !== 'cerrada').length;
+
+                    const hoy = new Date().toDateString();
+                    document.getElementById('stat-resueltos-hoy').textContent =
+                        conversaciones.filter(c => c.estado === 'cerrada' &&
+                            new Date(c.fecha_ultima_actividad).toDateString() === hoy).length;
+
+                    const totalNoLeidos = conversaciones.reduce((sum, c) => sum + c.mensajes_no_leidos, 0);
+                    document.getElementById('stat-usuarios-activos').textContent =
+                        new Set(conversaciones.map(c => c.otro_participante)).size;
+
+
+                    actualizarBadgeConversaciones(totalNoLeidos);
                 }
             } catch (error) {
                 console.error('Error cargando estadísticas:', error);
             }
         }
 
-        async function cargarMensajes() {
-            const container = document.getElementById('lista-mensajes');
-            container.innerHTML = '<div class="mensaje-cargando"><div class="spinner"></div><p>Cargando mensajes...</p></div>';
-
-            try {
-                const response = await fetch('/api/mensajes-soporte?estado=todos');
-                const data = await response.json();
-
-                if (data.success) {
-                    todosMensajes = data.mensajes;
-                    mostrarMensajes(todosMensajes);
-                    await marcarNotificacionesLeidas();
-                }
-            } catch (error) {
-                console.error('Error:', error);
-                container.innerHTML = '<div class="mensaje-error">Error al cargar mensajes</div>';
+        function actualizarBadgeConversaciones(cantidad) {
+            const badge = document.getElementById('badge-conversaciones');
+            if (cantidad > 0) {
+                badge.textContent = cantidad;
+                badge.style.display = 'inline-block';
+            } else {
+                badge.style.display = 'none';
             }
         }
 
-        function mostrarMensajes(mensajes) {
-            const container = document.getElementById('lista-mensajes');
+        async function cargarConversaciones() {
+            const container = document.getElementById('lista-conversaciones-admin');
+            container.innerHTML = '<div class="mensaje-cargando"><div class="spinner"></div><p>Cargando...</p></div>';
 
-            if (mensajes.length === 0) {
+            try {
+                const response = await fetch('/api/mis-conversaciones');
+                const data = await response.json();
+
+                if (data.success) {
+                    todasConversaciones = data.conversaciones;
+                    mostrarListaConversaciones(todasConversaciones);
+                    cargarEstadisticas();
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                container.innerHTML = '<div class="mensaje-error">Error al cargar conversaciones</div>';
+            }
+        }
+
+        function mostrarListaConversaciones(conversaciones) {
+            const container = document.getElementById('lista-conversaciones-admin');
+
+            if (conversaciones.length === 0) {
                 container.innerHTML = `
                     <div class="mensaje-vacio">
                         <div class="icono-vacio">📭</div>
-                        <h3>No hay mensajes</h3>
-                        <p>Los mensajes de los usuarios aparecerán aquí</p>
+                        <p>No hay conversaciones</p>
                     </div>
                 `;
                 return;
             }
 
             let html = '';
-            mensajes.forEach(mensaje => {
-                const fecha = new Date(mensaje.fecha_mensaje);
-                const estadoClass = `estado-${mensaje.estado}`;
-                const prioridadClass = `prioridad-${mensaje.prioridad}`;
+            conversaciones.forEach(conv => {
+                const fecha = new Date(conv.fecha_ultima_actividad);
+                const fechaFormateada = formatearFechaRelativa(fecha);
+                const claseActiva = conversacionActualId === conv.id ? 'activa' : '';
+                const claseNoLeida = conv.mensajes_no_leidos > 0 ? 'no-leida' : '';
 
                 html += `
-                    <div class="tarjeta-mensaje aparecer ${prioridadClass}">
-                        <div class="encabezado-mensaje">
-                            <div class="codigo-mensaje">#${mensaje.id}</div>
-                            <div class="badges-mensaje">
-                                <span class="badge-tipo tipo-${mensaje.tipo}">${mensaje.tipo.toUpperCase()}</span>
-                                <span class="badge-prioridad ${prioridadClass}">${mensaje.prioridad.toUpperCase()}</span>
-                                <span class="badge-estado ${estadoClass}">${mensaje.estado.replace('_', ' ').toUpperCase()}</span>
+                    <div class="item-conversacion ${claseActiva} ${claseNoLeida}" 
+                         onclick="abrirConversacion(${conv.id})">
+                        <div class="conv-header">
+                            <div class="conv-avatar">👤</div>
+                            <div class="conv-info">
+                                <h4>${conv.otro_participante}</h4>
+                                <p class="conv-asunto">${conv.asunto}</p>
                             </div>
                         </div>
-
-                        <div class="contenido-mensaje">
-                            <p><strong>Usuario:</strong> ${mensaje.usuario.nombre}</p>
-                            <p><strong>Contacto:</strong> ${mensaje.usuario.telefono} / ${mensaje.usuario.email}</p>
-                            <p><strong>Fecha:</strong> ${fecha.toLocaleString('es-CO')}</p>
-                            <div class="mensaje-texto">
-                                <strong>Mensaje:</strong><br>
-                                ${mensaje.mensaje}
-                            </div>
-                            ${mensaje.respuesta ? `
-                                <div class="respuesta-admin">
-                                    <strong>✅ Respuesta enviada:</strong><br>
-                                    ${mensaje.respuesta}
-                                </div>
-                            ` : ''}
+                        <div class="conv-meta">
+                            <span class="badge badge-${conv.prioridad}">${conv.prioridad}</span>
+                            <span class="badge badge-${conv.estado}">${conv.estado.replace('_', ' ')}</span>
+                            ${conv.mensajes_no_leidos > 0 ?
+                        `<span class="badge-no-leidos">${conv.mensajes_no_leidos}</span>` : ''}
                         </div>
-
-                        ${!mensaje.respuesta ? `
-                            <div class="acciones-mensaje">
-                                <button class="boton boton-primario" onclick='abrirModalRespuesta(${JSON.stringify(mensaje)})'>
-                                    📝 Responder
-                                </button>
-                            </div>
-                        ` : ''}
+                        <div class="conv-fecha">${fechaFormateada}</div>
                     </div>
                 `;
             });
@@ -377,101 +399,196 @@
             container.innerHTML = html;
         }
 
-        function filtrarMensajes() {
-            const estado = document.getElementById('filtro-estado').value;
-            const tipo = document.getElementById('filtro-tipo').value;
-            const prioridad = document.getElementById('filtro-prioridad').value;
+        function filtrarConversaciones() {
+            const estado = document.getElementById('filtro-estado-conv').value;
+            const prioridad = document.getElementById('filtro-prioridad-conv').value;
 
-            let filtrados = todosMensajes;
+            let filtradas = todasConversaciones;
 
             if (estado !== 'todos') {
-                filtrados = filtrados.filter(m => m.estado === estado);
-            }
-            if (tipo !== 'todos') {
-                filtrados = filtrados.filter(m => m.tipo === tipo);
+                filtradas = filtradas.filter(c => c.estado === estado);
             }
             if (prioridad !== 'todos') {
-                filtrados = filtrados.filter(m => m.prioridad === prioridad);
+                filtradas = filtradas.filter(c => c.prioridad === prioridad);
             }
 
-            mostrarMensajes(filtrados);
+            mostrarListaConversaciones(filtradas);
         }
 
-        function abrirModalRespuesta(mensaje) {
-            mensajeSeleccionado = mensaje;
+        async function abrirConversacion(conversacionId) {
+            conversacionActualId = conversacionId;
 
-            document.getElementById('detalle-mensaje-modal').innerHTML = `
-                <div class="detalle-mensaje-info">
-                    <p><strong>De:</strong> ${mensaje.usuario.nombre}</p>
-                    <p><strong>Tipo:</strong> ${mensaje.tipo.toUpperCase()}</p>
-                    <p><strong>Prioridad:</strong> ${mensaje.prioridad.toUpperCase()}</p>
-                    <div class="mensaje-original">
-                        <strong>Mensaje:</strong><br>
-                        ${mensaje.mensaje}
-                    </div>
-                </div>
-            `;
 
-            document.getElementById('modal-responder').classList.remove('oculto');
-            document.getElementById('modal-responder').classList.add('visible');
+            document.getElementById('vista-seleccionar').style.display = 'none';
+            document.getElementById('vista-chat').style.display = 'flex';
+
+
+            const conv = todasConversaciones.find(c => c.id === conversacionId);
+            if (conv) {
+                document.getElementById('chat-nombre-usuario').textContent = conv.otro_participante;
+                document.getElementById('chat-asunto-conversacion').textContent = conv.asunto;
+
+                const badgesHTML = `
+                    <span class="badge badge-${conv.tipo}">${conv.tipo}</span>
+                    <span class="badge badge-${conv.prioridad}">${conv.prioridad}</span>
+                    <span class="badge badge-${conv.estado}">${conv.estado.replace('_', ' ')}</span>
+                `;
+                document.getElementById('chat-badges').innerHTML = badgesHTML;
+            }
+
+
+            document.querySelectorAll('.item-conversacion').forEach(item => {
+                item.classList.remove('activa');
+            });
+            event.currentTarget.classList.add('activa');
+
+
+            await cargarMensajesConversacion(conversacionId);
         }
 
-        function cerrarModal() {
-            document.getElementById('modal-responder').classList.remove('visible');
-            setTimeout(() => {
-                document.getElementById('modal-responder').classList.add('oculto');
-                mensajeSeleccionado = null;
-                document.getElementById('respuesta-admin').value = '';
-            }, 300);
+        async function cargarMensajesConversacion(conversacionId) {
+            const container = document.getElementById('chat-mensajes');
+            container.innerHTML = '<div class="mensaje-cargando"><div class="spinner"></div><p>Cargando mensajes...</p></div>';
+
+            try {
+                const response = await fetch(`/api/mensajes-conversacion/${conversacionId}`);
+                const data = await response.json();
+
+                if (data.success) {
+                    mostrarMensajes(data.mensajes);
+                    cargarConversaciones();
+                } else {
+                    container.innerHTML = '<div class="mensaje-error">Error al cargar mensajes</div>';
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                container.innerHTML = '<div class="mensaje-error">Error de conexión</div>';
+            }
         }
 
-        async function enviarRespuesta() {
-            const respuesta = document.getElementById('respuesta-admin').value.trim();
+        function mostrarMensajes(mensajes) {
+            const container = document.getElementById('chat-mensajes');
 
-            if (!respuesta) {
-                alert('Por favor escribe una respuesta');
+            if (mensajes.length === 0) {
+                container.innerHTML = '<div class="mensaje-vacio">No hay mensajes</div>';
                 return;
             }
 
+            let html = '';
+            mensajes.forEach(mensaje => {
+                const fecha = new Date(mensaje.fecha_mensaje);
+                const horaFormateada = fecha.toLocaleTimeString('es-CO', {
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+                const clasePropio = mensaje.es_mio ? 'propio' : 'ajeno';
+                const avatar = mensaje.es_mio ? '👨‍💼' : '👤';
+
+                html += `
+                    <div class="mensaje-chat ${clasePropio}">
+                        <div class="mensaje-avatar">${avatar}</div>
+                        <div class="mensaje-contenido">
+                            <div class="mensaje-autor">${mensaje.remitente_nombre}</div>
+                            <div class="mensaje-texto">${mensaje.mensaje}</div>
+                            <div class="mensaje-hora">${horaFormateada}</div>
+                        </div>
+                    </div>
+                `;
+            });
+
+            container.innerHTML = html;
+            scrollToBottomChat();
+        }
+
+        async function enviarRespuestaConversacion() {
+            const mensaje = document.getElementById('input-respuesta-admin').value.trim();
+            if (!mensaje || !conversacionActualId) return;
+
             try {
-                const response = await fetch('/api/responder-mensaje', {
+                const response = await fetch('/api/enviar-mensaje-conversacion', {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
+                    headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
-                        mensaje_id: mensajeSeleccionado.id,
-                        respuesta: respuesta
+                        conversacion_id: conversacionActualId,
+                        mensaje: mensaje
                     })
                 });
 
                 const data = await response.json();
 
                 if (data.success) {
-                    mostrarNotificacion('Respuesta enviada exitosamente', 'exito');
-                    cerrarModal();
-                    cargarMensajes();
-                    cargarEstadisticas();
+                    document.getElementById('input-respuesta-admin').value = '';
+                    await cargarMensajesConversacion(conversacionActualId);
+                    mostrarNotificacion('Mensaje enviado', 'exito');
                 } else {
                     mostrarNotificacion(data.message, 'error');
                 }
             } catch (error) {
                 console.error('Error:', error);
-                mostrarNotificacion('Error enviando respuesta', 'error');
+                mostrarNotificacion('Error enviando mensaje', 'error');
             }
         }
 
-        async function marcarNotificacionesLeidas() {
-            try {
-                await fetch('/api/marcar-notificaciones-leidas', {
-                    method: 'POST'
-                });
-            } catch (error) {
-                console.error('Error marcando notificaciones:', error);
+        function cerrarConversacionActual() {
+            if (confirm('¿Cerrar esta conversación?')) {
+
+                conversacionActualId = null;
+                document.getElementById('vista-chat').style.display = 'none';
+                document.getElementById('vista-seleccionar').style.display = 'flex';
+                cargarConversaciones();
             }
         }
 
-        // Formulario crear admin
+        function scrollToBottomChat() {
+            const container = document.getElementById('chat-mensajes');
+            setTimeout(() => {
+                container.scrollTop = container.scrollHeight;
+            }, 100);
+        }
+
+        function formatearFechaRelativa(fecha) {
+            const ahora = new Date();
+            const diff = ahora - fecha;
+            const minutos = Math.floor(diff / 60000);
+            const horas = Math.floor(diff / 3600000);
+            const dias = Math.floor(diff / 86400000);
+
+            if (minutos < 1) return 'Ahora';
+            if (minutos < 60) return `Hace ${minutos}m`;
+            if (horas < 24) return `Hace ${horas}h`;
+            if (dias < 7) return `Hace ${dias}d`;
+            return fecha.toLocaleDateString('es-CO');
+        }
+
+        function iniciarActualizacionAutomatica() {
+            if (intervaloActualizacion) return;
+
+            intervaloActualizacion = setInterval(() => {
+                if (conversacionActualId) {
+                    cargarMensajesConversacion(conversacionActualId);
+                }
+                cargarEstadisticas();
+            }, 10000);
+        }
+
+        function mostrarSeccion(seccion) {
+            document.querySelectorAll('.seccion-dashboard').forEach(s => {
+                s.classList.add('oculto');
+            });
+
+            document.querySelectorAll('.enlace-nav').forEach(link => {
+                link.classList.remove('activo');
+            });
+
+            document.getElementById(`seccion-${seccion}`).classList.remove('oculto');
+
+            if (seccion === 'conversaciones') {
+                cargarConversaciones();
+                event.target.closest('.enlace-nav').classList.add('activo');
+            }
+        }
+
+
         document.getElementById('form-crear-admin').addEventListener('submit', async function (e) {
             e.preventDefault();
 
@@ -486,9 +603,7 @@
             try {
                 const response = await fetch('/api/registro-admin', {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
+                    headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(data)
                 });
 
@@ -504,32 +619,6 @@
                 mostrarNotificacion('Error creando administrador', 'error');
             }
         });
-
-        function mostrarSeccion(seccion) {
-            document.querySelectorAll('.seccion-dashboard').forEach(s => {
-                s.classList.add('oculto');
-            });
-
-            document.querySelectorAll('.enlace-nav').forEach(link => {
-                link.classList.remove('activo');
-            });
-
-            document.getElementById(`seccion-${seccion}`).classList.remove('oculto');
-
-            if (seccion === 'mensajes') {
-                cargarMensajes();
-            }
-        }
-
-        function iniciarActualizacionAutomatica() {
-            // Actualizar cada 30 segundos
-            setInterval(() => {
-                cargarEstadisticas();
-                if (!document.getElementById('seccion-mensajes').classList.contains('oculto')) {
-                    cargarMensajes();
-                }
-            }, 30000);
-        }
 
         function mostrarNotificacion(mensaje, tipo) {
             const notif = document.createElement('div');
@@ -566,9 +655,15 @@
                 }
             }
         }
+
+
+        document.getElementById('input-respuesta-admin').addEventListener('keypress', function (e) {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                enviarRespuestaConversacion();
+            }
+        });
     </script>
-
-
 </body>
 
 </html>

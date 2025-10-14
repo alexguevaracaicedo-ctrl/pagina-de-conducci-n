@@ -263,6 +263,58 @@ def init_db():
             VALUES (?, ?, ?, ?, ?, ?)
         ''', vehiculos_ejemplo)
     
+def actualizar_db_conversaciones():
+    """Actualiza la base de datos con las nuevas tablas para conversaciones"""
+    conn = sqlite3.connect(DATABASE)
+    cursor = conn.cursor()
+    
+    # Tabla de conversaciones (hilos de chat)
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS conversaciones (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            usuario_id INTEGER NOT NULL,
+            admin_id INTEGER,
+            asunto TEXT NOT NULL,
+            tipo TEXT CHECK(tipo IN ('consulta', 'queja', 'sugerencia', 'otro')) DEFAULT 'consulta',
+            estado TEXT CHECK(estado IN ('abierta', 'en_proceso', 'cerrada')) DEFAULT 'abierta',
+            prioridad TEXT CHECK(prioridad IN ('baja', 'media', 'alta', 'urgente')) DEFAULT 'media',
+            fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            fecha_ultima_actividad TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            fecha_cierre TIMESTAMP,
+            FOREIGN KEY (usuario_id) REFERENCES usuarios (id),
+            FOREIGN KEY (admin_id) REFERENCES usuarios (id)
+        )
+    ''')
+    
+    # Tabla de mensajes de conversación
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS mensajes_conversacion (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            conversacion_id INTEGER NOT NULL,
+            remitente_id INTEGER NOT NULL,
+            mensaje TEXT NOT NULL,
+            leido BOOLEAN DEFAULT FALSE,
+            fecha_mensaje TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (conversacion_id) REFERENCES conversaciones (id),
+            FOREIGN KEY (remitente_id) REFERENCES usuarios (id)
+        )
+    ''')
+    
+    # Tabla de participantes en conversaciones
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS participantes_conversacion (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            conversacion_id INTEGER NOT NULL,
+            usuario_id INTEGER NOT NULL,
+            mensajes_no_leidos INTEGER DEFAULT 0,
+            ultima_lectura TIMESTAMP,
+            FOREIGN KEY (conversacion_id) REFERENCES conversaciones (id),
+            FOREIGN KEY (usuario_id) REFERENCES usuarios (id),
+            UNIQUE(conversacion_id, usuario_id)
+        )
+    ''')
+
+
     conn.commit()
     conn.close()
 
@@ -1611,6 +1663,259 @@ def api_reservar():
             'message': 'Error procesando la reserva'
         }), 500
 
+@app.route('/api/iniciar-conversacion', methods=['POST'])
+def api_iniciar_conversacion():
+    """Inicia una nueva conversación desde el chat"""
+    if 'usuario_id' not in session:
+        return jsonify({'success': False, 'message': 'No autorizado'}), 401
+    
+    try:
+        data = request.get_json()
+        
+        if not data.get('mensaje'):
+            return jsonify({
+                'success': False,
+                'message': 'El mensaje es obligatorio'
+            }), 400
+        
+        # Detectar tipo y prioridad automáticamente
+        mensaje_lower = data['mensaje'].lower()
+        tipo = 'consulta'
+        prioridad = 'media'
+        
+        if any(palabra in mensaje_lower for palabra in ['queja', 'reclamo', 'problema', 'mal', 'pésimo']):
+            tipo = 'queja'
+            prioridad = 'alta'
+        elif any(palabra in mensaje_lower for palabra in ['sugerencia', 'mejorar', 'propuesta']):
+            tipo = 'sugerencia'
+            prioridad = 'baja'
+        elif any(palabra in mensaje_lower for palabra in ['urgente', 'emergencia', 'ayuda']):
+            prioridad = 'urgente'
+        
+        conn = sqlite3.connect(DATABASE)
+        cursor = conn.cursor()
+        
+        # Crear la conversación
+        cursor.execute('''
+            INSERT INTO conversaciones (usuario_id, asunto, tipo, prioridad)
+            VALUES (?, ?, ?, ?)
+        ''', (session['usuario_id'], data['mensaje'][:100], tipo, prioridad))
+        
+        conversacion_id = cursor.lastrowid
+        
+        # Insertar el primer mensaje
+        cursor.execute('''
+            INSERT INTO mensajes_conversacion (conversacion_id, remitente_id, mensaje)
+            VALUES (?, ?, ?)
+        ''', (conversacion_id, session['usuario_id'], data['mensaje']))
+        
+        # Agregar usuario como participante
+        cursor.execute('''
+            INSERT INTO participantes_conversacion (conversacion_id, usuario_id, ultima_lectura)
+            VALUES (?, ?, CURRENT_TIMESTAMP)
+        ''', (conversacion_id, session['usuario_id']))
+        
+        # Notificar a todos los administradores
+        cursor.execute('SELECT id FROM usuarios WHERE tipo_usuario = "administrador"')
+        admins = cursor.fetchall()
+        
+        for admin in admins:
+            cursor.execute('''
+                INSERT OR IGNORE INTO participantes_conversacion 
+                (conversacion_id, usuario_id, mensajes_no_leidos)
+                VALUES (?, ?, 1)
+            ''', (conversacion_id, admin[0]))
+        
+        conn.commit()
+        conn.close()
+        
+        return jsonify({
+            'success': True,
+            'conversacion_id': conversacion_id,
+            'message': 'Conversación iniciada. Un agente te responderá pronto.'
+        })
+        
+    except Exception as e:
+        print(f"Error iniciando conversación: {e}")
+        return jsonify({
+            'success': False,
+            'message': 'Error iniciando conversación'
+        }), 500
+
+@app.route('/api/enviar-mensaje-conversacion', methods=['POST'])
+def api_enviar_mensaje_conversacion():
+    """Envía un mensaje en una conversación existente"""
+    if 'usuario_id' not in session:
+        return jsonify({'success': False, 'message': 'No autorizado'}), 401
+    
+    try:
+        data = request.get_json()
+        
+        if not data.get('conversacion_id') or not data.get('mensaje'):
+            return jsonify({
+                'success': False,
+                'message': 'Conversación ID y mensaje son obligatorios'
+            }), 400
+        
+        conn = sqlite3.connect(DATABASE)
+        cursor = conn.cursor()
+        
+        # Verificar que el usuario sea parte de la conversación
+        cursor.execute('''
+            SELECT c.usuario_id, c.admin_id, c.estado
+            FROM conversaciones c
+            WHERE c.id = ?
+        ''', (data['conversacion_id'],))
+        
+        conv = cursor.fetchone()
+        
+        if not conv:
+            conn.close()
+            return jsonify({
+                'success': False,
+                'message': 'Conversación no encontrada'
+            }), 404
+        
+        # Verificar permisos
+        es_admin = session.get('tipo_usuario') == 'administrador'
+        es_usuario_original = conv[0] == session['usuario_id']
+        es_admin_asignado = conv[1] == session['usuario_id']
+        
+        if not (es_admin or es_usuario_original or es_admin_asignado):
+            conn.close()
+            return jsonify({
+                'success': False,
+                'message': 'No tienes permiso para enviar mensajes en esta conversación'
+            }), 403
+        
+        # Si la conversación está cerrada, reabrirla
+        if conv[2] == 'cerrada':
+            cursor.execute('''
+                UPDATE conversaciones
+                SET estado = 'abierta', fecha_ultima_actividad = CURRENT_TIMESTAMP
+                WHERE id = ?
+            ''', (data['conversacion_id'],))
+        
+        # Insertar el mensaje
+        cursor.execute('''
+            INSERT INTO mensajes_conversacion (conversacion_id, remitente_id, mensaje)
+            VALUES (?, ?, ?)
+        ''', (data['conversacion_id'], session['usuario_id'], data['mensaje']))
+        
+        # Actualizar fecha de última actividad
+        cursor.execute('''
+            UPDATE conversaciones
+            SET fecha_ultima_actividad = CURRENT_TIMESTAMP
+            WHERE id = ?
+        ''', (data['conversacion_id'],))
+        
+        # Asignar admin si es la primera respuesta de un admin
+        if es_admin and not conv[1]:
+            cursor.execute('''
+                UPDATE conversaciones
+                SET admin_id = ?, estado = 'en_proceso'
+                WHERE id = ?
+            ''', (session['usuario_id'], data['conversacion_id']))
+        
+        # Marcar mensajes no leídos para otros participantes
+        cursor.execute('''
+            UPDATE participantes_conversacion
+            SET mensajes_no_leidos = mensajes_no_leidos + 1
+            WHERE conversacion_id = ? AND usuario_id != ?
+        ''', (data['conversacion_id'], session['usuario_id']))
+        
+        # Actualizar última lectura del remitente
+        cursor.execute('''
+            UPDATE participantes_conversacion
+            SET ultima_lectura = CURRENT_TIMESTAMP, mensajes_no_leidos = 0
+            WHERE conversacion_id = ? AND usuario_id = ?
+        ''', (data['conversacion_id'], session['usuario_id']))
+        
+        conn.commit()
+        conn.close()
+        
+        return jsonify({
+            'success': True,
+            'message': 'Mensaje enviado exitosamente'
+        })
+        
+    except Exception as e:
+        print(f"Error enviando mensaje: {e}")
+        return jsonify({
+            'success': False,
+            'message': 'Error enviando mensaje'
+        }), 500
+
+
+@app.route('/api/mis-conversaciones', methods=['GET'])
+def api_mis_conversaciones():
+    """Obtiene todas las conversaciones del usuario"""
+    if 'usuario_id' not in session:
+        return jsonify({'success': False, 'message': 'No autorizado'}), 401
+    
+    try:
+        conn = sqlite3.connect(DATABASE)
+        cursor = conn.cursor()
+        
+        es_admin = session.get('tipo_usuario') == 'administrador'
+        
+        if es_admin:
+            # Admins ven todas las conversaciones
+            cursor.execute('''
+                SELECT c.id, c.asunto, c.tipo, c.estado, c.prioridad,
+                       c.fecha_creacion, c.fecha_ultima_actividad,
+                       u.nombre, u.apellido,
+                       p.mensajes_no_leidos,
+                       (SELECT COUNT(*) FROM mensajes_conversacion WHERE conversacion_id = c.id) as total_mensajes
+                FROM conversaciones c
+                JOIN usuarios u ON c.usuario_id = u.id
+                LEFT JOIN participantes_conversacion p ON c.id = p.conversacion_id AND p.usuario_id = ?
+                ORDER BY c.fecha_ultima_actividad DESC
+            ''', (session['usuario_id'],))
+        else:
+            # Usuarios ven solo sus conversaciones
+            cursor.execute('''
+                SELECT c.id, c.asunto, c.tipo, c.estado, c.prioridad,
+                       c.fecha_creacion, c.fecha_ultima_actividad,
+                       a.nombre, a.apellido,
+                       p.mensajes_no_leidos,
+                       (SELECT COUNT(*) FROM mensajes_conversacion WHERE conversacion_id = c.id) as total_mensajes
+                FROM conversaciones c
+                LEFT JOIN usuarios a ON c.admin_id = a.id
+                LEFT JOIN participantes_conversacion p ON c.id = p.conversacion_id AND p.usuario_id = ?
+                WHERE c.usuario_id = ?
+                ORDER BY c.fecha_ultima_actividad DESC
+            ''', (session['usuario_id'], session['usuario_id']))
+        
+        conversaciones = cursor.fetchall()
+        conn.close()
+        
+        conversaciones_list = []
+        for c in conversaciones:
+            conversaciones_list.append({
+                'id': c[0],
+                'asunto': c[1],
+                'tipo': c[2],
+                'estado': c[3],
+                'prioridad': c[4],
+                'fecha_creacion': c[5],
+                'fecha_ultima_actividad': c[6],
+                'otro_participante': f"{c[7]} {c[8]}" if c[7] else 'Sin asignar',
+                'mensajes_no_leidos': c[9] or 0,
+                'total_mensajes': c[10]
+            })
+        
+        return jsonify({
+            'success': True,
+            'conversaciones': conversaciones_list
+        })
+        
+    except Exception as e:
+        print(f"Error obteniendo conversaciones: {e}")
+        return jsonify({
+            'success': False,
+            'message': 'Error obteniendo conversaciones'
+        }), 500
 # Ruta para obtener mis reservas
 @app.route('/api/mis-reservas', methods=['GET'])
 def api_mis_reservas():
@@ -1672,6 +1977,133 @@ def api_mis_reservas():
             'success': False,
             'message': 'Error obteniendo reservas'
         }), 500
+
+@app.route('/api/mensajes-conversacion/<int:conversacion_id>', methods=['GET'])
+def api_mensajes_conversacion(conversacion_id):
+    """Obtiene todos los mensajes de una conversación"""
+    if 'usuario_id' not in session:
+        return jsonify({'success': False, 'message': 'No autorizado'}), 401
+    
+    try:
+        conn = sqlite3.connect(DATABASE)
+        cursor = conn.cursor()
+        
+        # Verificar permisos
+        cursor.execute('''
+            SELECT usuario_id, admin_id
+            FROM conversaciones
+            WHERE id = ?
+        ''', (conversacion_id,))
+        
+        conv = cursor.fetchone()
+        
+        if not conv:
+            conn.close()
+            return jsonify({
+                'success': False,
+                'message': 'Conversación no encontrada'
+            }), 404
+        
+        es_admin = session.get('tipo_usuario') == 'administrador'
+        tiene_permiso = (conv[0] == session['usuario_id'] or 
+                        conv[1] == session['usuario_id'] or 
+                        es_admin)
+        
+        if not tiene_permiso:
+            conn.close()
+            return jsonify({
+                'success': False,
+                'message': 'No tienes permiso para ver esta conversación'
+            }), 403
+        
+        # Obtener mensajes
+        cursor.execute('''
+            SELECT m.id, m.mensaje, m.fecha_mensaje, m.leido,
+                   u.nombre, u.apellido, u.tipo_usuario,
+                   m.remitente_id
+            FROM mensajes_conversacion m
+            JOIN usuarios u ON m.remitente_id = u.id
+            WHERE m.conversacion_id = ?
+            ORDER BY m.fecha_mensaje ASC
+        ''', (conversacion_id,))
+        
+        mensajes = cursor.fetchall()
+        
+        # Marcar mensajes como leídos
+        cursor.execute('''
+            UPDATE mensajes_conversacion
+            SET leido = TRUE
+            WHERE conversacion_id = ? AND remitente_id != ?
+        ''', (conversacion_id, session['usuario_id']))
+        
+        # Actualizar contador de no leídos
+        cursor.execute('''
+            UPDATE participantes_conversacion
+            SET mensajes_no_leidos = 0, ultima_lectura = CURRENT_TIMESTAMP
+            WHERE conversacion_id = ? AND usuario_id = ?
+        ''', (conversacion_id, session['usuario_id']))
+        
+        conn.commit()
+        conn.close()
+        
+        mensajes_list = []
+        for m in mensajes:
+            mensajes_list.append({
+                'id': m[0],
+                'mensaje': m[1],
+                'fecha_mensaje': m[2],
+                'leido': m[3],
+                'remitente_nombre': f"{m[4]} {m[5]}",
+                'remitente_tipo': m[6],
+                'es_mio': m[7] == session['usuario_id']
+            })
+        
+        return jsonify({
+            'success': True,
+            'mensajes': mensajes_list
+        })
+        
+    except Exception as e:
+        print(f"Error obteniendo mensajes: {e}")
+        return jsonify({
+            'success': False,
+            'message': 'Error obteniendo mensajes'
+        }), 500
+
+
+@app.route('/api/notificaciones-chat', methods=['GET'])
+def api_notificaciones_chat():
+    """Obtiene el número de mensajes no leídos"""
+    if 'usuario_id' not in session:
+        return jsonify({'success': False, 'message': 'No autorizado'}), 401
+    
+    try:
+        conn = sqlite3.connect(DATABASE)
+        cursor = conn.cursor()
+        
+        cursor.execute('''
+            SELECT COALESCE(SUM(mensajes_no_leidos), 0)
+            FROM participantes_conversacion
+            WHERE usuario_id = ?
+        ''', (session['usuario_id'],))
+        
+        total_no_leidos = cursor.fetchone()[0]
+        conn.close()
+        
+        return jsonify({
+            'success': True,
+            'mensajes_no_leidos': total_no_leidos
+        })
+        
+    except Exception as e:
+        print(f"Error obteniendo notificaciones: {e}")
+        return jsonify({
+            'success': False,
+            'message': 'Error obteniendo notificaciones'
+        }), 500
+
+
+
 
 # Agregar esta función al archivo auth_server.py y llamarla después de init_db()
 
@@ -1762,6 +2194,7 @@ def insertar_horarios_prueba():
 
 if __name__ == '__main__':
     init_db() 
+    actualizar_db_conversaciones() 
     insertar_horarios_prueba()
     crear_primer_admin() 
     
